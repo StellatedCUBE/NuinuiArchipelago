@@ -1,0 +1,103 @@
+from . import item
+from . import location
+from . import data
+from .nnq_levels import level_modules
+from .arenas import nnq_arenas
+from .boss import allocate_bosses, Drop
+
+def nnq(world):
+	world.push_precollected(world.create_item('Noel' if world.options.nnq_starting_character.value else 'Flare'))
+	world.add_item('Flare' if world.options.nnq_starting_character.value else 'Noel')
+
+	levels = 7 if world.options.nnq_all_levels or world.options.nnq_goal.value > 1 else 5
+	level_items = []
+	level_item_bits = 256|512
+	heart_entries = 10
+	for i in range(levels):
+		if world.options.nnq_level_shuffle and world.options.nnq_level_items:
+			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
+			level_items.append(world.items[-1])
+		level_modules[i].create_locations(world, item, location, data)
+		if world.options.nnq_enemysanity:
+			heart_entries += len(level_modules[i].enemies)
+	
+	world.filler.append(('heart', heart_entries))
+	world.filler.append(('help', 4))
+
+	for i in range(8):
+		world.add_item('help')
+
+	for it in item.item_types:
+		if it.type in (item.ItemCategory.KEY, item.ItemCategory.HOLOX, item.ItemCategory.FLARE_SHOT, item.ItemCategory.FLARE_ITEM):
+			world.add_item(it)
+
+	clear_category = location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
+	level_names = [location.get_location((clear_category, i)).name for i in range(7) if i != 4]
+	def goal_4_levels(state, player):
+		return all(state.can_reach_location(l, player) for l in level_names[:4])
+	def goal_7_levels(state, player):
+		return all(state.can_reach_location(l, player) for l in level_names) and (state.can_reach_location('Bad end', player) or state.can_reach_location('Good end', player))
+
+	for i in range(5):
+		world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + i)
+
+	match world.options.nnq_goal.value:
+		case 0:
+			world.add_goal_rule(goal_4_levels)
+			world.add_goal_rule(lambda state, player: state.can_reach_location('Bad end', player) or state.can_reach_location('Good end', player))
+		case 1:
+			world.add_goal_rule(goal_4_levels)
+			world.add_goal_rule(lambda state, player: state.can_reach_location('Good end', player))
+			world.add_goal_feat(data.FEAT_NNQ_GOOD_END)
+		case 2:
+			world.add_goal_rule(goal_7_levels)
+			world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + 5)
+			world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + 6)
+		case 3:
+			world.add_goal_rule(goal_7_levels)
+			for i in range(data.FEAT_NNQ_BOSS_DEFEAT, data.FEAT_MMQ_COIN):
+				world.add_goal_feat(i)
+	
+	arenas = [a for a in nnq_arenas() if a.region in world.multiworld.regions.region_cache[world.player]]
+	allocate_bosses(world.random, world.options.nnq_boss_shuffle, arenas, {'nnq', 'mmq', 'prq'} if world.options.nnq_boss_cross else {'nnq'})
+	for i, arena in enumerate(arenas):
+		region = world.get_region(arena.region)
+		rule = arena.rule(world.player)
+		if rule:
+			for entrance in region.entrances:
+				entrance.access_rule = lambda state, previous = entrance.access_rule, new = rule: previous(state) and new(state)
+		if arena.drop == Drop.ALWAYS or (world.options.nnq_boss_all_drop and arena.drop != Drop.NEVER):
+			world.add_location((location.LocationCategory.BOSS_DROP, i), world.get_region('nnq_castle_0_384') if arena.drop == Drop.NOEL else region)
+	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
+
+	if world.options.nnq_level_shuffle:
+		possible_starts = [i for i in range(levels) if i != 5 and (
+			i in (0, 1, 3) or
+			world.options.nnq_enemysanity or
+			(world.options.nnq_boss_all_drop and (i == 6 or next(arena for arena in arenas if data.LEVELS[i] in arena.name).easy_with(world.options.nnq_starting_character.value))) or
+			(not world.options.nnq_boss_all_drop and all(arena.easy_with(world.options.nnq_starting_character.value) for arena in arenas if data.LEVELS[i] in arena.name))
+		)]
+		if level_items:
+			world.potential_starting_levels.extend(level_items[i] for i in possible_starts)
+		else:
+			level_ordering = list(range(levels))
+			while True:
+				world.random.shuffle(level_ordering)
+				if level_ordering[0] in possible_starts and level_ordering[1] != 5:
+					break
+			world.add_item((item.ItemCategory.LEVEL, level_item_bits|level_ordering[0]))
+			world.potential_starting_levels.append(world.items[-1])
+			for i in range(levels - 1):
+				world.place_item('Good end' if level_ordering[i] == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, level_ordering[i]), (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1]))
+				world.place_item((location.LocationCategory.LEVEL_CLEAR_NAMELESS, level_ordering[i]), (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1]))
+	elif world.options.nnq_level_items:
+		for i in range(levels):
+			world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0))
+		world.potential_starting_levels.append(world.items[-1])
+	else:
+		world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0))
+		world.potential_starting_levels.append(world.items[-1])
+		for i in range(levels - 1):
+			world.place_item('Good end' if i == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, i), (item.ItemCategory.LEVEL_PROGRESSIVE, 0))
+			world.place_item((location.LocationCategory.LEVEL_CLEAR_NAMELESS, i), (item.ItemCategory.LEVEL_PROGRESSIVE, 0))
+
