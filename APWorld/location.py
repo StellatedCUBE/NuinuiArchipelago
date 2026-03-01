@@ -20,11 +20,13 @@ class LocationCategory(Enum):
 	LEVEL_CLEAR_NAMELESS = 3
 	BOSS_DROP = 4
 	HQ_LEVEL = 5
+	NOUSAGI = 6
 
 	ENEMYSANITY_NUINUI = 10
 	ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE = 11
 	ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE = 12
-	CRYSTALSANITY = 13
+	SANITY_RANDOM = 13
+	PACHINKO = 14
 
 @dataclass
 class LocationType:
@@ -57,6 +59,7 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua'),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel'),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),
+	LocationType(LocationCategory.MANUAL, 8, 'Random Quest Underworld Casino game boss drop'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' key')
 		for i, level in enumerate(LEVELS[:5], start=10)
@@ -84,6 +87,11 @@ location_types = [
 		for i in range(1, 6)
 	),
 	*(
+		LocationType(LocationCategory.NOUSAGI, i * 4 + j, f'{level} Nousagi {j}')
+		for i, level in enumerate(LEVELS[:5])
+		for j in range(1, 4)
+	),
+	*(
 		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in {level} at x: {x}, y: {y}')
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
@@ -101,6 +109,8 @@ location_types = [
 def get_location(x, require_valid=True):
 	if isinstance(x, tuple):
 		x = (x[0].value << 16) | x[1]
+	elif isinstance(x, ItemCategory):
+		x = x.value << 16
 	try:
 		if isinstance(x, int):
 			return next(i for i in location_types if i.id == x)

@@ -4,9 +4,10 @@ from Options import OptionError
 
 from .data import GAME
 from .options import FNNQOptions, fnnq_option_groups
-from .item import item_name_to_id, get_item
+from .item import item_name_to_id, get_item, ItemCategory
 from .location import location_name_to_id, get_location
 from .nnq import nnq
+from .prq import prq
 
 class FNNQWebWorld(WebWorld):
 	setup_en = Tutorial(
@@ -70,15 +71,15 @@ class FNNQWorld(World):
 		self.goals = goals = []
 		self.base_region = self.create_region(self.origin_region_name)
 		self.potential_starting_levels = []
-		self.filler = [(14 << 16, 1)]
+		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
 		self.boss_data = dict()
 		self.required_feats = set()
 		self.locked_items = dict()
 
 		player = self.player
 
-		if self.options.nnq:
-			nnq(self)
+		if self.options.nnq: nnq(self)
+		if self.options.prq: prq(self)
 
 		if not any(get_item(item.name) in self.potential_starting_levels for item in self.multiworld.precollected_items[player]):
 			starting_level = self.random.choice(self.potential_starting_levels)
@@ -111,7 +112,11 @@ class FNNQWorld(World):
 					break
 
 		self.random.shuffle(self.items)
-		self.multiworld.itempool.extend(item.build(player) for item in self.items)
+		for item in self.items:
+			built = item.build(player)
+			if item.type == ItemCategory.BIG_CRYSTAL and self.options.prq_goal.value:
+				built.classification = ItemClassification.filler
+			self.multiworld.itempool.append(built)
 		for location, args in self.locations:
 			built = location.build(player, *args)
 			placed = self.locked_items.get(location.id)

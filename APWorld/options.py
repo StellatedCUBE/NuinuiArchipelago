@@ -77,9 +77,13 @@ class PRQGoal(Choice):
 	option_final_level = 0
 	option_all_levels = 1
 
-class PRQCasino(Toggle):
+class PRQCasinoAccess(Toggle):
 	"""Makes accessing the second part of Underworld Casino an item in the multiworld."""
 	display_name = "Randomise Casino Access"
+
+class PRQCasinoChecks(Toggle):
+	"""Adds checks for playing the crystal pachinko."""
+	display_name = "Casino Game Checks"
 
 class PRQBossPlando(NNQBossPlando):
 	pass
@@ -93,6 +97,10 @@ class PRQEnemySanity(NNQEnemySanity):
 class PRQCrystalSanity(Toggle):
 	"""Makes mining each crystal a check. Crystals with an unclaimed item inside will have an Archipelago-coloured sheen."""
 	display_name = "Crystalsanity"
+
+class PRQCrateSanity(Toggle):
+	"""Makes breaking each crate a check. Crates with an unclaimed item inside will have the Archipelago logo stamped on them."""
+	displayname = "Cratesanity"
 
 class MMQ(Toggle):
 	"""Include Marine Maiden Quest"""
@@ -119,11 +127,13 @@ class FNNQOptions(PerGameCommonOptions):
 	# PRQ
 	prq: PRQ
 	prq_goal: PRQGoal
-	prq_casino: PRQCasino
+	prq_casino_access: PRQCasinoAccess
+	prq_casino_checks: PRQCasinoChecks
 	prq_boss_shuffle: PRQBossPlando
 	prq_boss_cross: PRQCrossBoss
 	prq_enemysanity: PRQEnemySanity
 	prq_crystalsanity: PRQCrystalSanity
+	prq_cratesanity: PRQCrateSanity
 
 	# MMQ
 	mmq: MMQ
@@ -148,11 +158,13 @@ fnnq_option_groups = [
 	OptionGroup("PEKORA RANDOM QUEST", [
 		PRQ,
 		PRQGoal,
-		PRQCasino,
+		PRQCasinoAccess,
+		PRQCasinoChecks,
 		PRQBossPlando,
 		PRQCrossBoss,
 		PRQEnemySanity,
 		PRQCrystalSanity,
+		PRQCrateSanity,
 	]),
 	OptionGroup("MARINE MAIDEN QUEST", [
 		MMQ

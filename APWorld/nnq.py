@@ -11,7 +11,7 @@ def nnq(world):
 
 	levels = 7 if world.options.nnq_all_levels or world.options.nnq_goal.value > 1 else 5
 	level_items = []
-	level_item_bits = 256|512
+	level_item_bits = 256 if world.options.prq else 256|512
 	heart_entries = 10
 	for i in range(levels):
 		if world.options.nnq_level_shuffle and world.options.nnq_level_items:

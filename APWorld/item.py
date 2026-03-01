@@ -25,6 +25,7 @@ class ItemCategory(Enum):
 	NOUSAGI = 13
 	ALT_PALETTE = 14
 	LEVEL_PROGRESSIVE = 15
+	CASINO_KEY = 16
 
 @dataclass
 class ItemType:
@@ -74,10 +75,10 @@ item_types = [
 	),
 	ItemType(ItemCategory.HOLOX, 4, "La+'s badge", ItemClassification.filler),
 
-	*(
-		ItemType(ItemCategory.BIG_CRYSTAL, i, level + ' big crystal', ItemClassification.progression)
-		for i, level in enumerate(LEVELS[1:5])
-	),
+	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'big reaper crystal', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'big anchor crystal', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 3, 'big magatama crystal', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 4, 'big sword crystal', ItemClassification.progression_skip_balancing),
 
 	ItemType(ItemCategory.IDOL_ESSENCE, 0, 'idol essence', ItemClassification.progression_deprioritized_skip_balancing),
 	
@@ -93,7 +94,13 @@ item_types = [
 	
 	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'progressive Nuinui Quest level', ItemClassification.progression),
 
+	ItemType(ItemCategory.CASINO_KEY, 0, 'casino key', ItemClassification.progression),
+
 	ItemType(ItemCategory.CRYSTALS, 1, 'crystal', ItemClassification.filler),
+	*(
+		ItemType(ItemCategory.CRYSTALS, i, '%d crystals' % i, ItemClassification.filler)
+		for i in (2, 4, 8, 10, 12, 300)
+	)
 ]
 
 def get_item(x, require_valid=True):
