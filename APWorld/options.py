@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from Options import Choice, Toggle, PerGameCommonOptions, StartInventoryPool, DeathLink, OptionGroup, OptionSet, Range, DefaultOnToggle, TextChoice
 
+class CustomDeathLink(DeathLink):
+	__doc__ = DeathLink.__doc__ + '\n\nThis can be changed during play using the /deathlink command in the in-game text console in the pause menu.'
+
 class NNQ(DefaultOnToggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
@@ -13,6 +16,7 @@ class NNQGoal(Choice):
 	option_good = 1
 	option_true = 2
 	option_all_bosses = 3
+	default = 2
 
 	@classmethod
 	def get_option_name(cls, id_):
@@ -25,7 +29,6 @@ class NNQGoal(Choice):
 class NNQStartingCharacter(Choice):
 	"""Which character you start as."""
 	display_name = "Starting Character"
-	default = 'random'
 	option_flare = 0
 	option_noel = 1
 
@@ -64,18 +67,41 @@ class NNQEnemySanity(Toggle):
 	"""Makes killing each enemy a check. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
 
-class MMQ(Toggle):
-	"""Include Marine Maiden Quest"""
-	display_name = "Enabled"
-
 class PRQ(Toggle):
 	"""Include Pekora Random Quest"""
+	display_name = "Enabled"
+
+class PRQGoal(Choice):
+	__doc__ = NNQGoal.__doc__
+	display_name = "Goal"
+	option_final_level = 0
+	option_all_levels = 1
+
+class PRQCasino(Toggle):
+	"""Makes accessing the second part of Underworld Casino an item in the multiworld."""
+	display_name = "Randomise Casino Access"
+
+class PRQBossPlando(NNQBossPlando):
+	pass
+
+class PRQCrossBoss(NNQCrossBoss):
+	__doc__ = NNQCrossBoss.replace('Nuinui', 'Random')
+
+class PRQEnemySanity(NNQEnemySanity):
+	pass
+
+class PRQCrystalSanity(Toggle):
+	"""Makes mining each crystal a check. Crystals with an unclaimed item inside will have an Archipelago-coloured sheen."""
+	display_name = "Crystalsanity"
+
+class MMQ(Toggle):
+	"""Include Marine Maiden Quest"""
 	display_name = "Enabled"
 
 @dataclass
 class FNNQOptions(PerGameCommonOptions):
 	# General
-	death_link: DeathLink
+	death_link: CustomDeathLink
 
 	# NNQ
 	nnq: NNQ
@@ -90,11 +116,17 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_boss_all_drop: NNQBossDrops
 	nnq_enemysanity: NNQEnemySanity
 
-	# MMQ
-	mmq: MMQ
-
 	# PRQ
 	prq: PRQ
+	prq_goal: PRQGoal
+	prq_casino: PRQCasino
+	prq_boss_shuffle: PRQBossPlando
+	prq_boss_cross: PRQCrossBoss
+	prq_enemysanity: PRQEnemySanity
+	prq_crystalsanity: PRQCrystalSanity
+
+	# MMQ
+	mmq: MMQ
 
 	# c/i
 	start_inventory_from_pool: StartInventoryPool
@@ -113,10 +145,16 @@ fnnq_option_groups = [
 		NNQBossDrops,
 		NNQEnemySanity,
 	]),
+	OptionGroup("PEKORA RANDOM QUEST", [
+		PRQ,
+		PRQGoal,
+		PRQCasino,
+		PRQBossPlando,
+		PRQCrossBoss,
+		PRQEnemySanity,
+		PRQCrystalSanity,
+	]),
 	OptionGroup("MARINE MAIDEN QUEST", [
 		MMQ
-	]),
-	OptionGroup("PEKORA RANDOM QUEST", [
-		PRQ
 	]),
 ]

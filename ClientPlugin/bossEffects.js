@@ -270,10 +270,9 @@ export class BossCamera extends Actor {
 }
 
 export class Throne extends Actor {
-	isPersistent = true;
-
 	constructor(pos) {
 		super(pos, Vector2.zero);
+		this.isPersistent = NNM.game.currentStage !== 'holo_hq';
 	}
 
 	update = game => {

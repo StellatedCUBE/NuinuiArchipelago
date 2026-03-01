@@ -83,7 +83,7 @@ def nnq(world):
 			level_ordering = list(range(levels))
 			while True:
 				world.random.shuffle(level_ordering)
-				if level_ordering[0] in possible_starts and level_ordering[1] != 5:
+				if level_ordering[0] in possible_starts and 5 not in level_ordering[:3 if world.options.nnq_enemysanity or (world.options.nnq_boss_all_drop and world.options.nnq_hidden_area_checks) else 5]:
 					break
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|level_ordering[0]))
 			world.potential_starting_levels.append(world.items[-1])

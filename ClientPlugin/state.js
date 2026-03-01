@@ -79,7 +79,7 @@ export class ArchipelagoState {
 		this.#id = slotId;
 
 		if (!this.client) {
-			const save = Tauri.storage.getItem(this.#saveKey = `archipelago-${slotId}-${client.room.seedName}`);
+			const save = await Tauri.storage.getItem(this.#saveKey = `archipelago-${slotId}-${client.room.seedName}`)
 			if (save) {
 				this.#newFeats |= BigInt('0x' + save.ft);
 				this.checking.push(...save.chk);
@@ -117,6 +117,15 @@ export class ArchipelagoState {
 		this.checking = [];
 		for (const loc of toCheck)
 			this.check(loc);
+
+		client.messages.on('goaled', (_, player) => {
+			console.log(_);
+			console.log(player);
+			if (player.slot === this.client.players.self.slot) {
+				this.#goalVerified = true;
+				this.save();
+			}
+		});
 
 		this.toScout.push(...Object.keys(this.scouts).filter(loc => this.scouts[loc] === null).map(x=>+x));
 	}

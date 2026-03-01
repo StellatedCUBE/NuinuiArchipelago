@@ -37,7 +37,7 @@ def create_locations(w,I,L,D):
 	r_1920_0.connect(r_1920_192)
 	r_1920_192.connect(r_1920_384)
 	r_2240_768.connect(r_1920_384,rule=lambda s:(s.has("Angel's boots",p)))
-	r_1920_192.connect(r_2560_1152,rule=lambda s:(s.has("Time Zone Clock",p)))
+	r_1920_192.connect(r_2560_1152,rule=lambda s:(s.has(D.SHOTS[3],p)and s.has("Angel's boots",p)))
 	r_1920_384.connect(r_1280_576,rule=lambda s:(s.has("Angel's boots",p)))
 	r_1280_576.connect(r_640_576)
 	r_640_576.connect(r_0_768)

@@ -172,7 +172,7 @@ class Arena:
 class HarborArena(Arena):
 	def rule(self, player):
 		if self.boss.name not in ('Suisei', 'Marine'):
-			return lambda state: state.has('Flare', player) and state.has("Elfriend's feathers", player)
+			return lambda state: state.has("Elfriend's feathers", player)
 	
 	def easy_with(self, _):
 		return self.boss.name in ('Suisei', 'Marine')
@@ -250,7 +250,7 @@ def allocate_bosses(random, option, arenas, source_quests):
 def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 	arenas = arenas_[:]
 	bosses = bosses_[:]
-	print('Boss allocation attempt %d' % attempt)
+	#print('Boss allocation attempt %d' % attempt)
 
 	while arenas:
 		if not bosses:
@@ -296,7 +296,7 @@ def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 			most_constrained_arena = random.choice([a for a in arenas if a.name in most_constrained_boss.valid_arenas])
 
 		most_constrained_arena.boss = most_constrained_boss
-		print(f'Assigned {most_constrained_boss.name} to {most_constrained_arena.name}')
+		#print(f'Assigned {most_constrained_boss.name} to {most_constrained_arena.name}')
 		arenas.remove(most_constrained_arena)
 		if not duplicates:
 			bosses.remove(most_constrained_boss)

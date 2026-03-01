@@ -44,7 +44,7 @@ def create_locations(w,I,L,D):
 	r_1280_192.connect(r_1600_0)
 	r_1600_0.connect(r_1280_0)
 	r_1280_0.connect(r_960_0)
-	r_960_0.connect(r_640_0)
+	r_960_0.connect(r_640_0,rule=lambda s:(s.has("Flare",p)))
 	r_640_0.connect(r_320_0)
 	r_2240_576.connect(r_2240_384)
 	r_2240_384.connect(r_2560_384,rule=lambda s:(s.has("Flare",p)and s.has(D.SHOTS[3],p)))
