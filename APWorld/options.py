@@ -89,7 +89,7 @@ class PRQBossPlando(NNQBossPlando):
 	pass
 
 class PRQCrossBoss(NNQCrossBoss):
-	__doc__ = NNQCrossBoss.replace('Nuinui', 'Random')
+	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Random')
 
 class PRQEnemySanity(NNQEnemySanity):
 	pass

@@ -71,14 +71,17 @@ export function enemySanity(a, loc) {
 		a.takeHit = (game, x) => {
 			oldTakeHit(game, x);
 			if (!game.scene.actors.includes(a)) {
-				self.archipelagoState.check(loc);
+				self.archipelagoState.check(loc, true);
 				const scout = self.archipelagoState.scouts[loc];
-				if (scout) {
+				if (scout && !(a instanceof self.Box && a.type === 'cage')) {
+					let name = scout.name;
+					if (scout.receiver.game === 'Hollow Knight')
+						name = name.replace(/_/g, ' ');
 					if (a instanceof self.Cannon) {
 						self.archipelagoState.textParticle(
 							a.dir ? a.pos.x + a.size.x + 8 : a.pos.x - 8,
 							a.pos.y + a.size.y / 2,
-							scout.receiver.slot === self.archipelagoState.client.players.self.slot ? [scout.name] : [scout.name, 'for ' + scout.receiver.name],
+							scout.receiver.slot === self.archipelagoState.client.players.self.slot ? [name] : [name, 'for ' + scout.receiver.name],
 							a.dir ? 'left' : 'right',
 							-0.12
 						);
@@ -87,7 +90,7 @@ export function enemySanity(a, loc) {
 						self.archipelagoState.textParticle(
 							a.pos.x + a.size.x / 2,
 							down ? a.pos.y + a.size.y + 8 : a.pos.y - 8,
-							scout.receiver.slot === self.archipelagoState.client.players.self.slot ? [scout.name] : [scout.name, 'for ' + scout.receiver.name],
+							scout.receiver.slot === self.archipelagoState.client.players.self.slot ? [name] : [name, 'for ' + scout.receiver.name],
 							'center',
 							down ? 0.12 : -0.12
 						);
@@ -95,23 +98,35 @@ export function enemySanity(a, loc) {
 				}
 			}
 		};
-		const oldUpdate = a.update;
-		a.update = game => {
-			oldUpdate(game);
-			if (~-a.frameCount & 15) return;
-			const clr = (Math.random() * 6) << 3;
-			const t = Math.random() * 6.28;
-			const s = Math.random() * 0.4 + 0.8;
-			game.scene.particles.pool.push(new Particle({
-				zIndex: 0,
-				lifespan: 40 + 0|(Math.random() * 16),
-				pos: new Vector2(a.pos.x + (1 + s * Math.sin(t)) * a.size.x * 0.5, a.pos.y + (1 + s * Math.cos(t)) * a.size.y * 0.5),
-				vel: new Vector2(Math.sin(t) * 0.2, Math.random() * 0.15 - 0.3),
-				draw: function(cx, assets) {
-					cx.drawImage(assets.images.NNM_Archipelago_circles, (this.life * 4 / this.lifespan) << 3, clr, 8, 8, Math.round(this.pos.x) - 4, Math.round(this.pos.y) - 4, 8, 8);
+		if (a instanceof self.Box) {
+			if (a.type === 'box') {
+				const oldDraw = a.draw;
+				a.draw = (game, cx) => {
+					oldDraw(game, cx);
+					cx.globalAlpha = .3;
+					cx.drawImage(game.assets.images.NNM_Archipelago_logo, Math.round(a.pos.x), Math.round(a.pos.y));
+					cx.globalAlpha = 1;
 				}
-			}));
-		};
+			}
+		} else {
+			const oldUpdate = a.update;
+			a.update = game => {
+				oldUpdate(game);
+				if (~-a.frameCount & 15) return;
+				const clr = (Math.random() * 6) << 3;
+				const t = Math.random() * 6.28;
+				const s = Math.random() * 0.4 + 0.8;
+				game.scene.particles.pool.push(new Particle({
+					zIndex: 0,
+					lifespan: 40 + (0|(Math.random() * 16)),
+					pos: new Vector2(a.pos.x + (1 + s * Math.sin(t)) * a.size.x * 0.5, a.pos.y + (1 + s * Math.cos(t)) * a.size.y * 0.5),
+					vel: new Vector2(Math.sin(t) * 0.2, Math.random() * 0.15 - 0.3),
+					draw: function(cx, assets) {
+						cx.drawImage(assets.images.NNM_Archipelago_circles, (this.life * 4 / this.lifespan) << 3, clr, 8, 8, Math.round(this.pos.x) - 4, Math.round(this.pos.y) - 4, 8, 8);
+					}
+				}));
+			};
+		}
 	}
 }
 NNM.code.insertAfterFirstMatchingLine('Scene.updateSection', 'this.actors.push', function() {
@@ -156,6 +171,9 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 						self.archipelagoState.scout(i);
 				if (self.archipelagoState.onlyNoel)
 					this.mode = 'noel';
+			} else {
+				for (let i = 1; i < 4; i++)
+					self.archipelagoState.scout((6 << 16) | (stageIndex << 2) | i);
 			}
 
 			self.archipelagoState.scout(self.archipelagoState.levelEndCheckA = ((1 + (this.currentQuest === 'random')) << 16) | stageIndex);

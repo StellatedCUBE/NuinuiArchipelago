@@ -3,6 +3,9 @@ import { getIcon } from './icon.js';
 export class APPickup extends Actor {
 	yos = 0;
 	duringCutscene = true;
+	canPickUp = true;
+
+	checkHit = _ => false;
 
 	constructor(pos, apLocation, ephemeral) {
 		super(pos, new Vector2(20, 20));
@@ -15,7 +18,7 @@ export class APPickup extends Actor {
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
 		const trap = archipelagoState.scouts[this.apLocation]?.trap;
 		if (!(this.frameCount % (24 >> trap))) game.scene.particles[trap ? 'sparkle_fire_4' : 'shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
-		if (CollisionBox.intersects(this, NNM.getPlayer()) && !game.scene.bossKillEffect && (this.duringCutscene || NNM.getPlayer().playerControl)) {
+		if (this.canPickUp && CollisionBox.intersects(this, NNM.getPlayer()) && !game.scene.bossKillEffect && (this.duringCutscene || NNM.getPlayer().playerControl)) {
 			this.toFilter = true;
 			this.draw = _ => {};
 			const scout = archipelagoState.scouts[this.apLocation];
@@ -25,7 +28,7 @@ export class APPickup extends Actor {
 				archipelagoState.check(this.apLocation, true);
 			} else {
 				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				game.playSound('jingle');
+				if (scout.sender.slot !== scout.receiver.slot || !(this.apLocation < 999 || this.apLocation === (10 << 16))) game.playSound('jingle');
 				archipelagoState.check(this.apLocation);
 			}
 		} else {
@@ -54,7 +57,7 @@ export class APPickup extends Actor {
 				cx.filter = 'none';
 			}
 			cx.drawImage(img, rect[0], rect[1], rect[2], rect[3], 10 - (rect[2] >> 1), yos + 10 - (rect[3] >> 1), rect[2], rect[3]);
-			if (rect[2] > 12 && scout.sender.slot !== scout.receiver.slot)
+			if (rect[2] > 24 && scout.sender.slot !== scout.receiver.slot)
 				cx.drawImage(game.assets.images.NNM_Archipelago_logo, 2, yos + 2);
 		} else {
 			cx.drawImage(img, 10 - (img.width >> 1), yos + 10 - (img.height >> 1));
@@ -64,7 +67,7 @@ export class APPickup extends Actor {
 }
 
 export class BossDrop extends APPickup {
-	yVel = 0;
+	#yVel = 0;
 	duringCutscene = false;
 
 	constructor(pos) {
@@ -92,8 +95,8 @@ export class BossDrop extends APPickup {
 				break;
 			}
 		}
-		this.yVel += Math.sign(targetYVel - this.yVel);
-		this.pos.y += this.yVel * 0.07;
+		this.#yVel += Math.sign(targetYVel - this.#yVel);
+		this.pos.y += this.#yVel * 0.07;
 	}
 }
 
@@ -106,5 +109,27 @@ export class NoelDrop extends APPickup {
 	move() {
 		this.yos = 0;
 		this.pos.y = NNM.getPlayer().pos.y - 4 * (60 - this.event.timelineFrame) - 10;
+	}
+}
+
+export class NousagiItem extends APPickup {
+	#cage;
+	#yVel = 1.5;
+	canPickUp = false;
+
+	constructor(cage, loc) {
+		super(cage.pos.plus({x: -2, y: -6}), loc, true);
+		this.#cage = cage;
+	}
+
+	move() {
+		if (this.#cage.health)
+			this.yos = 0;
+		else {
+			if (!this.canPickUp) this.frameCount = 0;
+			this.canPickUp = true;
+			this.pos.y -= Math.max(0, this.#yVel);
+			this.#yVel -= .05;
+		}
 	}
 }

@@ -8,7 +8,7 @@ export function getIcon(item, anim) {
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
 		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 0, 20, 20]];
 		case 7: return [NNM.game.assets.images.sp_holox, [(item & 7) * 10, 0, 10, 10]];
-
+		case 8: return [NNM.game.assets.images.ui_crystal, [(item - 1 & 3) * 24, 0, 24, 24]];
 		case 9: return [NNM.game.assets.images.sp_cup, [0, 0, 16, 16]];
 		case 10: return [NNM.game.assets.images.sp_star, [anim ? (NNM.game.frameCount >> 3 & 3) * 8 : 24, 0, 8, 8]];
 		case 11: return [NNM.game.assets.images.sp_heart];
@@ -16,5 +16,6 @@ export function getIcon(item, anim) {
 		case 13: return [NNM.game.assets.images.sp_nousagi, [0, 0, 24, 24]];
 		case 14: return [NNM.game.assets.images.NNM_Archipelago_alt];
 		case 15: return getIcon(archipelagoState.progressiveLevels[item & 1] | (-~(item & 1) << 16));
+		case 16: return [NNM.game.assets.images.NNM_Archipelago_key];
 	}
 }

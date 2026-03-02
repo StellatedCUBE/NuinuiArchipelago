@@ -59,7 +59,6 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua'),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel'),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),
-	LocationType(LocationCategory.MANUAL, 8, 'Random Quest Underworld Casino game boss drop'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' key')
 		for i, level in enumerate(LEVELS[:5], start=10)
@@ -109,8 +108,6 @@ location_types = [
 def get_location(x, require_valid=True):
 	if isinstance(x, tuple):
 		x = (x[0].value << 16) | x[1]
-	elif isinstance(x, ItemCategory):
-		x = x.value << 16
 	try:
 		if isinstance(x, int):
 			return next(i for i in location_types if i.id == x)

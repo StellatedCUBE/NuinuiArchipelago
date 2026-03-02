@@ -106,6 +106,8 @@ item_types = [
 def get_item(x, require_valid=True):
 	if isinstance(x, tuple):
 		x = (x[0].value << 16) | x[1]
+	elif isinstance(x, ItemCategory):
+		x = x.value << 16
 	try:
 		if isinstance(x, int):
 			return next(i for i in item_types if i.id == x)

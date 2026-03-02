@@ -32,15 +32,16 @@ export class ArchipelagoState {
 	#goalVerified;
 	#id;
 	#saveKey;
+	#itemCrystals = 0;
+	#gameCrystals = 0;
 	progressiveLevels = [0, 0];
 	#reconnectTime;
 	reconnecting = false;
 	itemsHandled = 0;
 	helps = 0;
 	helpsSpent = 0;
-	essence = 0;
-	itemCrystals = 0;
-	bigCrystals = 0;
+	#essence = 0;
+	#bigCrystals = 0;
 	coins = 0;
 	coinsSpent = 0;
 	bufferedHearts = 0;
@@ -116,11 +117,9 @@ export class ArchipelagoState {
 		const toCheck = this.checking;
 		this.checking = [];
 		for (const loc of toCheck)
-			this.check(loc);
+			this.check(loc, true);
 
 		client.messages.on('goaled', (_, player) => {
-			console.log(_);
-			console.log(player);
 			if (player.slot === this.client.players.self.slot) {
 				this.#goalVerified = true;
 				this.save();
@@ -218,16 +217,27 @@ export class ArchipelagoState {
 			return;
 		switch (item.id >> 16) {
 			case 0:
-				this.itemCrystals += item.id;
+				this.#itemCrystals += item.id;
+				if (!NNM.game.menu)
+					NNM.game.playSound('cling2');
+				if (1+!local && NNM.getPlayer()) {
+					const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['    +' + item.id], 'center', -0.12);
+					const label = particle.labels[0];
+					const old = label.draw_en.bind(label);
+					label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_gem, 0, 4, 16, 8, 0, -1, 16, 8));
+					NNM.game.scene.particles.pool.push(particle);
+				}
 				break;
 
 			case 1:
 				this.setSaveField('nuinui', 'item-gun');
 				const level = Object.keys(NNM.game.quests.nuinui.stages)[sub_id];
 				if (!level) break;
-				if ((item.id & 256) && this.slotData.boss.nnq) this.unlockLevel('nuinui', this.latestNNQLevel = level);
-				if ((item.id & 512) && (sub_id) < 5 && this.slotData.boss.prq) this.unlockLevel('random', level);
-				if (this.popupFlag = !this.slotData.nnq_li && item.locationId > 9) break;
+				if ((item.id & 256) && this.slotData.boss.nnq) {
+					this.unlockLevel('nuinui', this.latestNNQLevel = level);
+					if (this.popupFlag = !this.slotData.nnq_li && item.locationId > 9) break;
+				}
+				if ((item.id & 512) && sub_id < 5 && this.slotData.boss.prq) this.unlockLevel('random', level);
 				let level_name = NNM.game.assets.locales[NNM.game.lang]['stage_' + level];
 				level_name = level_name.substring(2, level_name.length - 2);
 				msg = [(item.id & (256 | 512)) === (256 | 512) ? 'raw:you obtained access to ' + level_name : `raw:you obtained ${level_name} in ` + ((item.id & 256) ? 'nuinui quest' : 'random quest')];
@@ -283,18 +293,26 @@ export class ArchipelagoState {
 				break;
 
 			case 8:
-
-				this.bigCrystals++;
+				if (!(this.#goal & (1n << BigInt(Feat.PRQ_LEVEL_CLEAR)))) {
+					if (++this.#bigCrystals > 3)
+						this.unlockLevel('random', 'holo_hq');
+					msg = ['archipelago_big_crystal'];
+					if (!local)
+						msg.push('raw:received from ' + item.sender.name);
+					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
+				}
 				break;
 
 			case 9:
 				
-				this.essence++;
+				this.#essence++;
 				break;
 
 			case 10:
 				this.coins++;
-				if (1+!local && NNM.getPlayer()) {
+				if (!NNM.game.menu)
+					NNM.game.playSound('cling2');
+				if (!local && NNM.getPlayer()) {
 					const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['  +1'], 'center', -0.12);
 					const label = particle.labels[0];
 					const old = label.draw_en.bind(label);
@@ -325,6 +343,14 @@ export class ArchipelagoState {
 			case 15:
 				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? 2 << 16 : ((512 * !this.slotData.boss.prq) | ((1 << 16) | 256)));
 				this.handleItem({id: newLevelItem, sender: item.sender, receiver: item.receiver, locationId: item.locationId});
+				break;
+
+			case 16:
+				this.casinoKey = true;
+				msg = ['archipelago_key'];
+				if (!local)
+					msg.push('raw:received from ' + item.sender.name);
+				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 				break;
 		}
 	}
@@ -366,13 +392,17 @@ export class ArchipelagoState {
 
 		if (loc && !this.checked(loc)) {
 			this.checking.push(loc);
-			if (loc < 655360 && this.scouts[loc] && this.scouts[loc].receiver.slot !== this.client.players.self.slot)
-				this.popup(new PopUpMenu(NNM.game, null, ['raw:sent ' + this.scouts[loc].name, 'raw:to ' + this.scouts[loc].receiver.name], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
+			if (!noPopup && this.scouts[loc] && this.scouts[loc].receiver.slot !== this.client.players.self.slot) {
+				let name = this.scouts[loc].name;
+				if (this.scouts[loc].receiver.game === 'Hollow Knight')
+					name = name.replace(/_/g, ' ');
+				this.popup(new PopUpMenu(NNM.game, null, ['raw:sent ' + name, 'raw:to ' + this.scouts[loc].receiver.name], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
+			}
 			if (this.scouts[loc] && this.scouts[loc].receiver.slot === this.client.players.self.slot) {
-				this.popupFlag = false;
+				this.popupFlag = noPopup;
 				this.handleItem(this.scouts[loc]);
 				this.localIgnoreLocations.push(loc);
-				if (!this.popupFlag && loc < 655360 && !noPopup) {
+				if (!this.popupFlag) {
 					let name = this.scouts[loc].name;
 					if (!+name[0])
 						name = 'a ' + name;

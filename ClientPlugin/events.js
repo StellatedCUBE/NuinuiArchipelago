@@ -1,10 +1,10 @@
-import { APPickup, NoelDrop } from "./pickup.js";
+import { APPickup, NoelDrop, NousagiItem } from "./pickup.js";
 import { enemySanity } from "./patch.js";
 import { patchBosses } from "./boss.js";
 
 let hasPatchedEvents = false;
 
-function wrap(inner, level) {
+function wrapNNQ(inner, level) {
 	if (level < 4) {
 		return (game, event) => {
 			if (self.archipelagoState) {
@@ -37,16 +37,42 @@ function prefix(event, frame, func) {
 	};
 }
 
-function patch(events, level) {
+function patchNNQ(events, level) {
 	for (const section in events) {
 		for (const event of events[section]) {
 			for (let i = 0; i < event.timeline.length; i++) {
 				if (event.timeline[i].toString().includes("setItem('stage-"))
-					event.timeline[i] = wrap(event.timeline[i], level);
+					event.timeline[i] = wrapNNQ(event.timeline[i], level);
 				if (level < 4 && event.timeline[i].toString().includes("new EmblemPickup")) {
 					prefix(event, 1, (_, e) => e.timelineFrame || self.archipelagoState.scout(20 + level));
 					prefix(event, i, (_, e) => e.timelineFrame || self.archipelagoState.emblem(e, level));
 				}
+			}
+		}
+	}
+}
+
+function patchPRQ(events, level) {
+	for (const section in events) {
+		for (const event of events[section]) {
+			const nousagiMatch = event.timeline[0].toString().match(/nousagiId = 'nousagi-(?:falls|port|casino|yamato|castle)-([123])'/);
+			if (nousagiMatch) {
+				const loc = (6 << 16) | (level << 2) | nousagiMatch[1];
+				prefix(event, 0, (game, e) => {
+					if (e.timelineFrame === 1) {
+						if (archipelagoState.scouts[loc]?.receiver.game === 'FLARE NUINUI QUEST' && archipelagoState.scouts[loc].id === (13 << 16)) {
+							if (archipelagoState.checked(loc))
+								e.box.toFilter = true;
+							else
+								enemySanity(e.box, loc);
+						} else {
+							e.end = true;
+							const pickup = new NousagiItem(e.box, loc);
+							if (!(e.box.toFilter = pickup.toFilter))
+								game.scene.actors.unshift(pickup);
+						}
+					}
+				});
 			}
 		}
 	}
@@ -61,13 +87,13 @@ export function patchEvents() {
 	if (hasPatchedEvents) return;
 	hasPatchedEvents = true;
 
-	patch(NUINUI_FALLS_EVENTS, 0);
-	patch(NUINUI_CASINO_EVENTS, 1);
-	patch(NUINUI_PORT_EVENTS, 2);
-	patch(NUINUI_YAMATO_EVENTS, 3);
-	patch(NUINUI_CASTLE_EVENTS, 4);
-	patch(NUINUI_HOLO_HQ_EVENTS, 5);
-	patch(NUINUI_HEAVEN_EVENTS, 6);
+	patchNNQ(NUINUI_FALLS_EVENTS, 0);
+	patchNNQ(NUINUI_CASINO_EVENTS, 1);
+	patchNNQ(NUINUI_PORT_EVENTS, 2);
+	patchNNQ(NUINUI_YAMATO_EVENTS, 3);
+	patchNNQ(NUINUI_CASTLE_EVENTS, 4);
+	patchNNQ(NUINUI_HOLO_HQ_EVENTS, 5);
+	patchNNQ(NUINUI_HEAVEN_EVENTS, 6);
 
 	patchCondition(NUINUI_CASINO_EVENTS['5_2'][0], game => !self.archipelagoState.checked(1) && !game.scene.actors.find(a => a.apLocation === 1));
 	prefix(NUINUI_CASINO_EVENTS['5_2'][0], -1, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(event.elfriend.pos.value().plus(new Vector2(0, -16)), 1)));
@@ -157,6 +183,12 @@ export function patchEvents() {
 			event.end = true;
 		}
 	});
+
+	patchPRQ(RANDOM_FALLS_EVENTS, 0);
+	patchPRQ(RANDOM_CASINO_EVENTS, 1);
+	patchPRQ(RANDOM_PORT_EVENTS, 2);
+	patchPRQ(RANDOM_YAMATO_EVENTS, 3);
+	patchPRQ(RANDOM_CASTLE_EVENTS, 4);
 
 	patchBosses();
 }
