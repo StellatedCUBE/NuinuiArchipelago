@@ -7,16 +7,16 @@ let connectSettings = null;
 let connectFail = null;
 
 class ArchipelagoConnectMenu extends Menu {
+	i = 0;
+	focus = false;
+	action = 0;
+	page = 'Form';
+	successTime = 0;
+
 	constructor() {
 		super();
 		this.gc = document.getElementById('game-container');
 		
-		this.i = 0;
-		this.focus = false;
-		this.action = 0;
-		this.page = 'Form';
-		this.successTime = 0;
-
 		this.header = new LocaleElem(NNM.game, 'archipelago_connect_header', { textAlign: 'center' });
 		this.connectButton = new LocaleElem(NNM.game, 'archipelago_connect');
 		this.connectingMessage = new LocaleElem(NNM.game, 'archipelago_connecting', { textAlign: 'center' });
@@ -271,7 +271,10 @@ class ArchipelagoConnectMenu extends Menu {
 									archipelagoState.setSaveField('nuinui', 'item-gun', NNM.getPlayer().hasBow = false);
 							}
 						}
-						else game.setStage(level);
+						else {
+							game.setStage(level);
+							game.scene.setFromMenu = quest !== 'nuinui';
+						}
 						return;
 					}
 				}

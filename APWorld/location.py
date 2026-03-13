@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from BaseClasses import Location
+from BaseClasses import ItemClassification, Location, LocationProgressType
 
 from .data import *
 from .boss import Drop
 from . import nnq_levels
 from .arenas import *
+from .item import get_item, ItemCategory
 from .nnq_levels.l2 import pre_marine_enemies
 from .nnq_levels.l4 import pre_miko_enemies
 
@@ -21,12 +22,13 @@ class LocationCategory(Enum):
 	BOSS_DROP = 4
 	HQ_LEVEL = 5
 	NOUSAGI = 6
+	SHOP = 7
+	PACHINKO = 8
 
 	ENEMYSANITY_NUINUI = 10
 	ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE = 11
 	ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE = 12
 	SANITY_RANDOM = 13
-	PACHINKO = 14
 
 @dataclass
 class LocationType:
@@ -43,8 +45,10 @@ class LocationType:
 		built = FNNQLocation(player, self.name, self.id, region)
 		if rule:
 			built.access_rule = rule
-		if self.type == LocationCategory.HQ_LEVEL:
-			built.item_rule = lambda item: item.player != player or 'key' not in item.name
+		match self.type:
+			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
+			case LocationCategory.SHOP: built.item_rule = lambda item: ItemClassification.trap not in item.classification and (item.game != GAME or get_item(item.name).type not in (ItemCategory.CRYSTALS, ItemCategory.HEART, ItemCategory.NOUSAGI))
+			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
 		region.locations.append(built)
 		return built
 
@@ -81,6 +85,7 @@ location_types = [
 		for i, arena in enumerate(nnq_arenas())
 		if arena.drop != Drop.NEVER
 	),
+	LocationType(LocationCategory.BOSS_DROP, 23, 'Random Quest Underworld Casino game room boss drop'),
 	*(
 		LocationType(LocationCategory.HQ_LEVEL, i, f'Holo Office floor {i} clear')
 		for i in range(1, 6)
@@ -90,6 +95,16 @@ location_types = [
 		for i, level in enumerate(LEVELS[:5])
 		for j in range(1, 4)
 	),
+	*(
+		LocationType(LocationCategory.SHOP, i, f'Pekoshop item {i + 1}')
+		for i in range(3)
+	),
+	LocationType(LocationCategory.PACHINKO, 0, 'Pachinko moving target'),
+	LocationType(LocationCategory.PACHINKO, 1, 'Pachinko leftmost target'),
+	LocationType(LocationCategory.PACHINKO, 2, 'Pachinko rightmost target'),
+	LocationType(LocationCategory.PACHINKO, 3, 'Pachinko second-from-left target'),
+	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target'),
+	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
 		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in {level} at x: {x}, y: {y}')
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)

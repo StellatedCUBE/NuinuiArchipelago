@@ -34,6 +34,8 @@ export class ArchipelagoState {
 	#saveKey;
 	#itemCrystals = 0;
 	#gameCrystals = 0;
+	#crystalsToSend = 0;
+	#bombs = 0;
 	progressiveLevels = [0, 0];
 	#reconnectTime;
 	reconnecting = false;
@@ -45,6 +47,7 @@ export class ArchipelagoState {
 	coins = 0;
 	coinsSpent = 0;
 	bufferedHearts = 0;
+	casinoKey = Infinity;
 	hasGotNuinuiPlayer = false;
 	saves = {
 		nuinui: {'item-gun': true},
@@ -84,6 +87,12 @@ export class ArchipelagoState {
 			if (save) {
 				this.#newFeats |= BigInt('0x' + save.ft);
 				this.checking.push(...save.chk);
+			}
+			if (this.slotData.boss.prq) {
+				client.storage.fetch(this.keyPrefix + 'c').then(gameCrystals => 'number' === typeof gameCrystals && (this.#gameCrystals = gameCrystals));
+				for (const i in '.....') {
+					this.toScout.push((2 << 16) | i, (3 << 16) | i, (7 << 16) | i);
+				}
 			}
 		}
 
@@ -133,6 +142,12 @@ export class ArchipelagoState {
 		this.hitBy = this.deathCause = null;
 
 		if (!this.client) return;
+		
+		if (!this.client.authenticated && !this.reconnecting) {
+			this.reconnecting = true;
+			setTimeout(this.reconnect, this.#reconnectTime, this);
+			this.#reconnectTime = Math.min(180000, Math.max(5000, this.#reconnectTime * 2));
+		}
 
 		if (this.client.items.count > this.itemsHandled) {
 			const items = this.client.items.received;
@@ -143,31 +158,31 @@ export class ArchipelagoState {
 			this.itemsHandled = items.length;
 		}
 
-		if (this.toScout.length > 0) {
-			const toScout = this.toScout.filter(loc => this.client.room.missingLocations.includes(loc));
+		if (this.toScout.length) {
+			const toScout = this.toScout.filter(loc => this.client.room.allLocations.includes(loc));
 			this.toScout = [];
-			if (toScout.length > 0) {
+			if (toScout.length) {
 				for (const loc of toScout)
 					this.scouts[loc] = null;
 				try {
 					this.client.scout(toScout).then(data => data.forEach(item => this.scouts[item.locationId] = item));
-				} catch (e) {
-					console.error(e);
-				}
+				} catch {}
 			}
 		}
 
-		if (!NNM.game.menu && NNM.getPlayer()?.playerControl) {
+		const player = NNM.getPlayer();
+
+		if (!NNM.game.menu && player?.playerControl) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
 			} else if (this.incomingDeath)
-				NNM.getPlayer().die(NNM.game);
+				player.die(NNM.game);
 		}
 
 		if (!NNM.game.menu && this.bufferedHearts > 0) {
 			this.bufferedHearts--;
-			NNM.game.scene.actors.push(new Heart(NNM.getPlayer().pos.plus({ x: 4 + 8 * Math.sign(NNM.game.currentStage === 'port' && this.arenaId === 4 ? -1 : Math.round(NNM.getPlayer().vel.x)), y: -16 })));
+			NNM.game.scene.actors.push(new Heart(player.pos.plus({ x: 4 + 8 * Math.sign(NNM.game.currentStage === 'port' && this.arenaId === 4 ? -1 : Math.round(player.vel.x)), y: -16 })));
 		}
 
 		if (this.#newFeats) {
@@ -192,10 +207,15 @@ export class ArchipelagoState {
 			}
 		}
 
-		if (!this.client.authenticated && !this.reconnecting) {
-			this.reconnecting = true;
-			setTimeout(this.reconnect, this.#reconnectTime, this);
-			this.#reconnectTime = Math.min(180000, Math.max(5000, this.#reconnectTime * 2));
+		if (this.#crystalsToSend && !this.reconnecting) {
+			try { this.client.storage.prepare(this.keyPrefix + 'c', 0).add(this.#crystalsToSend).commit(); }
+			catch {}
+			this.#crystalsToSend = 0;
+		}
+
+		if (player instanceof PekoraPlayer) {
+			player.crystalCount = Math.max(0, Math.min(999, this.#itemCrystals + this.#gameCrystals));
+			player.bombCount = this.#bombs;
 		}
 	}
 
@@ -217,11 +237,11 @@ export class ArchipelagoState {
 			return;
 		switch (item.id >> 16) {
 			case 0:
-				this.#itemCrystals += item.id;
+				this.#itemCrystals += sub_id;
 				if (!NNM.game.menu)
 					NNM.game.playSound('cling2');
 				if (1+!local && NNM.getPlayer()) {
-					const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['    +' + item.id], 'center', -0.12);
+					const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['    +' + sub_id], 'center', -0.12);
 					const label = particle.labels[0];
 					const old = label.draw_en.bind(label);
 					label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_gem, 0, 4, 16, 8, 0, -1, 16, 8));
@@ -293,6 +313,7 @@ export class ArchipelagoState {
 				break;
 
 			case 8:
+				this.setSaveField('random', 'crystal-' + Object.keys(NNM.game.quests.random.stages)[sub_id]);
 				if (!(this.#goal & (1n << BigInt(Feat.PRQ_LEVEL_CLEAR)))) {
 					if (++this.#bigCrystals > 3)
 						this.unlockLevel('random', 'holo_hq');
@@ -333,10 +354,12 @@ export class ArchipelagoState {
 
 			case 14:
 				this.popupFlag = true;
-				if (!NNM.game.scene.altColorLocked && !NNM.game.menu) {
+				if (!NNM.game.scene.altColorLocked && NNM.game.menu?.constructor.name !== 'ArchipelagoConnectMenu') {
 					NNM.game.config.setItem('altColor', !NNM.game.config.getItem('altColor'));
-					NNM.game.playSound('no_damage');
-					NNM.game.scene.shakeBuffer = 12;
+					if (!NNM.game.menu) {
+						NNM.game.playSound('no_damage');
+						NNM.game.scene.shakeBuffer = 12;
+					}
 				}
 				break;
 
@@ -346,8 +369,16 @@ export class ArchipelagoState {
 				break;
 
 			case 16:
-				this.casinoKey = true;
+				this.casinoKey = 0;
 				msg = ['archipelago_key'];
+				if (!local)
+					msg.push('raw:received from ' + item.sender.name);
+				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
+				break;
+
+			case 17:
+				this.#bombs++;
+				msg = ['archipelago_bomb'];
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
@@ -378,6 +409,10 @@ export class ArchipelagoState {
 
 	checked(loc) {
 		return this.checking.includes(loc) || this.client.room.checkedLocations.includes(loc);
+	}
+
+	checkAvailable(loc) {
+		return !this.checking.includes(loc) && this.client.room.missingLocations.includes(loc);
 	}
 
 	check(loc, noPopup) {
@@ -419,7 +454,7 @@ export class ArchipelagoState {
 	}
 
 	scout(loc) {
-		if (this.scouts[loc] === undefined && !this.toScout.includes(loc))
+		if (this.scouts[loc] === undefined && !this.toScout.includes(loc) && this.client.room.missingLocations.includes(loc))
 			this.toScout.push(loc);
 	}
 
@@ -453,20 +488,22 @@ export class ArchipelagoState {
 
 	popup(menu) {
 		this.popupFlag = true;
-		if (this.pendingPopUp) {
-			let p = this.pendingPopUp;
-			while (p.previousMenu) p = p.previousMenu;
-			p.previousMenu = menu;
-		} else {
-			if (menu instanceof PopUpMenu && NNM.game.menu instanceof PopUpMenu) {
-				let p = NNM.game.menu;
-				while (p.previousMenu && p instanceof PopUpMenu) p = p.previousMenu;
-				if (p instanceof PopUpMenu) {
-					p.previousMenu = menu;
-					return;
+		if (!this.noPopup) {
+			if (this.pendingPopUp) {
+				let p = this.pendingPopUp;
+				while (p.previousMenu) p = p.previousMenu;
+				p.previousMenu = menu;
+			} else {
+				if (menu instanceof PopUpMenu && NNM.game.menu instanceof PopUpMenu) {
+					let p = NNM.game.menu;
+					while (p.previousMenu && p instanceof PopUpMenu) p = p.previousMenu;
+					if (p instanceof PopUpMenu) {
+						p.previousMenu = menu;
+						return;
+					}
 				}
+				this.pendingPopUp = menu;
 			}
-			this.pendingPopUp = menu;
 		}
 	}
 
@@ -510,6 +547,10 @@ export class ArchipelagoState {
 
 	console(menu) {
 		NNM.game.menu = new ConsoleMenu(menu);
+	}
+
+	getIcon(i) {
+		return getIcon(i);
 	}
 
 	death() {
@@ -606,5 +647,10 @@ export class ArchipelagoState {
 
 	get transitionLevelNNQ() {
 		return !this.slotData.nnq_li && this.latestNNQLevel;
+	}
+
+	getCrystals(qty) {
+		this.#gameCrystals += qty;
+		this.#crystalsToSend += qty;
 	}
 }

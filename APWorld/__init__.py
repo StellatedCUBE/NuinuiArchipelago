@@ -5,7 +5,7 @@ from Options import OptionError
 from .data import GAME
 from .options import FNNQOptions, fnnq_option_groups
 from .item import item_name_to_id, get_item, ItemCategory
-from .location import location_name_to_id, get_location
+from .location import location_name_to_id, get_location, LocationCategory
 from .nnq import nnq
 from .prq import prq
 
@@ -39,8 +39,8 @@ class FNNQWorld(World):
 	def add_location(self, location, *a):
 		self.locations.append((get_location(location), a))
 
-	def add_goal_rule(self, goal):
-		self.goals.append(goal)
+	def add_goal_location(self, *locations):
+		self.goal_locations.extend(get_location(location).id for location in locations)
 	
 	def add_goal_feat(self, feat):
 		self.required_feats.add(feat)
@@ -68,13 +68,15 @@ class FNNQWorld(World):
 	def create_items(self):
 		self.items = []
 		self.locations = []
-		self.goals = goals = []
+		self.goal_locations = []
 		self.base_region = self.create_region(self.origin_region_name)
 		self.potential_starting_levels = []
 		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
 		self.boss_data = dict()
 		self.required_feats = set()
 		self.locked_items = dict()
+		self.single_quest = 1 == bool(self.options.nnq) + bool(self.options.prq) + bool(self.options.mmq)
+		self.safety_nousagi = False
 
 		player = self.player
 
@@ -88,7 +90,7 @@ class FNNQWorld(World):
 
 		self.filler = [(get_item(i), j) for i, j in self.filler]
 
-		location_count = sum(location.id not in self.locked_items for location, _ in self.locations)
+		location_count = sum(location.id not in self.locked_items for location, _ in self.locations) - self.safety_nousagi
 
 		while len(self.items) > location_count:
 			filler = [item for item in self.items if item.class_ == ItemClassification.filler]
@@ -101,6 +103,11 @@ class FNNQWorld(World):
 			if not filler:
 				raise OptionError('Not enough checks')
 			self.items.remove(self.random.choice(filler))
+
+		if self.safety_nousagi:
+			location_count += 1
+			if not any(item.type == ItemCategory.NOUSAGI for item in self.items):
+				self.add_item(ItemCategory.NOUSAGI)
 
 		filler_total_weight = sum(w for _, w in self.filler)
 		while len(self.items) < location_count:
@@ -117,12 +124,31 @@ class FNNQWorld(World):
 			if item.type == ItemCategory.BIG_CRYSTAL and self.options.prq_goal.value:
 				built.classification = ItemClassification.filler
 			self.multiworld.itempool.append(built)
+
 		for location, args in self.locations:
-			built = location.build(player, *args)
 			placed = self.locked_items.get(location.id)
+			if placed is None and location.id in self.locked_items:
+				continue
+
+			built = location.build(player, *args)
 			if placed:
 				built.place_locked_item(self.create_item(placed))
-		self.multiworld.completion_condition[player] = lambda state: all(goal(state, player) for goal in goals)
+
+		goal_data = [
+			(args[0], args[1] if len(args) > 1 else None)
+			for location, args in self.locations
+			if location.id in self.goal_locations
+		]
+		self.multiworld.completion_condition[player] = lambda state: all(region.can_reach(state) and (rule is None or rule(state)) for region, rule in goal_data)
+	
+	def fill_hook(self, _, __, pool, locations):
+		try: location = self.get_location(get_location((LocationCategory.PACHINKO, 5)).name)
+		except KeyError: return
+		locations.remove(location)
+		try: item = next(i for i in pool if i.classification == ItemClassification.trap and i.game != GAME)
+		except StopIteration: item = next(i for i in pool if i.player == self.player and i.name == 'Nousagi')
+		location.place_locked_item(item)
+		pool.remove(item)
 	
 	def fill_slot_data(self):
 		return dict(

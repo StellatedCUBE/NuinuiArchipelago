@@ -26,6 +26,7 @@ class ItemCategory(Enum):
 	ALT_PALETTE = 14
 	LEVEL_PROGRESSIVE = 15
 	CASINO_KEY = 16
+	BOMB = 17
 
 @dataclass
 class ItemType:
@@ -96,10 +97,12 @@ item_types = [
 
 	ItemType(ItemCategory.CASINO_KEY, 0, 'casino key', ItemClassification.progression),
 
+	ItemType(ItemCategory.BOMB, 0, 'bomb', ItemClassification.filler),
+
 	ItemType(ItemCategory.CRYSTALS, 1, 'crystal', ItemClassification.filler),
 	*(
-		ItemType(ItemCategory.CRYSTALS, i, '%d crystals' % i, ItemClassification.filler)
-		for i in (2, 4, 8, 10, 12, 300)
+		ItemType(ItemCategory.CRYSTALS, i, '%d crystals' % i, ItemClassification.progression_deprioritized if i == 200 else ItemClassification.filler)
+		for i in (2, 4, 8, 10, 12, 200)
 	)
 ]
 

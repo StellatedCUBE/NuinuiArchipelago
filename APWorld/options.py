@@ -81,7 +81,7 @@ class PRQCasinoAccess(Toggle):
 	"""Makes accessing the second part of Underworld Casino an item in the multiworld."""
 	display_name = "Randomise Casino Access"
 
-class PRQCasinoChecks(Toggle):
+class PRQCasinoChecks(DefaultOnToggle):
 	"""Adds checks for playing the crystal pachinko."""
 	display_name = "Casino Game Checks"
 

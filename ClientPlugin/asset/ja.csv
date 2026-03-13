@@ -20,3 +20,10 @@ menu_archipelago_console,text console
 archipelago_noel_greeting,こんマッスル！
 archipelago_gsh,got some help
 archipelago_big_crystal,you obtained a big crystal
+archipelago_bomb,bomb limit increased
+archipelago_shop,ap item
+archipelago_shop_desc,a multiworld item
+archipelago_shop_bomb,max bombs +1
+archipelago_shop_gsh,get some help
+archipelago_shop_coin,get a gold coin
+archipelago_shop_local,item

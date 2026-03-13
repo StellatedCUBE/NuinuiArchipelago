@@ -17,5 +17,6 @@ export function getIcon(item, anim) {
 		case 14: return [NNM.game.assets.images.NNM_Archipelago_alt];
 		case 15: return getIcon(archipelagoState.progressiveLevels[item & 1] | (-~(item & 1) << 16));
 		case 16: return [NNM.game.assets.images.NNM_Archipelago_key];
+		case 17: return [NNM.game.assets.images.sp_bomb, [0, 0, 12, 12]];
 	}
 }

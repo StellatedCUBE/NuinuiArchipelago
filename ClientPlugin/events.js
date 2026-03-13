@@ -4,26 +4,22 @@ import { patchBosses } from "./boss.js";
 
 let hasPatchedEvents = false;
 
-function wrapNNQ(inner, level) {
-	if (level < 4) {
-		return (game, event) => {
-			if (self.archipelagoState) {
-				if (event.timelineFrame === 1) {
-					self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
-					self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
-				} else if (event.timelineFrame === 180) {
-					game.stopBGM();
-					self.archipelagoState.popup(new StageSelect(game, null, archipelagoState.transitionLevelNNQ));
-					game.menu = self.archipelagoState.pendingPopUp;
-					self.archipelagoState.pendingPopUp = null;
-					return;
-				}
+function wrap(inner) {
+	return (game, event) => {
+		if (self.archipelagoState) {
+			if (event.timelineFrame === 1) {
+				self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
+				self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
+			} else if (event.timelineFrame === 180) {
+				game.stopBGM();
+				self.archipelagoState.popup(new StageSelect(game, null, game.currentQuest === 'nuinui' && archipelagoState.transitionLevelNNQ));
+				game.menu = self.archipelagoState.pendingPopUp;
+				self.archipelagoState.pendingPopUp = null;
+				return;
 			}
-			inner(game, event);
 		}
+		inner(game, event);
 	}
-
-	return inner;
 }
 
 function prefix(event, frame, func) {
@@ -41,8 +37,8 @@ function patchNNQ(events, level) {
 	for (const section in events) {
 		for (const event of events[section]) {
 			for (let i = 0; i < event.timeline.length; i++) {
-				if (event.timeline[i].toString().includes("setItem('stage-"))
-					event.timeline[i] = wrapNNQ(event.timeline[i], level);
+				if (event.timeline[i].toString().includes("setItem('stage-") && level < 4)
+					event.timeline[i] = wrap(event.timeline[i]);
 				if (level < 4 && event.timeline[i].toString().includes("new EmblemPickup")) {
 					prefix(event, 1, (_, e) => e.timelineFrame || self.archipelagoState.scout(20 + level));
 					prefix(event, i, (_, e) => e.timelineFrame || self.archipelagoState.emblem(e, level));
@@ -74,6 +70,10 @@ function patchPRQ(events, level) {
 					}
 				});
 			}
+
+			for (let i = 0; i < event.timeline.length; i++)
+				if (event.timeline[i].toString().includes("new StageSelect"))
+					event.timeline[i] = wrap(event.timeline[i]);
 		}
 	}
 }
@@ -189,6 +189,19 @@ export function patchEvents() {
 	patchPRQ(RANDOM_PORT_EVENTS, 2);
 	patchPRQ(RANDOM_YAMATO_EVENTS, 3);
 	patchPRQ(RANDOM_CASTLE_EVENTS, 4);
+
+	prefix(RANDOM_CASINO_EVENTS['3_2'][1], 0, (_, event) => event.shortcut && (event.shortcut.price = archipelagoState.casinoKey));
+	prefix(RANDOM_CASINO_EVENTS['3_2'][2], 0, (game, event) => {
+		if (event.timelineFrame === 1) {
+			event.__archipelago = new TextElem(game, ['a', 'p'], { lang: 'en', textAlign: 'center' });
+			event.coinGame.slots.forEach((slot, i) => {
+				const loc = i | (8 << 16);
+				slot.__archipelago = archipelagoState.checkAvailable(loc) && (slot.type !== 'enemy' || archipelagoState.scouts[loc]?.receiver.slot !== archipelagoState.client.players.self.slot) && loc;
+			});
+			const oldSpawn = event.coinGame.spawnCoin.bind(event.coinGame);
+			event.coinGame.spawnCoin = x => archipelagoState.getCrystals(-1, oldSpawn(x));
+		}
+	});
 
 	patchBosses();
 }

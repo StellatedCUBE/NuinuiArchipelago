@@ -568,18 +568,28 @@ function TowaOpen_customDraw(game) {
 }
 
 export class TowaOpen extends Actor {
+	#section;
+	isPersistent = true;
+
 	constructor() {
 		super(Vector2.zero, Vector2.zero);
-		NNM.game.scene.towaOffset = 96;
-		NNM.game.scene.customDraw.push(TowaOpen_customDraw);
+		const scene = NNM.game.scene;
+		this.#section = scene.currentSection;
+		scene.towaOffset = 96;
+		scene.customDraw.push(TowaOpen_customDraw);
 		if (archipelagoState.arenaId === 19)
 			for (let x = 161; x < 180; x++)
 				for (let y = 72; y < 83; y++)
-					if (NNM.game.scene.background[x+'_'+y] == 1)
-						NNM.game.scene.background[x+'_'+y] = 'f';
+					if (scene.background[x+'_'+y] == 1)
+						scene.background[x+'_'+y] = 'f';
 	}
 
 	update = game => {
+		if (this.#section !== game.scene.currentSection) {
+			game.scene.towaOffset = 0;
+			this.toFilter = true;
+			return;
+		}
 		game.scene.customDraw.push(TowaOpen_customDraw);
 		if (game.scene.boss instanceof Towa) {
 			if (game.scene.towaOffset) {
