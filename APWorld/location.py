@@ -6,6 +6,7 @@ from BaseClasses import ItemClassification, Location, LocationProgressType
 from .data import *
 from .boss import Drop
 from . import nnq_levels
+from .prq_enemy_data import prq_enemy_data
 from .arenas import *
 from .item import get_item, ItemCategory
 from .nnq_levels.l2 import pre_marine_enemies
@@ -106,7 +107,7 @@ location_types = [
 	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target'),
 	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in {level} at x: {x}, y: {y}')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}')
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),
@@ -117,6 +118,11 @@ location_types = [
 	*(
 		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'{name} {j} of enemy wave {wave} at Demon Lord Castle final bridge' if j else f'{name} of enemy wave {wave} at Demon Lord Castle final bridge')
 		for i, (name, wave, j) in enumerate(pre_miko_enemies)
+	),
+	*(
+		LocationType(LocationCategory.SANITY_RANDOM, i, f'{name} in Random Quest {level} at x: {x}, y: {y}')
+		for level, objects in zip(LEVELS, prq_enemy_data)
+		for i, name, x, y in objects
 	)
 ]
 

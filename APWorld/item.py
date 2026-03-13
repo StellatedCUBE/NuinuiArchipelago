@@ -102,7 +102,7 @@ item_types = [
 	ItemType(ItemCategory.CRYSTALS, 1, 'crystal', ItemClassification.filler),
 	*(
 		ItemType(ItemCategory.CRYSTALS, i, '%d crystals' % i, ItemClassification.progression_deprioritized if i == 200 else ItemClassification.filler)
-		for i in (2, 4, 8, 10, 12, 200)
+		for i in (2, 4, 8, 10, 200)
 	)
 ]
 

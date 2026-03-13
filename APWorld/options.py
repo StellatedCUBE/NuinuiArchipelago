@@ -86,13 +86,13 @@ class PRQCasinoChecks(DefaultOnToggle):
 	display_name = "Casino Game Checks"
 
 class PRQBossPlando(NNQBossPlando):
-	pass
+	__doc__ = NNQBossPlando.__doc__
 
 class PRQCrossBoss(NNQCrossBoss):
 	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Random')
 
 class PRQEnemySanity(NNQEnemySanity):
-	pass
+	__doc__ = NNQEnemySanity.__doc__
 
 class PRQCrystalSanity(Toggle):
 	"""Makes mining each crystal a check. Crystals with an unclaimed item inside will have an Archipelago-coloured sheen."""
@@ -100,7 +100,7 @@ class PRQCrystalSanity(Toggle):
 
 class PRQCrateSanity(Toggle):
 	"""Makes breaking each crate a check. Crates with an unclaimed item inside will have the Archipelago logo stamped on them."""
-	displayname = "Cratesanity"
+	display_name = "Cratesanity"
 
 class MMQ(Toggle):
 	"""Include Marine Maiden Quest"""

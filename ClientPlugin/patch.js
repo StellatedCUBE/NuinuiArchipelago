@@ -98,25 +98,39 @@ export function enemySanity(a, loc) {
 	if (archipelagoState.checkAvailable(loc)) {
 		const oldTakeHit = a.takeHit;
 		a.takeHit = (game, x) => {
+			const extant = game.scene.actors.includes(a);
 			oldTakeHit(game, x);
-			if (!game.scene.actors.includes(a)) {
+			if (extant && !game.scene.actors.includes(a)) {
 				archipelagoState.check(loc, true);
-				if (a instanceof Cannon) {
+				if (a instanceof CrystalSource) {
+					itemTextParticle(a, loc, a.dir && 'bottom');
+					for (const a2 of game.scene.actors)
+						if (a2 instanceof Crystal && !a2.frameCount)
+							a2.toFilter = true;
+				} else if (a instanceof Cannon) {
 					itemTextParticle(a, loc, a.dir ? 'right' : 'left');
-				} else if (!(a instanceof self.Box && a.type === 'cage')) {
+				} else if (!(a instanceof Box && a.type === 'cage')) {
 					itemTextParticle(a, loc);
 				}
 			}
 		};
-		if (a instanceof self.Box) {
+		if (a instanceof CrystalSource) {
+			const oldDraw = a.draw;
+			a.draw = (game, cx) => {
+				oldDraw(game, cx);
+				cx.save();
+				cx.translate(Math.round(a.pos.x), Math.round(a.pos.y + 8));
+				if (a.dir) cx.scale(1, -1);
+				cx.drawImage(game.assets.images.NNM_Archipelago_sheen, 1, -6);
+				cx.restore();
+			};
+		} else if (a instanceof Box) {
 			if (a.type === 'box') {
 				const oldDraw = a.draw;
 				a.draw = (game, cx) => {
 					oldDraw(game, cx);
-					cx.globalAlpha = .3;
-					cx.drawImage(game.assets.images.NNM_Archipelago_logo, Math.round(a.pos.x), Math.round(a.pos.y));
-					cx.globalAlpha = 1;
-				}
+					cx.drawImage(game.assets.images.NNM_Archipelago_crate, Math.round(a.pos.x) + 4, Math.round(a.pos.y) + 3);
+				};
 			}
 		} else {
 			const oldUpdate = a.update;
@@ -140,12 +154,12 @@ export function enemySanity(a, loc) {
 	}
 }
 NNM.code.insertAfterFirstMatchingLine('Scene.updateSection', 'this.actors.push', function() {
-	if (self.archipelagoState && game.currentQuest === 'nuinui') {
+	if (self.archipelagoState) {
 		const loc = (
 			Object.keys(game.quests.nuinui.stages).indexOf(game.currentStage) |
 			(this.sections.indexOf(newSection) << 3) |
 			(newSection.actors.indexOf(event) << 9) |
-			655360
+			({nuinui: 10, random: 13, maiden: 14}[game.currentQuest] << 16)
 		);
 		self.archipelagoState.scout(loc);
 		enemySanity(this.actors[this.actors.length - 1], loc);

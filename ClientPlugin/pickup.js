@@ -28,7 +28,8 @@ export class APPickup extends Actor {
 				archipelagoState.check(this.apLocation, true);
 			} else {
 				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				if (scout.sender.slot !== scout.receiver.slot || !(this.apLocation < 999 || this.apLocation === (10 << 16))) game.playSound('jingle');
+				//if (scout.sender.slot !== scout.receiver.slot || !(this.apLocation < 999 || this.apLocation === (10 << 16))) game.playSound('jingle');
+				if (archipelagoState.popupFlag) game.playSound('jingle');
 				archipelagoState.check(this.apLocation);
 			}
 		} else {

@@ -1,6 +1,7 @@
 from . import item
 from . import location
 from . import data
+from .prq_enemy_data import prq_enemy_data
 
 def prq(world):
 	p = world.player
@@ -28,7 +29,6 @@ def prq(world):
 		if i == 5:
 			if world.options.prq_goal.value:
 				world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
-				world.potential_starting_levels.append(world.items[-1])
 				world.add_location((level_location_type, i), world.base_region, lambda state, item = world.items[-1].name: state.has(item, p))
 			else:
 				world.add_location((level_location_type, i), world.base_region, lambda state: all(state.has(c, p) for c in crystals))
@@ -36,7 +36,8 @@ def prq(world):
 			if world.options.prq_goal.value:
 				world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + i)
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
-			world.potential_starting_levels.append(world.items[-1])
+			if i < 4:
+				world.potential_starting_levels.append(world.items[-1])
 			region = world.create_region('prq_' + level)
 			world.base_region.connect(region, rule = lambda state, item = world.items[-1].name: state.has(item, p))
 
@@ -51,11 +52,18 @@ def prq(world):
 					world.place_item(game_boss_drop, 'casino key')
 
 				if world.options.prq_casino_checks:
+					world.filler.append((1, 2))
+					world.filler.append((2, 2))
+					world.filler.append((10, 1))
 					for j in range(6):
 						world.add_location((location.LocationCategory.PACHINKO, j), region)
 
 			for j in range(1, 4):
 				world.add_location((location.LocationCategory.NOUSAGI, i * 4 + j), region2 if i == 1 and j > 1 else region)
+
+			for l, type_, _, y in prq_enemy_data[i]:
+				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else world.options.prq_enemysanity):
+					world.add_location((location.LocationCategory.SANITY_RANDOM, l), region2 if i == 1 and y > 36 else region)
 			
 			world.add_location((level_location_type, i), region2 if i == 1 else region)
 
@@ -67,5 +75,17 @@ def prq(world):
 	world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + 5)
 	
 	world.filler.append(('Nousagi', 15))
+
+	if world.options.prq_crystalsanity:
+		world.filler.append((8, sum(sum(type_ == 'Crystal' for _, type_, _, _ in level) for level in prq_enemy_data)))
+	
+	if world.options.prq_cratesanity:
+		world.filler.append((1, sum(sum(type_ == 'Crate' for _, type_, _, _ in level) for level in prq_enemy_data)))
+	
+	if world.options.prq_enemysanity:
+		c = sum(sum(type_ not in ('Crate', 'Crystal') for _, type_, _, _ in level) for level in prq_enemy_data) // 3
+		world.filler.append((item.ItemCategory.HEART, c))
+		world.filler.append((1, c))
+		world.filler.append((2, c))
 
 	world.boss_data['prq'] = []

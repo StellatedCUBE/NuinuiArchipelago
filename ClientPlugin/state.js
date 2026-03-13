@@ -348,7 +348,7 @@ export class ArchipelagoState {
 
 			case 12:
 				this.helps++;
-				if (local && item.locationId < 655360)
+				if (local && !this.popupFlag)
 					this.popup(new PopUpMenu(NNM.game, null, ['archipelago_gsh'], 'archipelago', getIcon(item.id)));
 				break;
 
@@ -437,12 +437,12 @@ export class ArchipelagoState {
 				this.popupFlag = noPopup;
 				this.handleItem(this.scouts[loc]);
 				this.localIgnoreLocations.push(loc);
-				if (!this.popupFlag) {
+				/*if (!this.popupFlag) {
 					let name = this.scouts[loc].name;
 					if (!+name[0])
 						name = 'a ' + name;
 					this.popup(new PopUpMenu(NNM.game, null, ['raw:found ' + name], 'archipelago', getIcon(this.scouts[loc].id)));
-				}
+				}*/
 			}
 
 			if (this.reconnecting) this.save();
