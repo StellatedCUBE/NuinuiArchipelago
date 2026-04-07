@@ -1,7 +1,8 @@
 from .boss import Arena, HarborArena, Drop
-from .data import MYTH
+from .data import MYTH, LEVELS
 
 def nnq_arenas():
+	Arena.prefix = ''
 	return [
 		Arena('Crystal Falls midboss', 'Usadrill', 'nnq_falls_1280_0'),
 		Arena('Crystal Falls final boss', 'Pekora', 'nnq_falls_1920_192', Drop.ALWAYS),
@@ -23,4 +24,20 @@ def nnq_arenas():
 		Arena('Sky Palace midboss 2', 'Kanata', 'nnq_heaven_2560_0', Drop.ALWAYS),
 		Arena('Sky Palace secret boss', 'Coco', 'nnq_heaven_2560_1152'),
 		Arena('Sky Palace final boss', 'Towa', 'nnq_heaven_0_0', Drop.NEVER)
+	]
+
+def prq_arenas():
+	Arena.prefix = 'Random Quest '
+	return [
+		Arena('Crystal Falls midboss', 'Robot', 'prq_' + LEVELS[0]),
+		Arena('Crystal Falls final boss', 'Flare', 'prq_' + LEVELS[0], Drop.NEVER),
+		Arena('Underworld Casino game room', 'Chloe', 'prq_' + LEVELS[1], Drop.ALWAYS),
+		Arena('Underworld Casino final boss', 'Mori', 'prq_' + LEVELS[1], Drop.NEVER),
+		Arena('Pirate Harbor midboss', 'Gura', 'prq_' + LEVELS[2]),
+		Arena('Pirate Harbor final boss', 'Lui', 'prq_' + LEVELS[2], Drop.NEVER),
+		Arena('Yamato midboss', 'Iroha', 'prq_' + LEVELS[3]),
+		Arena('Yamato final boss', 'Fubuki', 'prq_' + LEVELS[3], Drop.NEVER),
+		Arena('Demon Lord Castle midboss', 'Suisei', 'prq_' + LEVELS[4]),
+		Arena('Demon Lord Castle final boss', 'La+', 'prq_' + LEVELS[4], Drop.NEVER),
+		Arena('Holo Office', 'Koyodrill', None, Drop.NEVER)
 	]

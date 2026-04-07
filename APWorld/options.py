@@ -91,6 +91,10 @@ class PRQBossPlando(NNQBossPlando):
 class PRQCrossBoss(NNQCrossBoss):
 	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Random')
 
+class PRQBossDrops(Toggle):
+	"""Makes midbosses drop checks upon defeat."""
+	display_name = "Midboss Drops"
+
 class PRQEnemySanity(NNQEnemySanity):
 	__doc__ = NNQEnemySanity.__doc__
 
@@ -131,6 +135,7 @@ class FNNQOptions(PerGameCommonOptions):
 	prq_casino_checks: PRQCasinoChecks
 	prq_boss_shuffle: PRQBossPlando
 	prq_boss_cross: PRQCrossBoss
+	prq_boss_all_drop: PRQBossDrops
 	prq_enemysanity: PRQEnemySanity
 	prq_crystalsanity: PRQCrystalSanity
 	prq_cratesanity: PRQCrateSanity
@@ -162,6 +167,7 @@ fnnq_option_groups = [
 		PRQCasinoChecks,
 		PRQBossPlando,
 		PRQCrossBoss,
+		PRQBossDrops,
 		PRQEnemySanity,
 		PRQCrystalSanity,
 		PRQCrateSanity,

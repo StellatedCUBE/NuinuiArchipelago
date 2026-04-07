@@ -83,6 +83,17 @@ function patchCondition(event, condition) {
 	event.condition = game => self.archipelagoState ? condition(game) : old(game);
 }
 
+function creditsMenu(game, event) {
+	game.playSound('select');
+	const menu = new StageSelect(game, null, game.currentQuest === 'nuinui' && archipelagoState.transitionLevelNNQ);
+	const update = menu.update;
+	menu.update = game => game.stopBGM(void update(game));
+	self.archipelagoState.popup(menu);
+	game.menu = self.archipelagoState.pendingPopUp;
+	self.archipelagoState.pendingPopUp = null;
+	event.end = true;
+}
+
 export function patchEvents() {
 	if (hasPatchedEvents) return;
 	hasPatchedEvents = true;
@@ -113,9 +124,10 @@ export function patchEvents() {
 			for (let i = 11 << 16; self.archipelagoState.client.room.allLocations.includes(i); i++)
 				self.archipelagoState.scout(i);
 	});
+	prefix(NUINUI_PORT_EVENTS['1_0'][1], -3, (game, event) => !event.timelineFrame && event.marine && archipelagoState.item(event.marine.pos.value(), 'boss'));
 
 	patchCondition(NUINUI_YAMATO_EVENTS['2_9'][0], game => !self.archipelagoState.checked(2) && !game.scene.actors.find(a => a.apLocation === 2));
-	prefix(NUINUI_YAMATO_EVENTS['2_9'][0], -1, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(event.elfriend.pos.value().plus(new Vector2(0, -16)), 2)));
+	prefix(NUINUI_YAMATO_EVENTS['2_9'][0], -1, (game, event) => event.timelineFrame || archipelagoState.item(event.elfriend.pos.value().plus({x: 0, y: -16}), 2));
 	prefix(NUINUI_YAMATO_EVENTS['16_0'][0], -2, (game, event) => event.timelineFrame || game.scene.actors.push(new NoelDrop(event)));
 
 	NUINUI_CASTLE_EVENTS['4.6_8'] = [{condition: _ => self.archipelagoState?.scout(24)}];
@@ -133,7 +145,7 @@ export function patchEvents() {
 	});
 
 	prefix(NUINUI_HOLO_HQ_EVENTS['5_0'][0], 0, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(new Vector2(1750, 294), game.scene.keyId | (5 << 16), true)));
-	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], 0, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(new Vector2(2070, 16), (5 << 16) | 5)));
+	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], 0, (game, event) => event.timelineFrame || archipelagoState.item(new Vector2(2070, 16), (5 << 16) | 5));
 	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], -1, (game, event) => {
 		if (!event.timelineFrame) {
 			self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
@@ -147,7 +159,7 @@ export function patchEvents() {
 		}
 	});
 
-	prefix(NUINUI_HEAVEN_EVENTS['6_6'][0], 0, game => game.scene.actors.push(new APPickup(new Vector2(1998, 1216), 7)));
+	prefix(NUINUI_HEAVEN_EVENTS['6_6'][0], 0, game => archipelagoState.item(new Vector2(1998, 1216), 7));
 	patchCondition(NUINUI_HEAVEN_EVENTS['8_0'][0], _ => false);
 	NUINUI_HEAVEN_EVENTS['8_0'].push({condition: _ => self.archipelagoState, timeline: [(game, event) => {
 		game.scene.windParticles = true;
@@ -171,18 +183,7 @@ export function patchEvents() {
 			self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
 		}
 	});
-	prefix(NUINUI_HEAVEN_EVENTS['0_1'][1], 4, (game, event) => {
-		if (event.timelineFrame === 359) {
-			game.playSound('select');
-			const menu = new StageSelect(game, null, archipelagoState.transitionLevelNNQ);
-			const update = menu.update;
-			menu.update = game => game.stopBGM(void update(game));
-			self.archipelagoState.popup(menu);
-			game.menu = self.archipelagoState.pendingPopUp;
-			self.archipelagoState.pendingPopUp = null;
-			event.end = true;
-		}
-	});
+	prefix(NUINUI_HEAVEN_EVENTS['0_1'][1], 4, (game, event) => event.timelineFrame === 359 && creditsMenu(game, event));
 
 	patchPRQ(RANDOM_FALLS_EVENTS, 0);
 	patchPRQ(RANDOM_CASINO_EVENTS, 1);
@@ -200,6 +201,16 @@ export function patchEvents() {
 			});
 			const oldSpawn = event.coinGame.spawnCoin.bind(event.coinGame);
 			event.coinGame.spawnCoin = x => archipelagoState.getCrystals(-1, oldSpawn(x));
+		}
+	});
+
+	prefix(RANDOM_CASINO_EVENTS['8_0'][0], -1, (_, event) => event.timelineFrame === 1 && archipelagoState.item(event.chloe.pos.plus({ x: 8, y: -8 }), 'boss'));
+	prefix(RANDOM_PORT_EVENTS['5_6'][0], -1, (_, event) => event.timelineFrame || archipelagoState.bossId !== 'Gura' || archipelagoState.item(event.boss.pos.value(), 'boss'));
+	prefix(RANDOM_HOLO_HQ_EVENTS['0_0'][2], -2, creditsMenu);
+	prefix(RANDOM_HOLO_HQ_EVENTS['0_0'][2], -4, (_, event) => {
+		if (!event.timelineFrame) {
+			archipelagoState.check(archipelagoState.levelEndCheckA);
+			archipelagoState.check(archipelagoState.levelEndCheckB);
 		}
 	});
 

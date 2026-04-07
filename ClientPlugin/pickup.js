@@ -28,9 +28,9 @@ export class APPickup extends Actor {
 				archipelagoState.check(this.apLocation, true);
 			} else {
 				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				//if (scout.sender.slot !== scout.receiver.slot || !(this.apLocation < 999 || this.apLocation === (10 << 16))) game.playSound('jingle');
-				if (archipelagoState.popupFlag) game.playSound('jingle');
-				archipelagoState.check(this.apLocation);
+				const jingle = !scout || scout.sender.slot !== scout.receiver.slot || (scout.id > 999 && scout.id !== (10 << 16));
+				if (jingle) game.playSound('jingle');
+				archipelagoState.check(this.apLocation, !jingle);
 			}
 		} else {
 			this.move();
@@ -52,11 +52,6 @@ export class APPickup extends Actor {
 		}
 		const yos = Math.round(this.yos);
 		if (rect) {
-			if (img === NNM.game.assets.images.sp_holox) {
-				cx.filter = 'invert(1)';
-				cx.drawImage(game.assets.images.vfx_explosion, 0, 0, 18, 18, 1, yos + 1, 18, 18);
-				cx.filter = 'none';
-			}
 			cx.drawImage(img, rect[0], rect[1], rect[2], rect[3], 10 - (rect[2] >> 1), yos + 10 - (rect[3] >> 1), rect[2], rect[3]);
 			if (rect[2] > 24 && scout.sender.slot !== scout.receiver.slot)
 				cx.drawImage(game.assets.images.NNM_Archipelago_logo, 2, yos + 2);
@@ -73,6 +68,7 @@ export class BossDrop extends APPickup {
 
 	constructor(pos) {
 		super(pos, (4 << 16) | archipelagoState.arenaId);
+		if (this.toFilter && archipelagoState.arenaId === 23) archipelagoState.getCrystals(200);
 	}
 
 	move() {

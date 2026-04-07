@@ -25,7 +25,7 @@ class LocationCategory(Enum):
 	NOUSAGI = 6
 	SHOP = 7
 	PACHINKO = 8
-
+	COIN = 9
 	ENEMYSANITY_NUINUI = 10
 	ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE = 11
 	ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE = 12
@@ -47,9 +47,11 @@ class LocationType:
 		if rule:
 			built.access_rule = rule
 		match self.type:
+			case LocationCategory.LEVEL_CLEAR_NUINUI | LocationCategory.LEVEL_CLEAR_RANDOM | LocationCategory.LEVEL_CLEAR_NAMELESS | LocationCategory.COIN: built.item_rule = lambda item: item.player != player or item.name != 'heart'
 			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
 			case LocationCategory.SHOP: built.item_rule = lambda item: ItemClassification.trap not in item.classification and (item.game != GAME or get_item(item.name).type not in (ItemCategory.CRYSTALS, ItemCategory.HEART, ItemCategory.NOUSAGI))
 			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
+		if self.id in (3, 4): built.item_rule = lambda item: item.player != player or item.name != 'heart'
 		region.locations.append(built)
 		return built
 
@@ -82,11 +84,10 @@ location_types = [
 		if (i != 4 or category != LocationCategory.LEVEL_CLEAR_NUINUI) and (i != 6 or category != LocationCategory.LEVEL_CLEAR_RANDOM)
 	),
 	*(
-		LocationType(LocationCategory.BOSS_DROP, i, arena.name + ' drop' if 'boss' in arena.name else arena.name + ' boss drop')
-		for i, arena in enumerate(nnq_arenas())
+		LocationType(LocationCategory.BOSS_DROP, i, arena.fqname + ' drop' if 'boss' in arena.name else arena.fqname + ' boss drop')
+		for i, arena in enumerate(nnq_arenas() + prq_arenas())
 		if arena.drop != Drop.NEVER
 	),
-	LocationType(LocationCategory.BOSS_DROP, 23, 'Random Quest Underworld Casino game room boss drop'),
 	*(
 		LocationType(LocationCategory.HQ_LEVEL, i, f'Holo Office floor {i} clear')
 		for i in range(1, 6)
@@ -112,11 +113,11 @@ location_types = [
 		for i, name, x, y in mod.enemies
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, ('Right', 'Left')[j] + ' cannon of Pirate Harbor boat' if name == 'Cannon' else f'{name} {j} of Pirate Harbor pre-final-boss enemies')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, ('Right', 'Left')[j] + ' cannon of Nuinui Quest Pirate Harbor boat' if name == 'Cannon' else f'{name} {j} of Nuinui Quest Pirate Harbor pre-final-boss enemies')
 		for i, (name, j) in enumerate(pre_marine_enemies)
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'{name} {j} of enemy wave {wave} at Demon Lord Castle final bridge' if j else f'{name} of enemy wave {wave} at Demon Lord Castle final bridge')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'{name} {j} of enemy wave {wave} on Nuinui Quest Demon Lord Castle final bridge' if j else f'{name} of enemy wave {wave} on Nuinui Quest Demon Lord Castle final bridge')
 		for i, (name, wave, j) in enumerate(pre_miko_enemies)
 	),
 	*(

@@ -1,5 +1,27 @@
 import { BossDrop } from "./pickup.js";
-import { SkullBanner, SmokeCloud, Darkness, SinkingBoat, Boat, BossCamera, Throne, ScrollManager, TurretManager, FadeIn, KiaraFire, Spikes, Bridge, AmeSpiral, TowaOpen } from "./bossEffects.js";
+import {
+	DynamicFloor,
+	SkullBanner,
+	CalliLand,
+	SmokeCloud,
+	Darkness,
+	SinkingBoat,
+	Boat,
+	BossCamera,
+	Throne,
+	ScrollManager,
+	TurretManager,
+	FadeIn,
+	KiaraFire,
+	Spikes,
+	Bridge,
+	AmeSpiral,
+	TowaOpen,
+	FadeReveal,
+	BridgeLip,
+	RandomFubukiArenaManager,
+	Chloe
+} from "./bossEffects.js";
 import * as Feat from "./feat.js";
 
 function fadeIn1(game, event) {
@@ -87,9 +109,8 @@ const arenas = [
 			(game, event) => {
 				for (let y = 5; y < 8; y++)
 					game.scene.foreground['139_1' + y] = "6";
-				game.scene.shakeBuffer = 4;
+				event.next = game.scene.shakeBuffer = 4;
 				game.playSound("rumble");
-				event.next = true;
 			}
 		]
 	},
@@ -110,8 +131,9 @@ const arenas = [
 
 			if (!event.timelineFrame) {
 				event.skulls = new SkullBanner(event);
-				NNM.game.scene.actors.push(event.skulls);
-				event.timelineFrame++;
+				NNM.game.scene.actors.unshift(event.skulls);
+				if (archipelagoState.bossId !== 'Chloe')
+					event.timelineFrame++;
 				if (archipelagoState.bossId === 'Towa')
 					NNM.game.scene.actors.push(new TowaOpen());
 			}
@@ -137,14 +159,14 @@ const arenas = [
 			}
 
 			if (NNM.getPlayer().pos.x > 179 * 16) {
-				if (!['Veiled Mori', 'Fubuki', 'Mori', 'Towa'].includes(archipelagoState.bossId)) {
+				if (!['Veiled Mori', 'Fubuki', 'Mori', 'Towa', 'Chloe'].includes(archipelagoState.bossId)) {
 					NNM.game.scene.actors.push(new SmokeCloud({x: archipelagoState.bossSpawnX + 8, y: archipelagoState.arenaB - 18}, 24));
 					event.continueAt = event.timelineFrame + 20;
 					NNM.game.stopBGM();
 					NNM.getPlayer().playerControl = false;
 					NNM.game.scene.isFocus = 0;
 				} else {
-					event.timelineFrame = 0;
+					event.timelineFrame = archipelagoState.bossId === 'Chloe';
 					event.next = true;
 				}
 			}
@@ -230,7 +252,14 @@ const arenas = [
 			}
 		],
 		outroPre: [
-			(game, event) => event.next = NNM.getPlayer().playerControl = !game.playBGM('renjo_shiika')
+			(game, event) => {
+				event.end = game.scene.fubuzillaCleared = NNM.getPlayer().playerControl = !game.playBGM('renjo_shiika');
+				game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(a => !event.collisions.includes(a));
+				for (let y = 0; y < 7; y++) {
+					delete game.scene.foreground[`30_${63 + y}`];
+					delete game.scene.foreground[`60_${63 + y}`];
+				}
+			}
 		]
 	},
 	{
@@ -509,8 +538,9 @@ const arenas = [
 			NUINUI_HOLO_HQ_EVENTS['2_1'][1].timeline[0],
 			(game, event) => {
 				event.next = true;
+				event.collisions[0].size.y = 150;
 				event.collisions[2].pos.y = 0;
-				if (!['Veiled Mori', 'Fubuki', 'Mori', 'Gura', 'Kanata', 'Coco'].includes(archipelagoState.bossId)) {
+				if (!['Veiled Mori', 'Fubuki', 'Mori', 'Gura', 'Kanata', 'Coco', 'La+', 'Koyodrill'].includes(archipelagoState.bossId)) {
 					game.scene.actors.push(new SmokeCloud({x: archipelagoState.bossSpawnX + 8, y: archipelagoState.arenaB - 18}, 60));
 					NNM.getPlayer().playerControl = false;
 					game.scene.isFocus = 0;
@@ -556,6 +586,7 @@ const arenas = [
 		event: NUINUI_HEAVEN_EVENTS['8_0'][1],
 		bounds: { x: 2560, y: 0, w: 320, h: 144, t: 'section' },
 		walkTo: -(8 * 20 + 16.5) * 16,
+		floorData: [{ pos: { x: 2688, y: 144 }, size: 64 }, { pos: { x: 2560, y: 160 }, size: 64 }, { pos: { x: 2816, y: 160 }, size: 64 }],
 		collision: [
 			{ pos: { x: (8 * 20 - 1) * 16, y: -12 * 16 }, size: { x: 16, y: 24 * 16 }},
 			{ pos: { x: (9 * 20) * 16, y: -12 * 16 }, size: { x: 16, y: 24 * 16 }}
@@ -613,6 +644,244 @@ const arenas = [
 				game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(c => !event.collisions.includes(c));
 			}
 		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_FALLS_EVENTS['5_2'][0],
+		bounds: { x: 1616, y: 400, w: 288, h: 112 },
+		bossSpawnX: 117 * 16,
+		floorData: [{ pos: { x: 1728, y: 480 }, size: 64 }, { pos: { x: 1600, y: 512 }, size: 80 }, { pos: { x: 1840, y: 512 }, size: 80 }, { pos: { x: 1616, y: 544 }, size: 288 }],
+		collision: [
+			{ pos: { x: 100 * 16, y: 29 * 16 }, size: { x: 1 * 16, y: 3 * 16 } },
+			{ pos: { x: 119 * 16, y: 29 * 16 }, size: { x: 1 * 16, y: 3 * 16 } }
+		],
+		introPre: [
+			RANDOM_FALLS_EVENTS['5_2'][0].timeline[0],
+			parallel(RANDOM_FALLS_EVENTS['5_2'][0].timeline[1], (game, event) => (event.robot && !event.robot.toFilter) && (event.robot.toFilter = game.seenIntro = game.scene.actors.push(new FadeReveal(event)))),
+		],
+		introPost: [
+			wait(29),
+			(game, event) => {
+				event.next = game.scene.shakeBuffer = 4;
+				game.playSound("rumble");
+				for (const { pos, size } of event.collisions) {
+					for (let y = pos.y; y < pos.y + size.y; y += 16) {
+						for (let x = pos.x; x < pos.x + size.x; x += 16) {
+							game.scene.foreground[`${x / 16}_${y / 16}`] = "e";
+						}
+					}
+				}
+			},
+			wait(29)
+		],
+		outroPre: [
+			(game, event) => event.next = game.scene.koyoriBossCleared = true
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_FALLS_EVENTS['6_4'][0],
+		bounds: { x: 1920, y: 768, w: 320, h: 160, t: 'arena' },
+		final: true,
+		bossSpawnX: (6 * 20 + 4.25) * 16,
+		walkTo: -(6 * 20 + 14.75) * 16,
+		skip: 'Flare',
+		collision: [
+			{ pos: { x: 1920 - 1, y: 0 }, size: { x: 1, y: 1e3 } },
+			{ pos: { x: 1920 + 320, y: 0 }, size: { x: 1, y: 1e3 } },
+		],
+		outroPre: [
+			(game, event) => game.scene.bossKillEffect || (game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => collision !== event.collision, event.next = event.flare = {canDie: 1})),
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_CASINO_EVENTS['8_0'][0],
+		bounds: { x: 2608, y: 64, w: 224, h: 96 },
+		bossSpawnX: (8 * 20 + 13) * 16,
+		floorData: [{ pos: { x: 2688, y: 144 }, size: 64 }, { pos: { x: 2608, y: 144 }, size: 16 }, { pos: { x: 2816, y: 144 }, size: 16 }, { pos: { x: 2608, y: 160 }, size: 224 }],
+		collision: { pos: { x: 2592, y: 80 }, size: { x: 16, y: 64 } },
+		walkTo: 2560 + 6 * 16,
+		skip: 'Chloe',
+		introPre: [
+			(game, event) => game.scene.chloeCleared ? event.end = NNM.getPlayer().playerControl = true : event.next = !game.stopBGM()
+		],
+		introPost: [
+			(game, event) => {
+				event.next = game.scene.shakeBuffer = 4;
+				game.playSound("rumble");
+				for (let y = 5; y < 9; y++)
+					game.scene.foreground['162_' + y] = '7';
+			}
+		],
+		outroPre: [
+			wait(119),
+			(game, event) => {
+				game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => collision !== event.collision);
+				if (!game.bgm) game.playBGM('play_dice');
+				event.end = event.chloe = { draw: _ => 0, pos: {} };
+				event.timeline[event.index + 1](game, event);
+				for (let y = 5; y < 9; y++)
+					delete game.scene.foreground['162_' + y];
+			}
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_CASINO_EVENTS['1_5'][0],
+		bounds: { x: 320, y: 960, w: 320, h: 160, t: 'arena' },
+		bossSpawnX: 25.5 * 16,
+		walkTo: -34.5 * 16,
+		final: true,
+		skip: 'Mori',
+		collision: [
+			{ pos: { x: 319, y: 0 }, size: { x: 1, y: 2e3 } },
+			{ pos: { x: 640, y: 0 }, size: { x: 1, y: 2e3 } }
+		],
+		outroPre: [
+			(game, event) => game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => !event.collisions.includes(collision), event.next = game.scene.calliCleared = true)
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_PORT_EVENTS['5_6'][0],
+		bounds: { x: 1600, y: 1168, w: 320, h: 144 },
+		bossSpawnX: 1824,
+		walkTo: 5.25 * 20 * 16,
+		skip: 'Gura',
+		collision: [
+			{ pos: { x: (5 * 20 - 1) * 16, y: (6 * 12) * 16 }, size: { x: 16, y: 12 * 16 }},
+			{ pos: { x: (6 * 20) * 16, y: (6 * 12) * 16 }, size: { x: 16, y: 12 * 16 }}
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_PORT_EVENTS['9_3'][0],
+		bounds: { x: 2880, y: 576, w: 320, h: 160, t: 'arena' },
+		bossSpawnX: (9 * 20 + 13) * 16,
+		walkTo: 9.25 * 20 * 16,
+		final: true,
+		collision: [
+			{ pos: { x: 2880 - 1, y: 0 }, size: { x: 1, y: 1e3 } },
+			{ pos: { x: 2880 + 320, y: 0 }, size: { x: 1, y: 1e3 } }
+		],
+		outroPre: [
+			(game, event) => event.next = game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => !event.collisions.includes(collision))
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_YAMATO_EVENTS['7_2'][0],
+		bounds: { x: 2272, y: 416, w: 576, h: 128 },
+		bossSpawnX: 159.5 * 16,
+		playerControl: true,
+		intro: event => {
+			if (NNM.getPlayer().pos.y <= 32 * 16) {
+				const scene = NNM.game.scene;
+				event.collisions = [];
+				for (const y of [146, 171]) {
+					for (let x = 0; x < 3; x++) {
+						scene.foreground[`${y + x}_33`] = "f";
+						scene.foreground[`${y + x}_34`] = "e";
+					}
+					event.collisions.push({ pos: { x: y * 16, y: 34 * 16 }, size: { x: 16 * 3, y: 16 }});
+				}
+				scene.currentSection.collisions.push(...event.collisions);
+				scene.isFocus = 0;
+				NNM.game.playSound('rumble');
+				scene.shakeBuffer = 4;
+				scene.actors.push(new BossCamera(event.bossActor || NNM.getPlayer(), 24 * 16));
+				NNM.game.stopBGM();
+				event.next = event.iroha = { pos: {}, size: {} };
+			}
+		},
+		outroPre: [
+			wait(119),
+			(game, event) => event.timeline[event.index + 1](game, event, game.scene.lockedViewPos = {}, NNM.getPlayer().playerControl = true)
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_YAMATO_EVENTS['17_0'][1],
+		bounds: { x: 5472, y: 0, w: 256, h: 160, t: 'section' },
+		bossSpawnX: (17 * 20 + 13) * 16,
+		walkTo: 17.25 * 20 * 16,
+		final: true,
+		collision: [
+			{ pos: { x: 5440 - 1, y: 0 }, size: { x: 1, y: 1e3 } },
+			{ pos: { x: 5440 + 320, y: 0 }, size: { x: 1, y: 1e3 } }
+		],
+		introPost: [
+			(game, event) => event.next = game.scene.actors.push(new RandomFubukiArenaManager())
+		],
+		outroPre: [
+			(game, event) => {
+				game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => !event.collisions.includes(collision));
+				for (const x of [0, 1, 18, 19]) {
+					game.scene.foreground[`${17 * 20 + x}_10`] = '23';
+					game.scene.currentSection.collisions.push({ pos: { x: (17 * 20 + x) * 16, y: 10 * 16 }, size: { x: 16, y: 16 }});
+				}
+				event.next = true;
+			}
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_CASTLE_EVENTS['15_12'][0],
+		bounds: { x: 4832, y: 2304, w: 256, h: 160, t: 'arena' },
+		walkTo: (15 * 20 + 3) * 16,
+		bossSpawnX: (16 * 20 - 4) * 16,
+		collision: [
+			{ pos: { x: (15 * 20 + 1) * 16, y: (12 * 12 + 7) * 16 }, size: { x: 16, y: 3 * 16 }},
+			{ pos: { x: (16 * 20 - 2) * 16, y: (12 * 12 + 7) * 16 }, size: { x: 16, y: 3 * 16 }}
+		],
+		introPost: [
+			(game, event) => {
+				for (let y = 0; y < 3; y++) {
+					game.scene.foreground[`318_${151 + y}`] = game.scene.foreground[`301_${151 + y}`] = "31";
+				}
+				event.next = game.scene.shakeBuffer = 4;
+				game.playSound('rumble');
+			}
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_CASTLE_EVENTS['17_0'][1],
+		bounds: { x: 5504, y: 0, w: 192, h: 160, t: 'section' },
+		walkTo: -(17 * 20 + 13.75) * 16,
+		bossSpawnX: (17 * 20 + 5.25) * 16,
+		final: true,
+		skip: 'La+',
+		endingFrames: 4,
+		introPost: [
+			wait(60),
+			(game, event) => {
+				for (let x = 0; x < 4; x++) { 
+					delete game.scene.foreground[`${356 + x}_10`];
+					delete game.scene.background[`${356 + x}_10`];
+				}
+				event.next = game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => collision.pos.x < 356 * 16);
+			}
+		]
+	},
+	{
+		quest: 'prq',
+		event: RANDOM_HOLO_HQ_EVENTS['0_0'][2],
+		bounds: { x: 48, y: 0, w: 224, h: 160, t: 'section' },
+		bossSpawnX: (20 - 7.5) * 16,
+		final: true,
+		skip: 'Koyodrill',
+		endingFrames: 4,
+		intro: event => {
+			event.next = event.koyori = NNM.getPlayer().playerControl && { update: _ => {}, draw: _ => {} };
+			NNM.getPlayer().playerControl = false;
+			if (archipelagoState.bossId === 'Ina') {
+				const x = NNM.game.scene.lockedViewPos?.x || 0;
+				NNM.game.scene.lockedViewPos = new Vector2(x > -16 ? x - .5 : lerp(x, -32, 1/32), 0);
+			}
+		},
+		outroPre: [wait(119)]
 	}
 ];
 
@@ -620,7 +889,7 @@ function warn(name, icon, phase, bgm, delay=0, minWarning=0, events) {
 	return (game, event) => {
 		if (!event.timelineFrame) {
 			NNM.getPlayer().playerControl = false;
-			if (!game.bgmFadeOut && bgm && bgm !== game.bgm?.id) game.stopBGM();
+			if (!game.bgmFadeOut && bgm && bgm !== archipelagoState.bgmId) game.stopBGM();
 		}
 		if (events && events[event.timelineFrame])
 			events[event.timelineFrame](event);
@@ -634,7 +903,7 @@ function warn(name, icon, phase, bgm, delay=0, minWarning=0, events) {
 		} else if (event.warnStarted && event.bossActor.canDie && event.timelineFrame >= minWarning) {
 			event.warnStarted = game.scene.warning = false;
 			event.bossActor.phase = phase;
-			if (bgm && bgm !== game.bgm?.id)
+			if (bgm && bgm !== archipelagoState.bgmId)
 				game.playBGM(bgm);
 			NNM.getPlayer().playerControl = true;
 			NNM.getPlayer().animationLocked = false;
@@ -647,7 +916,7 @@ function roof(game, event) {
 	event.next = game.scene.currentSection.collisions.push({ pos: { x: archipelagoState.arenaL, y: game.scene.currentSection.pos.y - 1 }, size: { x: archipelagoState.arenaR - archipelagoState.arenaL, y: 1 } });
 }
 
-function fight(restrainBoss, clear, setDefeatedPhase) {
+function fight(clear, setDefeatedPhase, allowTravelBelowSection) {
 	return (game, event) => {
 		const player = NNM.getPlayer();
 
@@ -669,13 +938,15 @@ function fight(restrainBoss, clear, setDefeatedPhase) {
 				}
 			}
 
-			if (game.currentQuest === 'nuinui') {
+			if (archipelagoState.bossId !== 'Robot' && !(event.bossActor instanceof Boss)) {
 				game.scene.bossKillEffect = 60;
 				game.playSound('cling');
-				game.scene.isFocus = 0;
-				if ((archipelagoState.arenaId !== 10 || game.mode === 'noel') && archipelagoState.arenaId !== 18 && !(event.bossActor instanceof Bibi))
-					game.scene.actors.push(new BossDrop(event.bossActor.hands ? new Vector2(game.scene.view.pos.x + 150, archipelagoState.arenaT + 8) : event.bossActor.pos.value()));
 			}
+			
+			game.scene.isFocus = 0;
+			
+			if ((archipelagoState.arenaId !== 10 || game.mode === 'noel') && archipelagoState.arenaId !== 18 && !(event.bossActor instanceof Bibi))
+				archipelagoState.item(event.bossActor.hands ? new Vector2(game.scene.view.pos.x + 150, archipelagoState.arenaT + 8) : event.bossActor.pos.value(), 'boss');
 
 			if (setDefeatedPhase)
 				event.bossActor.phase = 'defeated';
@@ -683,7 +954,7 @@ function fight(restrainBoss, clear, setDefeatedPhase) {
 			game.scene.boss = null;
 			game.scene.bossText = null;
 			game.stopBGM();
-			player.playerControl = false;
+			player.playerControl = archipelagoState.arenaId === 22;
 			event.next = true;
 		}
 
@@ -702,6 +973,10 @@ function fight(restrainBoss, clear, setDefeatedPhase) {
 			player.vel.y = 0;
 		}
 
+		if (!allowTravelBelowSection && event.bossActor.health && event.bossActor.pos.y > game.scene.currentSection.pos.y + game.scene.currentSection.size.y + 15 && event.bossActor.pos.y < 1e5)
+			event.bossActor.pos = new Vector2((archipelagoState.arenaL + archipelagoState.arenaR - event.bossActor.size.x) >> 1, game.scene.currentSection.pos.y - event.bossActor.size.y);
+
+		/*
 		if (restrainBoss) {
 			if (event.bossActor.pos.x < game.scene.currentSection.pos.x) {
 				event.bossActor.pos.x = game.scene.currentSection.pos.x;
@@ -713,6 +988,7 @@ function fight(restrainBoss, clear, setDefeatedPhase) {
 				if (event.bossActor.vel) event.bossActor.vel.x = 0;
 			}
 		}
+		*/
 	};
 }
 
@@ -759,23 +1035,18 @@ function calli(skullBoss) {
 					event.bossActor.vel = Vector2.zero;
 				}
 			};
-			if (NNM.getPlayer().playerControl) {
+			if (NNM.getPlayer().playerControl || archipelagoState.arenaId === 10) {
 				event.bossActor.pos.y = Infinity;
 				event.calliJump = f;
 			} else f();
+			NNM.game.scene.actors.push(new CalliLand(event.bossActor));
 		},
 		timeline: [
-			parallel(warn(skullBoss ? 'unknown' : 'mori_calliope', 1, 'idle', 'mori', 0, 150, {
+			warn(skullBoss ? 'unknown' : 'mori_calliope', 1, 'idle', 'mori', 0, 150, {
 				'0': event => event.calliJump && event.calliJump(),
 				'150': event => event.bossActor.scythe.intro = !(event.bossActor.scythe.shakeBuffer = 15)
-			}), (game, event) => {
-				if (event.bossActor.isGrounded && !event.bossActor.scythe) {
-					event.bossActor.vel = Vector2.zero;
-					event.bossActor.setAnimation('hide');
-					NNM.game.scene.actors.unshift(event.bossActor.scythe = new CalliScythe(event.bossActor.pos.plus(new Vector2(event.bossActor.size.x * .5 - 24, -12 * 16)), event.bossActor));
-				}
 			}),
-			fight(true, [Calli, CalliScythe])
+			fight([Calli, CalliScythe])
 		]
 	};
 }
@@ -858,7 +1129,7 @@ const bosses = {
 					game.scene.shakeBuffer = 16;
 				}
 			},
-			fight(false, [Bullet, Rocket]),
+			fight([Bullet, Rocket]),
 			(game, event) => {
 				event.bossActor.phase = 'death';
 				event.bossActor.laserTarget = null;
@@ -871,7 +1142,7 @@ const bosses = {
 	},
 	Pekora: {
 		setup: event => {
-			event.bossActor = new PekoraBoss(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), NNM.game.currentQuest === 'nuinui' ? 32 : 64);
+			event.bossActor = new PekoraBoss(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), NNM.game.currentQuest === 'nuinui' && NNM.game.currentStage === 'falls' ? 32 : 64);
 			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
 			event.bossActor.setAnimation('idle');
 			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
@@ -887,7 +1158,7 @@ const bosses = {
 				'140': event => event.bossActor.setAnimation('laugh'),
 				'210': event => event.bossActor.setAnimation('idle')
 			}),
-			fight(true, [Bullet, Rocket], true),
+			fight([Bullet, Rocket], true),
 			(_, event) => {
 				event.next = event.bossActor.canFall = true;
 				event.bossActor.setAnimation('idle');
@@ -906,7 +1177,7 @@ const bosses = {
 			warn('sakura_miko', 3, 'sniper', 'elite_moonlight_scuffle', 0, 0, {
 				'0': event => event.bossActor.setAnimation('sniper')
 			}),
-			fight(true, [Bullet], true),
+			fight([Bullet], true),
 		]
 	},
 	Marine: {
@@ -933,7 +1204,7 @@ const bosses = {
 					}
 				}
 			}),
-			fight(false, [Bullet, DokuroEnemy], true)
+			fight([Bullet, DokuroEnemy], true)
 		]
 	},
 	Ayame: {
@@ -946,7 +1217,7 @@ const bosses = {
 		timeline: [
 			warn('nakiri_ayame', 6, 'idle', 'elite_moonlight_scuffle'),
 			roof,
-			fight(true, [Sword], true),
+			fight([Sword], true),
 		]
 	},
 	Fubuki: {
@@ -973,7 +1244,7 @@ const bosses = {
 				}
 			},
 			warn('shirakami_fubuki', 7, 'idle', 'dethroneworld', 30),
-			fight(true, [Bullet], true),
+			fight([Bullet], true),
 		]
 	},
 	Suisei: {
@@ -1012,7 +1283,7 @@ const bosses = {
 					game.playBGM('axe_dungeon_tatakae');
 				}
 			},
-			fight(false, [Comet, Axe], true)
+			fight([Comet, Axe], true)
 		]
 	},
 	Polka: {
@@ -1027,24 +1298,36 @@ const bosses = {
 			(game, event) => game.scene.actors.push(...(event.next = event.bossActor.cards)),
 			warn('omaru_polka', 9, 'charge', 'polkata_fugue_tatakae'),
 			(game, event) => game.playSound(event.next = 'charge'),
-			fight(false, [Bullet, Card], true)
+			fight([Bullet, Card], true)
 		]
 	},
 	'Demon Lord Miko': {
 		setup: event => {
 			const x = archipelagoState.arenaId === 1 ? 1992 :
-				[2, 4, 16].includes(archipelagoState.arenaId) ? archipelagoState.bossSpawnX :
+				[2, 4, 16, 21].includes(archipelagoState.arenaId) ? archipelagoState.bossSpawnX :
 				(archipelagoState.arenaL + archipelagoState.arenaR) - 16 >> 1,
 				y = archipelagoState.arenaB - 96,
 				q = (archipelagoState.arenaR - archipelagoState.arenaL) >> 2;
-			if (archipelagoState.arenaId !== 4) NNM.game.scene.actors.push(new Throne(new Vector2(x - 40, archipelagoState.arenaB - 160)))
-			event.bossActor = new EvilMiko(new Vector2(x, archipelagoState.arenaId === 4 ? 110 + Math.round(Math.cos(Math.floor(event.timelineFrame / 16) * (180 / Math.PI))) : archipelagoState.arenaB - 48), 64);
+			if (![4, 21, 23].includes(archipelagoState.arenaId)) NNM.game.scene.actors.push(new Throne(new Vector2(x - 40, archipelagoState.arenaB - 160)))
+			event.bossActor = new EvilMiko(new Vector2(x,
+				archipelagoState.arenaId === 4 ? 110 + Math.round(Math.cos(Math.floor(event.timelineFrame / 16) * (180 / Math.PI))) :
+				archipelagoState.arenaId === 21 ? archipelagoState.arenaB - 36 :
+				archipelagoState.arenaId === 23 ? archipelagoState.arenaB - 42 :
+				archipelagoState.arenaB - 48), 64);
 			event.bossActor.setAnimation(event.bossActor.phase = 'sit');
 			event.bossActor.posTargets = [
 				new Vector2(archipelagoState.arenaL - 8 + q, y),
 				new Vector2(archipelagoState.arenaL - 8 + q * 2, y),
 				new Vector2(archipelagoState.arenaL - 8 + q * 3, y)
 			];
+			if (archipelagoState.arenaId === 23) {
+				archipelagoState.arenaT -= 12;
+				const { background, foreground } = NNM.game.scene;
+				for (let i = 68; i < 72; i++)
+					background[`1${i}_9`] = '29';
+				delete foreground['169_9'];
+				delete foreground['170_9'];
+			}
 		},
 		timeline: [
 			warn('demon_lord_miko', 3, 'idle', 'elite_devil', 60, 120, {
@@ -1053,9 +1336,20 @@ const bosses = {
 					event.bossActor.phase = 'wait';
 					event.bossActor.phaseBuffer = 0;
 				},
-				'120': event => event.bossActor.dragonBreath = 60
+				'120': event => {
+					event.bossActor.dragonBreath = 60;
+					if (archipelagoState.arenaId === 23) {
+						const { background, foreground } = NNM.game.scene;
+						foreground['169_9'] = foreground['170_9'] = '29';
+						for (let i = 68; i < 72; i++)
+							background[`1${i}_9`] = '1e';
+					}
+				}
 			}),
-			fight(false, [Bullet, Block], true),
+			parallel(
+				fight([Bullet, Block], true),
+				(game, event) => game.currentQuest === 'random' && (event.bossActor.dragonBreath = Math.min(event.bossActor.dragonBreath, 80))
+			)
 		]
 	},
 	Flare: {
@@ -1081,7 +1375,7 @@ const bosses = {
 				}
 			}),
 			(_, event) => event.next = !event.bossActor.setAnimation('idle'),
-			fight(false, [IceShield, Bullet], true),
+			fight([IceShield, Bullet], true),
 		]
 	},
 	Demon: {
@@ -1115,7 +1409,7 @@ const bosses = {
 					}
 				}
 			}),
-			fight(false, [Bullet]),
+			fight([Bullet]),
 			(_, event) => {
 				event.bossActor.targetPos.y -= event.next = 128;
 				event.helper.chargeBuffer = 0;
@@ -1143,7 +1437,7 @@ const bosses = {
 				'30': event => event.bossActor.setAnimation('charge'),
 				'60': event => event.bossActor.setAnimation('idle'),
 			}),
-			fight(true, [Bullet])
+			fight([Bullet], true)
 		]
 	},
 	Mori: calli(false),
@@ -1186,16 +1480,16 @@ const bosses = {
 					archipelagoState.guraRight = archipelagoState.arenaR - 16 - 16*!!CollisionBox.intersectCollisions({ pos: {x: archipelagoState.arenaR, y: archipelagoState.guraY}, size: {x: 1, y: 64} }, NNM.game.scene.currentSection.collisions).length;
 				}
 			}),
-			fight(false, [Bullet], true),
+			fight([Bullet], true),
 		]
 	},
 	Ina: {
-		setup: _ => archipelagoState.arenaId === 12 && (NNM.game.scene.background = NNM.game.scene.foreground, NNM.game.scene.foreground = {}),
+		setup: _ => ['castle', 'holo_hq'].includes(NNM.game.currentStage) && (NNM.game.scene.background = NNM.game.scene.foreground, NNM.game.scene.foreground = {}),
 		timeline: [
 			warn('ninomae_inanis', 1, 'idle', null, 30, 0, {
 				'0': event => {
 					NNM.game.playBGM('ina');
-					event.bossActor = new Ina(new Vector2(archipelagoState.arenaId === 18 ? 2600 : 320, NNM.game.scene.currentSection.pos.y + NNM.game.scene.currentSection.size.y), 64);
+					event.bossActor = new Ina(new Vector2(archipelagoState.arenaL + ({ heaven: 40, falls: 72 }[NNM.game.currentStage] || -64), NNM.game.scene.currentSection.pos.y + NNM.game.scene.currentSection.size.y), 64);
 					event.bossActor.posTarget = event.bossActor.pos.plus({ x: 0, y: -5 * 16 });
 					event.bossActor.setAnimation('idle');
 					event.bossActor.dir = true;
@@ -1214,32 +1508,45 @@ const bosses = {
 					}
 				},
 				'30': event => {
-					if (archipelagoState.arenaId === 18) {
-						for (const c of event.destroyedCloudCol = NNM.game.scene.currentSection.collisions.filter(c => c.size.y === 16 && c.pos.x < 2640))
+					if (!['castle', 'holo_hq'].includes(NNM.game.currentStage)) {
+						const tilesToDestroy = archipelagoState.arenaId === 18 ? 5 : 10;
+						for (const c of event.destroyedInaCol = NNM.game.scene.currentSection.collisions.filter(c => c.size.y === 16 && c.pos.x < NNM.game.scene.currentSection.pos.x + tilesToDestroy * 16))
 							c.pos.y += 64;
-						event.destroyedCloudTiles = [];
-						for (let i = 0; i < 4; i++) {
-							event.destroyedCloudTiles.push(NNM.game.scene.foreground[`16${i}_10`])
-							delete NNM.game.scene.foreground[`16${i}_10`];
+						event.destroyedInaTiles = {};
+						for (let i = 0; i <= tilesToDestroy; i++) {
+							for (let j = 10 - (i < tilesToDestroy); j < 11; j++) {
+								const k = `${i + NNM.game.scene.currentSection.pos.x / 16}_${j + NNM.game.scene.currentSection.pos.y / 16}`;
+								event.destroyedInaTiles[k] = NNM.game.scene.foreground[k];
+								delete NNM.game.scene.foreground[k];
+								if (NNM.game.scene.background[k] == 3)
+									NNM.game.scene.background[k] = '1';
+							}
 						}
 						NNM.game.playSound('explosion');
-						for (let x = 2564; x < 2621; x += 2) {
-							NNM.game.scene.particles.smoke_white(new Vector2(x, 164), Vector2.zero, 0);
-							NNM.game.scene.particles.smoke_white(new Vector2(x, 168), Vector2.zero, 0);
-							NNM.game.scene.particles.smoke_white(new Vector2(x, 170), Vector2.zero, 0);
-							NNM.game.scene.particles.smoke_white(new Vector2(x, 172), Vector2.zero, 0);
+						if (archipelagoState.arenaId === 18) {
+							for (let x = 2564; x < 2621; x += 2) {
+								NNM.game.scene.particles.smoke_white(new Vector2(x, 164), Vector2.zero, 0);
+								NNM.game.scene.particles.smoke_white(new Vector2(x, 168), Vector2.zero, 0);
+								NNM.game.scene.particles.smoke_white(new Vector2(x, 170), Vector2.zero, 0);
+								NNM.game.scene.particles.smoke_white(new Vector2(x, 172), Vector2.zero, 0);
+							}
+						} else {
+							NNM.game.scene.actors.push(new BridgeLip());
+							for (let x = 1928; x < 2080; x += 16) {
+								NNM.game.scene.particles.explosion(new Vector2(x, archipelagoState.arenaB), 0);
+							}
 						}
 					}
 				}
 			}),
-			fight(false, [Bullet, Tentacle], true),
+			fight([Bullet, Tentacle], true, true),
 			(game, event) => {
 				event.next = true;
-				if (event.destroyedCloudCol) {
-					for (const c of event.destroyedCloudCol)
+				if (event.destroyedInaCol) {
+					for (const c of event.destroyedInaCol)
 						c.pos.y -= 64;
-					for (let i = 0; i < 4; i++)
-						game.scene.foreground[`16${i}_10`] = event.destroyedCloudTiles[i];
+					for (const k in event.destroyedInaTiles)
+						game.scene.foreground[k] = event.destroyedInaTiles[k];
 				} else game.scene.foreground = game.scene.background;
 			}
 		]
@@ -1274,7 +1581,7 @@ const bosses = {
 					};
 				}
 			}),
-			fight(true, [Bullet], true),
+			fight([Bullet], true),
 			(game, event) => game.scene.isAmeFocus = game.scene.ameReset = archipelagoState.ameResetData = !(event.next = true)
 		]
 	},
@@ -1294,7 +1601,7 @@ const bosses = {
 				},
 				'180': event => event.bossActor.intro = false
 			}),
-			fight(false, [Bullet], true),
+			fight([Bullet], true, true),
 		]
 	},
 	Coco: {
@@ -1315,7 +1622,7 @@ const bosses = {
 				'179': _ => NNM.game.playSound('charge2'),
 				'209': _ => NNM.game.scene.warning = !(NNM.getPlayer().playerControl = true),
 			}),
-			fight(false, [Bullet]),
+			fight([Bullet]),
 		],
 	},
 	Towa: {
@@ -1371,7 +1678,7 @@ const bosses = {
 				}
 			},
 			roof,
-			fight(true, [BibiFire]),
+			fight([BibiFire]),
 			(game, event) => {
 				if (event.timelineFrame === 180) {
 					event.next = game.scene.boss = event.bossActor;
@@ -1389,20 +1696,135 @@ const bosses = {
 					game.scene.actors.unshift(event.bossActor);
 				}
 			},
-			fight(true, [Bibi, BibiFire, Bullet], true)
+			fight([Bibi, BibiFire, Bullet], true)
+		]
+	},
+	Robot: {
+		setup: event => {
+			event.bossActor = new RobotBoss(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 32);
+			event.bossActor.frameCount = 120;
+			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+
+			if (archipelagoState.arenaId === 16) {
+				event.bossActor.__archipelagoTargets = [
+					new Vector2(archipelagoState.arenaR - 160, archipelagoState.arenaB - 32),
+					new Vector2(archipelagoState.arenaR - 32, archipelagoState.arenaB - 32)
+				];
+			} else if (archipelagoState.arenaId === 23) {
+				event.bossActor.__archipelagoTargets = [
+					new Vector2(archipelagoState.arenaL + 4, archipelagoState.arenaB - 48),
+					new Vector2(archipelagoState.arenaR - archipelagoState.bossSpawnX + archipelagoState.arenaL - 16, archipelagoState.arenaB - 32),
+					new Vector2((archipelagoState.arenaL + archipelagoState.arenaR - 16) >> 1, archipelagoState.arenaB - 48),
+					new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32),
+					new Vector2(archipelagoState.arenaR - 20, archipelagoState.arenaB - 48)
+				];
+			} else if (archipelagoState.arenaId !== 21) {
+				event.bossActor.__archipelagoTargets = [
+					new Vector2(archipelagoState.arenaL + 16, archipelagoState.arenaB - 32),
+					new Vector2((archipelagoState.arenaL + archipelagoState.arenaR - 16) >> 1, archipelagoState.arenaB - 32),
+					new Vector2(archipelagoState.arenaR - 32, archipelagoState.arenaB - 32)
+				];
+			}
+		},
+		timeline: [
+			warn(null, 12, 'attack', 'robotic_foe'),
+			fight()
+		]
+	},
+	Chloe: {
+		setup: event => NNM.game.scene.actors.unshift(event.chloe = new Chloe()),
+		timeline: [
+			(game, event) => event.chloe.event(game, event)
 		]
 	},
 	Lui: {
 		setup: event => {
 			event.bossActor = new Lui(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 64);
-			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+			event.bossActor.lookAt(NNM.getPlayer().pos);
 			event.bossActor.animation = 'cool';
 		},
 		timeline: [
 			warn('takane_lui', 14, 'idle', 'dummy_th000', 30),
-			fight(true),
+			fight()
 		]
 	},
+	Iroha: {
+		setup: event => {
+			event.bossActor = new Iroha(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 48);
+			event.bossActor.lookAt(NNM.getPlayer().pos);
+			event.bossActor.animation = 'think';
+		},
+		timeline: [
+			warn('kazama_iroha', 11, 'idle', 'crazy_bnuuy'),
+			fight()
+		]
+	},
+	'La+': {
+		setup: event => {
+			event.bossActor = new Laplus(new Vector2(archipelagoState.bossSpawnX, NNM.game.scene.currentSection.pos.y - 64), 64);
+			event.bossActor.checkHit = (_, cb) => !(cb instanceof Aircon) && CollisionBox.intersects(event.bossActor, cb);
+			event.bossActor.__archipelagoLaserBottom = [16, 18].includes(archipelagoState.arenaId) ? NNM.game.scene.view.pos.y + 192 : archipelagoState.arenaB;
+			event.bossActor.setAnimation('idle');
+			const above = { pos: { x: NNM.game.scene.currentSection.pos.x, y: NNM.game.scene.currentSection.pos.y - NNM.game.height }, size: NNM.game.scene.view.size };
+			event.canPanUp = archipelagoState.arenaId && !CollisionBox.intersectCollisions(above, NNM.game.scene.sections).length && ![...Object.keys(NNM.game.scene.foreground), ...Object.keys(NNM.game.scene.background)].some(key => {
+				const [sx, sy] = key.split('_');
+				const x = sx * 16, y = sy * 16;
+				return y === NNM.game.scene.currentSection.pos.y && x >= NNM.game.scene.currentSection.pos.x && x < NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x;
+			});
+		},
+		timeline: [
+			(game, event) => {
+				event.next = !event.canPanUp;
+				if (event.timelineFrame > 60) {
+					game.scene.lockedViewPos = game.scene.view.pos.plus({ x: 0, y: -10 * 12 });
+					event.next = true;
+				}
+			},
+			parallel(warn('laplus_darknesss', 15, 'idle', 'elite_devil', 0, 188), (game, event) => {
+				event.bossActor.pos.y = Math.max(event.bossActor.pos.y, lerp(event.bossActor.pos.y, (event.canPanUp ? game.scene.lockedViewPos : game.scene.view.pos).y + 64, .1));
+				if (event.bossActor.canDie) {
+					if (event.canPanUp) game.scene.lockedViewPos.y = lerp(game.scene.lockedViewPos.y, game.scene.currentSection.pos.y, .08);
+					else event.timelineFrame += 60;
+				}
+			}),
+			(game, event) => event.next = !event.canPanUp || delete game.scene.lockedViewPos,
+			fight([Bullet], true, true)
+		]
+	},
+	Koyodrill: {
+		timeline: [
+			(game, event) => {
+				event.next = event.bossActor = new Koyodrill(new Vector2(archipelagoState.bossSpawnX, Math.max(archipelagoState.arenaB, NNM.game.scene.currentSection.pos.y + 192) + 32), archipelagoState.arenaId === 4 ? 32 : 96);
+				event.bossActor.angle = Math.PI / -2;
+				event.bossActor.targetPos = new Vector2(event.bossActor.pos.x + 8, Math.max(archipelagoState.arenaB - 6 * 16, archipelagoState.arenaT + 48));
+				event.bossActor.checkHit = (_, cb) => !(cb instanceof Aircon) && event.bossActor.phase !== 'defeated' && CollisionBox.intersects(event.bossActor, cb);
+				event.bossActor.blackoutObject = true;
+				game.scene.actors.push(event.bossActor);
+				for (let i = 0; i < 12; i++) {
+					const bodyPart = new KoyodrillBody(event.bossActor.pos.plus(new Vector2(0, 16 * (i + 1))), event.bossActor);
+					bodyPart.checkHit = (_, cb) => !(cb instanceof Aircon) && event.bossActor.phase !== 'defeated' && CollisionBox.intersects(bodyPart, cb);
+					event.bossActor.bodyParts.push(bodyPart);
+					game.scene.actors.push(bodyPart);
+				}
+				const bridge = game.scene.actors.find(a => a instanceof Bridge);
+				if (bridge) {
+					const old = event.bossActor.update;
+					event.bossActor.update = game => {
+						old(game);
+						bridge.destroy(game, event.bossActor);
+					};
+				}
+			},
+			warn('koyodrill', 12, 'idle', 'robotic_foe', 120),
+			parallel(fight(null, false, true), game => {
+				if (game.currentQuest !== 'random') {
+					for (const a of game.scene.actors)
+						if (a instanceof Crystal && a.duration > 60)
+							a.duration = 60;
+				}
+			})
+		]
+	}
 };
 
 function bossTL(boss, intro, introPre, introPost) {
@@ -1411,20 +1833,27 @@ function bossTL(boss, intro, introPre, introPost) {
 		intro(event);
 		if (event.timelineFrame) return;
 		if (data.setup) data.setup(event);
-		if (event.bossActor) game.scene.actors.push(event.bossActor);
+		if (event.bossActor) {
+			game.scene.actors.push(event.bossActor);
+			event.bossActor.blackoutObject = true;
+		}
 	}, ...(introPost || []), ...data.timeline];
 }
 
 export function patchBosses() {
+	let quest_start;
 	for (let i = 0; i < arenas.length; i++) {
+		const { quest, event, skip, bounds, final, bossSpawnX, endingFrames, walkTo, collision, introPre, introPost, outroPre, playerControl, floorData } = arenas[i];
+		if (arenas[i - 1]?.quest !== quest)
+			quest_start = i;
 		const id = i;
-		const feat = Feat.NNQ_BOSS_DEFEAT + i;
-		const { quest, event, skip, bounds, final, bossSpawnX, endingFrames, walkTo, collision, introPre, introPost, outroPre, playerControl } = arenas[i];
+		const index = i - quest_start;
+		const feat = quest === 'nnq' && Feat.NNQ_BOSS_DEFEAT + i;
 		if (!event) continue;
 		const intro = arenas[i].intro || (event => {
-			if (walkTo) {
-				const wtx = Math.abs(walkTo);
-				if (Math.sign(NNM.getPlayer().pos.x - wtx) === Math.sign(walkTo)) {
+			if (self.archipelagoState.arenaWalkTo) {
+				const wtx = Math.abs(self.archipelagoState.arenaWalkTo);
+				if (Math.sign(NNM.getPlayer().pos.x - wtx) === Math.sign(self.archipelagoState.arenaWalkTo)) {
 					NNM.game.resetCpuKeys();
 				} else {
 					NNM.game.cpuKeys[walkTo < 0 ? 'left' : 'right'] = true;
@@ -1443,7 +1872,7 @@ export function patchBosses() {
 		const oldInitialFrame = event.timeline[0];
 		event.timeline[0] = (game, ge) => {
 			if (self.archipelagoState && !ge.timelineFrame) {
-				const boss = self.archipelagoState.slotData.boss[quest][id];
+				const boss = self.archipelagoState.slotData.boss[quest][index];
 				self.archipelagoState.arenaL = bounds.x;
 				self.archipelagoState.arenaT = bounds.y;
 				self.archipelagoState.arenaR = bounds.x + bounds.w;
@@ -1455,18 +1884,21 @@ export function patchBosses() {
 				self.archipelagoState.arenaId = id;
 				self.archipelagoState.bossId = boss;
 				self.archipelagoState.arenaFinal = final;
+				self.archipelagoState.arenaWalkTo = walkTo;
 				self.archipelagoState.bossSpawnX = bossSpawnX || bounds.x + (bounds.w >> 1) - 8;
 				self.archipelagoState.scout((4 << 16) | id);
 				if (boss !== skip) {
 					game.resetCpuKeys();
 					if (!playerControl) {
 						NNM.getPlayer().playerControl = false;
+						if (game.quest === 'random') NNM.getPlayer().chargeShotBuffer = 0;
 						game.scene.isFocus = 0;
-						if (id !== 4 && (![18, 19].includes(id) || !['Kanata', 'Coco'].includes(boss)))
+						if (id !== 4 && !(archipelagoState.bgmId === 'kiseki' && ['Kanata', 'Coco'].includes(boss)) && !(archipelagoState.bgmId === 'play_dice' && boss === 'Chloe'))
 							game.stopBGM();
 					}
+					if (floorData) game.scene.actors.push(new DynamicFloor(ge, floorData));
 					const newTL = bossTL(boss, intro, introPre, introPost);
-					newTL.push((_, event) => self.archipelagoState.save(event.next = !self.archipelagoState.feat(feat)));
+					if (feat) newTL.push((_, event) => self.archipelagoState.save(event.next = !self.archipelagoState.feat(feat)));
 					if (outroPre)
 						newTL.push(...outroPre);
 					for (let f = endingFrames??1; f > 0; f--)

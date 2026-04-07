@@ -5,6 +5,20 @@ from Options import OptionError
 
 from .data import SHOTS
 
+A_PRQ = {
+	'Random Quest Crystal Falls modboss',
+	'Random Quest Crystal Falls final boss',
+	'Random Quest Underworld Casino game room',
+	'Random Quest Underworld Casino final boss',
+	'Random Quest Pirate Harbor midboss',
+	'Random Quest Pirate Harbor final boss',
+	'Random Quest Yamato midboss',
+	'Random Quest Yamato final boss',
+	'Random Quest Demon Lord Castle midboss',
+	'Random Quest Demon Lord Castle final boss',
+	'Random Quest Holo Office',
+}
+
 A_FLOORED = {
 	'Crystal Falls midboss',
 	'Crystal Falls final boss',
@@ -25,6 +39,17 @@ A_FLOORED = {
 	"Ame's office",
 	'Sky Palace secret boss',
 	'Sky Palace final boss',
+
+	'Random Quest Crystal Falls final boss',
+	'Random Quest Underworld Casino game room',
+	'Random Quest Underworld Casino final boss',
+	'Random Quest Pirate Harbor midboss',
+	'Random Quest Pirate Harbor final boss',
+	'Random Quest Yamato midboss',
+	'Random Quest Yamato final boss',
+	'Random Quest Demon Lord Castle midboss',
+	'Random Quest Demon Lord Castle final boss',
+	'Random Quest Holo Office',
 }
 
 A_VISIBLY_WALLED = {
@@ -40,6 +65,11 @@ A_VISIBLY_WALLED = {
 	"Kiara's office",
 	"Ame's office",
 	'Sky Palace secret boss',
+
+	'Random Quest Crystal Falls midboss',
+	'Random Quest Underworld Casino game room',
+	'Random Quest Yamato midboss',
+	'Random Quest Demon Lord Castle midboss',
 }
 
 A_WALLED = {
@@ -50,6 +80,11 @@ A_WALLED = {
 	"Mori's office",
 	"Ina's office",
 	'Sky Palace final boss',
+
+	'Random Quest Crystal Falls final boss',
+	'Random Quest Underworld Casino final boss',
+	'Random Quest Pirate Harbor midboss',
+	'Random Quest Pirate Harbor final boss',
 }
 
 A_ROOFED = {
@@ -58,6 +93,11 @@ A_ROOFED = {
 	'Demon Lord Castle midboss 2',
 	"Ame's office",
 	'Sky Palace final boss',
+
+	'Random Quest Crystal Falls midboss',
+	'Random Quest Underworld Casino game room',
+	'Random Quest Pirate Harbor midboss',
+	'Random Quest Yamato midboss',
 }
 
 A_CAN_BE_ROOFED = {
@@ -66,6 +106,12 @@ A_CAN_BE_ROOFED = {
 	'Demon Lord Castle throne room',
 	"Kiara's office",
 	'Sky Palace secret boss',
+}
+
+A_ANY_ROOFED = {
+	*A_ROOFED,
+	'Yamato midboss 1',
+	'Demon Lord Castle midboss 1',
 }
 
 A_SINGLE_SCREEN = {
@@ -86,19 +132,45 @@ A_SINGLE_SCREEN = {
 	'Sky Palace midboss 2',
 	'Sky Palace secret boss',
 	'Sky Palace final boss',
+
+	'Random Quest Crystal Falls midboss',
+	'Random Quest Crystal Falls final boss',
+	'Random Quest Underworld Casino game room',
+	'Random Quest Underworld Casino final boss',
+	'Random Quest Pirate Harbor midboss',
+	'Random Quest Pirate Harbor final boss',
+	'Random Quest Yamato final boss',
+	'Random Quest Demon Lord Castle midboss',
+	'Random Quest Demon Lord Castle final boss',
+	'Random Quest Holo Office',
 }
 
 A_INA = {
 	"Ina's office",
 	'Sky Palace midboss 2',
 	'Demon Lord Castle turret',
+
+	'Random Quest Crystal Falls final boss',
+	'Random Quest Demon Lord Castle final boss',
 }
 
 A_NO_DEMON = {
+	*A_PRQ,
 	'Crystal Falls midboss',
 	'Crystal Falls final boss',
 	'Pirate Harbor boss',
 	"Ina's office",
+}
+
+A_NO_CHLOE = {
+	'Crystal Falls midboss',
+	'Pirate Harbor boss',
+	'Demon Lord Castle throne room',
+	'Demon Lord Castle lift',
+	'Demon Lord Castle turret',
+	"Ina's office",
+
+	'Random Quest Crystal Falls midboss',
 }
 
 #A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA
@@ -112,7 +184,7 @@ class Drop(Enum):
 @dataclass
 class Boss:
 	name: str
-	quests: set[str]
+	quests: int
 	requirements: None | set[str]
 	valid_arenas: set[str]
 	require_flare: bool = False
@@ -126,38 +198,45 @@ class Boss:
 				requirements = {*self.requirements, 'Noel'}
 				return lambda state: any(state.has(item, player) for item in requirements)
 
+Q_NNQ = 1
+Q_PRQ = 2
+Q_MMQ = 4
+Q_ALL = -1
+
 by_name = {boss.name.lower(): boss for boss in [
-	Boss('Usadrill', {'nnq'}, None, {'Crystal Falls midboss', "Ina's office"}),
-	Boss('Pekora', {'nnq', 'mmq'}, None, A_FLOORED - A_INA),
-	Boss('Veiled Mori', {'nnq'}, {SHOTS[0], SHOTS[3], SHOTS[4]}, A_FLOORED & A_WALLED),
-	Boss('Miko', {'nnq'}, None, A_FLOORED - A_ROOFED),
-	Boss('Marine', {'nnq'}, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED),
-	Boss('Fubura Tower', {'nnq'}, None, {'Yamato midboss 1'}),
-	Boss('Ayame', {'nnq'}, None, A_CAN_BE_ROOFED),
-	Boss('Fubuki', {'nnq'}, None, A_FLOORED),
-	Boss('Suisei', {'nnq'}, None, A_SINGLE_SCREEN - A_ROOFED - {"Ina's office"}),
-	Boss('Polka', {'nnq'}, None, A_FLOORED & A_SINGLE_SCREEN),
-	Boss('Demon Lord Miko', {'nnq'}, {SHOTS[2]}, {'Pirate Harbor boss'} | A_WALLED - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2'}),
-	Boss('Flare', {'nnq'}, None, A_FLOORED - A_ROOFED),
-	Boss('Demon', {'nnq'}, None, A_SINGLE_SCREEN - A_NO_DEMON),
-	Boss('Kiara', {'nnq'}, {SHOTS[1]}, A_FLOORED & A_WALLED - A_INA, True),
-	Boss('Mori', {'nnq', 'prq'}, None, A_FLOORED & A_WALLED),
-	Boss('Gura', {'nnq'}, {SHOTS[3]}, A_SINGLE_SCREEN),
-	Boss('Ina', {'nnq', 'mmq'}, {SHOTS[3]}, A_INA),
-	Boss('Ame', {'nnq'}, set(), A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
-	Boss('Kanata', {'nnq'}, {SHOTS[1], SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN),
-	Boss('Coco', {'nnq'}, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, True),
-	Boss('Towa', {'nnq'}, {SHOTS[5]}, A_CAN_BE_ROOFED, True),
-	#Boss('Lui', {'mmq', 'prq'}, None, A_FLOORED),
+	Boss('Usadrill', Q_NNQ, None, {'Crystal Falls midboss', "Ina's office"}),
+	Boss('Pekora', Q_NNQ|Q_MMQ, None, A_FLOORED - A_INA),
+	Boss('Veiled Mori', Q_NNQ, {SHOTS[0], SHOTS[3], SHOTS[4]}, A_FLOORED & A_WALLED - {'Random Quest Underworld Casino game room'}),
+	Boss('Miko', Q_NNQ, None, A_FLOORED - A_ROOFED),
+	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED, True),
+	Boss('Fubura Tower', Q_NNQ, None, {'Yamato midboss 1'}),
+	Boss('Ayame', Q_NNQ, None, A_CAN_BE_ROOFED),
+	Boss('Fubuki', Q_NNQ|Q_PRQ, None, A_FLOORED | {'Random Quest Crystal Falls midboss'}),
+	Boss('Suisei', Q_NNQ|Q_PRQ, None, A_SINGLE_SCREEN - A_ROOFED - {"Ina's office"}),
+	Boss('Polka', Q_NNQ, None, A_FLOORED & A_SINGLE_SCREEN),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, {'Pirate Harbor boss'} | A_WALLED - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2'}),
+	Boss('Flare', Q_NNQ|Q_PRQ, None, A_FLOORED - A_ROOFED),
+	Boss('Demon', Q_NNQ, None, A_SINGLE_SCREEN - A_NO_DEMON),
+	Boss('Kiara', Q_NNQ, {SHOTS[1]}, A_FLOORED & A_WALLED - A_INA - {'Random Quest Underworld Casino game room'}, True),
+	Boss('Mori', Q_NNQ|Q_PRQ, None, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss'}),
+	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN),
+	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, A_INA),
+	Boss('Ame', Q_NNQ, {'Time Zone Clock'}, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN - {'Random Quest Underworld Casino game room'}),
+	Boss('Kanata', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, A_SINGLE_SCREEN),
+	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ),
+	Boss('Towa', Q_NNQ, {SHOTS[5]}, A_CAN_BE_ROOFED & A_FLOORED, True),
+	Boss('Robot', Q_PRQ, None, A_FLOORED | A_PRQ),
+	Boss('Chloe', Q_PRQ, None, (A_WALLED | A_FLOORED) - A_NO_CHLOE),
+	Boss('Lui', Q_PRQ, None, A_FLOORED),
+	Boss('Iroha', Q_PRQ, None, A_FLOORED & A_WALLED - {'Random Quest Underworld Casino game room'}),
+	Boss('La+', Q_PRQ, None, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
+	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN, True),
 ]}
 
-#ARCADE_MARINE = Boss('Marine', {'a'}, None, A_FW | by_name['marine'].valid_arenas)
-
 class Arena:
-	def __init__(self, name, default, region=None, drop=None):
-		if drop is None:
-			drop = Drop.SETTING if region  else Drop.NEVER
+	def __init__(self, name, default, region=None, drop=Drop.SETTING):
 		self.name = name
+		self.fqname = Arena.prefix + name
 		self.default = by_name[default.lower()]
 		self.region = region
 		self.drop = drop
@@ -183,6 +262,8 @@ def allocate_bosses(random, option, arenas, source_quests):
 	try: plando = option.name_lookup[int(plando)]
 	except: pass
 
+	banned = []
+
 	for command in plando.lower().split(';'):
 		match [sc.strip() for sc in command.split('-')]:
 			case ["none"] | ["default"]:
@@ -197,12 +278,16 @@ def allocate_bosses(random, option, arenas, source_quests):
 				if duplicates is not None:
 					raise OptionError('Shuffle mode cannot be set multiple times')
 				duplicates = True
+			case ["none", boss_name]:
+				try:
+					banned.append(by_name[boss_name])
+				except KeyError:
+					raise OptionError('Unknown boss ' + repr(boss_name))
 			case [singularity]:
 				try:
-					#boss = ARCADE_MARINE if singularity == 'marine' else by_name[singularity]
 					boss = by_name[singularity]
 					for arena in arenas:
-						if not arena.boss and arena.name in boss.valid_arenas:
+						if not arena.boss and arena.fqname in boss.valid_arenas:
 							arena.boss = boss
 				except KeyError:
 					raise OptionError('Unknown boss ' + repr(singularity))
@@ -211,9 +296,8 @@ def allocate_bosses(random, option, arenas, source_quests):
 					arena = next(a for a in arenas if a.name.lower() == arena_name)
 					if arena.boss:
 						raise OptionError('Arena has already been filled by time of ' + repr(command))
-					#boss = ARCADE_MARINE if boss_name == 'marine' else by_name[boss_name]
 					boss = by_name[boss_name]
-					if arena.name in boss.valid_arenas:
+					if arena.fqname in boss.valid_arenas:
 						arena.boss = boss
 					else:
 						raise OptionError(f'{boss.name} is not compatible with {arena.name}')
@@ -224,11 +308,7 @@ def allocate_bosses(random, option, arenas, source_quests):
 			case _:
 				raise OptionError('Malformed boss plando command ' + repr(command))
 
-	bosses = [b for b in by_name.values() if b.quests & source_quests]
-	#if ARCADE_MARINE.quests & source_quests:
-	#	try: bosses.remove(by_name['marine'])
-	#	except ValueError: pass
-	#	bosses.append(ARCADE_MARINE)
+	bosses = [b for b in by_name.values() if b.quests & source_quests and b.name not in banned]
 
 	if not duplicates:
 		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas)]
@@ -242,6 +322,9 @@ def allocate_bosses(random, option, arenas, source_quests):
 		for arena in arenas:
 			arena.boss = arena.default
 		return
+	
+	if not duplicates and len(bosses) < len(arenas):
+		raise OptionError('Not enough valid bosses to fill all arenas')
 
 	random.shuffle(arenas)
 	random.shuffle(bosses)
@@ -263,7 +346,7 @@ def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 		most_constrained_arena = None
 		most_constrained_arena_options = 999
 		for arena in arenas:
-			options = len([b for b in bosses if arena.name in b.valid_arenas])
+			options = len([b for b in bosses if arena.fqname in b.valid_arenas])
 			if options < most_constrained_arena_options:
 				most_constrained_arena_options = options
 				most_constrained_arena = arena
@@ -276,7 +359,7 @@ def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 		most_constrained_boss_options = 999
 		bosses_to_remove = []
 		for boss in bosses:
-			options = len([a for a in arenas if a.name in boss.valid_arenas])
+			options = len([a for a in arenas if a.fqname in boss.valid_arenas])
 			if options == 0:
 				bosses_to_remove.append(boss)
 			elif options < most_constrained_boss_options:
@@ -291,12 +374,12 @@ def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 			bosses.remove(boss)
 
 		if duplicates or most_constrained_arena_options <= most_constrained_boss_options or len(bosses) > len(arenas):
-			most_constrained_boss = random.choice([b for b in bosses if most_constrained_arena.name in b.valid_arenas])
+			most_constrained_boss = random.choice([b for b in bosses if most_constrained_arena.fqname in b.valid_arenas])
 		else:
-			most_constrained_arena = random.choice([a for a in arenas if a.name in most_constrained_boss.valid_arenas])
+			most_constrained_arena = random.choice([a for a in arenas if a.fqname in most_constrained_boss.valid_arenas])
 
 		most_constrained_arena.boss = most_constrained_boss
-		#print(f'Assigned {most_constrained_boss.name} to {most_constrained_arena.name}')
+		print(f'Assigned {most_constrained_boss.name} to {most_constrained_arena.fqname}')
 		arenas.remove(most_constrained_arena)
 		if not duplicates:
 			bosses.remove(most_constrained_boss)

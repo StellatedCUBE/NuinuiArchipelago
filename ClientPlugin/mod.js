@@ -186,14 +186,16 @@ class ArchipelagoConnectMenu extends Menu {
 			if (/[^0-9]/.test(this.port.value))
 				this.port.value = this.port.value.replace(/[^0-9]/g, '');
 
+			if (InputManager.inputType === 'keyboard')
+				this.wasB = this.wasA = this.wasUp = this.wasDown = true;
+		}
+
+		if (document.activeElement !== this.port) {
 			if (+this.port.value < 1)
 				this.port.value = '38281';
 
 			else if (+this.port.value > 65535)
 				this.port.value = '65535';
-
-			if (InputManager.inputType === 'keyboard')
-				this.wasB = this.wasA = this.wasUp = this.wasDown = true;
 		}
 
 		if (!this.focus || InputManager.inputType !== 'keyboard') {

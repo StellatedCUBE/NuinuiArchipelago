@@ -1,6 +1,8 @@
 from . import item
 from . import location
 from . import data
+from .arenas import prq_arenas
+from .boss import allocate_bosses, Drop, Q_PRQ, Q_ALL
 from .prq_enemy_data import prq_enemy_data
 
 def prq(world):
@@ -14,10 +16,11 @@ def prq(world):
 	for i in range(5):
 		world.add_item(item.ItemCategory.BOMB)
 	
+	shop = world.create_region('prq_shop')
 	if not world.single_quest or world.multiworld.players > 1:
-		world.add_location((location.LocationCategory.SHOP, 0), world.base_region)
-		world.add_location((location.LocationCategory.SHOP, 1), world.base_region, lambda state: state.has('200 crystals', p))
-		world.add_location((location.LocationCategory.SHOP, 2), world.base_region, lambda state: state.has('200 crystals', p))
+		world.add_location((location.LocationCategory.SHOP, 0), shop)
+		world.add_location((location.LocationCategory.SHOP, 1), shop, lambda state: state.has('200 crystals', p))
+		world.add_location((location.LocationCategory.SHOP, 2), shop, lambda state: state.has('200 crystals', p))
 		for i in range(-3, 0):
 			world.options.start_location_hints.value.add(world.locations[i][0].name)
 	
@@ -29,27 +32,29 @@ def prq(world):
 		if i == 5:
 			if world.options.prq_goal.value:
 				world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
-				world.add_location((level_location_type, i), world.base_region, lambda state, item = world.items[-1].name: state.has(item, p))
+				world.add_location((level_location_type, i), shop, lambda state, item = world.items[-1].name: state.has(item, p))
 			else:
-				world.add_location((level_location_type, i), world.base_region, lambda state: all(state.has(c, p) for c in crystals))
+				world.add_location((level_location_type, i), shop, lambda state: all(state.has(c, p) for c in crystals))
 		else:
 			if world.options.prq_goal.value:
 				world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + i)
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
+			region = world.create_region('prq_' + level)
 			if i < 4:
 				world.potential_starting_levels.append(world.items[-1])
-			region = world.create_region('prq_' + level)
-			world.base_region.connect(region, rule = lambda state, item = world.items[-1].name: state.has(item, p))
+				source_region = world.base_region
+				region.connect(shop)
+			else:
+				source_region = shop
+			source_region.connect(region, rule = lambda state, item = world.items[-1].name: state.has(item, p))
 
 			if i == 1:
 				region2 = world.create_region('prq_casino2')
 				region.connect(region2, rule = lambda state: state.has('casino key', p))
-				game_boss_drop = 'Random Quest Underworld Casino game room boss drop'
-				world.add_location(game_boss_drop, region)
 				if world.options.prq_casino_access:
 					world.add_item('casino key')
 				else:
-					world.place_item(game_boss_drop, 'casino key')
+					world.place_item((location.LocationCategory.BOSS_DROP, 23), 'casino key')
 
 				if world.options.prq_casino_checks:
 					world.filler.append((1, 2))
@@ -88,4 +93,10 @@ def prq(world):
 		world.filler.append((1, c))
 		world.filler.append((2, c))
 
-	world.boss_data['prq'] = []
+	arenas = prq_arenas()
+	allocate_bosses(world.random, world.options.prq_boss_shuffle, arenas, Q_ALL if world.options.prq_boss_cross else Q_PRQ)
+	for i, arena in enumerate(arenas):
+		if arena.drop == Drop.ALWAYS or (world.options.prq_boss_all_drop and arena.drop != Drop.NEVER):
+			world.add_location((location.LocationCategory.BOSS_DROP, i + 21), world.get_region(arena.region))
+	
+	world.boss_data['prq'] = [arena.boss.name for arena in arenas]
