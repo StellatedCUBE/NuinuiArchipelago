@@ -21,9 +21,9 @@ class NNQGoal(Choice):
 	@classmethod
 	def get_option_name(cls, id_):
 		match id_:
-			case 0: return 'First 5 Levels (Any Ending)'
-			case 1: return 'First 5 Levels (Good Ending)'
-			case 2: return 'All Levels'
+			case 0: return 'First 5 Stages (Any Ending)'
+			case 1: return 'First 5 Stages (Good Ending)'
+			case 2: return 'All Stages'
 			case 3: return 'All Bosses'
 
 class NNQStartingCharacter(Choice):
@@ -32,17 +32,17 @@ class NNQStartingCharacter(Choice):
 	option_flare = 0
 	option_noel = 1
 
-class NNQShuffleLevels(DefaultOnToggle):
-	"""Randomise the unlock order of the levels."""
-	display_name = "Randomise Level Order"
+class NNQShuffleStages(DefaultOnToggle):
+	"""Randomise the unlock order of the stages."""
+	display_name = "Randomise Stage Order"
 
-class NNQLevelItems(DefaultOnToggle):
-	"""Make level access multiworld items."""
-	display_name = "Randomise Level Access"
+class NNQStageItems(DefaultOnToggle):
+	"""Make stage access multiworld items."""
+	display_name = "Randomise Stage Access"
 
-class NNQAllLevels(Toggle):
-	"""Include all seven levels even if the goal only requires five."""
-	display_name = "Always Include All Levels"
+class NNQAllStages(Toggle):
+	"""Include all seven stages even if the goal only requires five."""
+	display_name = "Always Include All Stages"
 
 class NNQHiddenAreas(DefaultOnToggle):
 	"""Add checks to the hidden achievement-granting areas in Casino, Harbor, and Yamato."""
@@ -74,8 +74,8 @@ class PRQ(Toggle):
 class PRQGoal(Choice):
 	__doc__ = NNQGoal.__doc__
 	display_name = "Goal"
-	option_final_level = 0
-	option_all_levels = 1
+	option_final_stage = 0
+	option_all_stages = 1
 
 class PRQCasinoAccess(Toggle):
 	"""Makes accessing the second part of Underworld Casino an item in the multiworld."""
@@ -110,6 +110,28 @@ class MMQ(Toggle):
 	"""Include Marine Maiden Quest"""
 	display_name = "Enabled"
 
+class MMQGoal(Choice):
+	__doc__ = NNQGoal.__doc__
+	display_name = "Goal"
+	option_final_stage = 0
+	option_all_stages = 1
+	option_all_coins = 2
+
+class MMQCoinBehaviour(Choice):
+	"""How checks are achieved. “Per Coin” means that each coin condition (goal, time, health) is its own check, while “By Coin Quantity” gives checks based on how many coins you get in a stage in a single run.
+	This also affects the “All Coins” goal. Only pick “By Coin Quantity” if you are comfortable getting the “Sea of Gold” achievement."""
+	display_name = "Checks Are"
+	option_per_coin = 0
+	option_by_coin_quantity = 1
+
+class MMQShuffleStages(DefaultOnToggle):
+	__doc__ = NNQShuffleStages.__doc__
+	display_name = NNQShuffleStages.display_name
+
+class MMQStageItems(DefaultOnToggle):
+	__doc__ = NNQStageItems.__doc__
+	display_name = NNQStageItems.display_name
+
 @dataclass
 class FNNQOptions(PerGameCommonOptions):
 	# General
@@ -118,9 +140,9 @@ class FNNQOptions(PerGameCommonOptions):
 	# NNQ
 	nnq: NNQ
 	nnq_goal: NNQGoal
-	nnq_all_levels: NNQAllLevels
-	nnq_level_shuffle: NNQShuffleLevels
-	nnq_level_items: NNQLevelItems
+	nnq_all_stages: NNQAllStages
+	nnq_stage_shuffle: NNQShuffleStages
+	nnq_stage_items: NNQStageItems
 	nnq_starting_character: NNQStartingCharacter
 	nnq_hidden_area_checks: NNQHiddenAreas
 	nnq_boss_shuffle: NNQBossPlando
@@ -142,6 +164,10 @@ class FNNQOptions(PerGameCommonOptions):
 
 	# MMQ
 	mmq: MMQ
+	mmq_goal: MMQGoal
+	mmq_coin_behaviour: MMQCoinBehaviour
+	mmq_stage_shuffle: MMQShuffleStages
+	mmq_stage_items: MMQStageItems
 
 	# c/i
 	start_inventory_from_pool: StartInventoryPool
@@ -150,9 +176,9 @@ fnnq_option_groups = [
 	OptionGroup("NUINUI QUEST", [
 		NNQ,
 		NNQGoal,
-		NNQAllLevels,
-		NNQShuffleLevels,
-		NNQLevelItems,
+		NNQAllStages,
+		NNQShuffleStages,
+		NNQStageItems,
 		NNQStartingCharacter,
 		NNQHiddenAreas,
 		NNQBossPlando,
@@ -173,6 +199,10 @@ fnnq_option_groups = [
 		PRQCrateSanity,
 	]),
 	OptionGroup("MARINE MAIDEN QUEST", [
-		MMQ
+		MMQ,
+		MMQGoal,
+		MMQCoinBehaviour,
+		MMQShuffleStages,
+		MMQStageItems,
 	]),
 ]

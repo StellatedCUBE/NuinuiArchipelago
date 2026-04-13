@@ -20,6 +20,13 @@ NNM.code.insertBeforeFirstMatchingLine('KeyboardListener.handler', 'preventDefau
 NNM.code.insertAtStartOfScope('Game.update', 'self.archipelagoState?.update();');
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
+NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.update', 'this.endTransitionBuffer = 30',
+	'if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(this.sections[Object.keys(this.sections)[this.cursorIndex.y]].stages[this.cursorIndex.x])) return game.playSound("no_damage");');
+NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.drawOptions', 'stageNum.toString', `if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(Object.keys(game.quests.maiden.stages)[stageNum]))
+	{ cx.drawImage(game.assets.images.NNM_Archipelago_lock, stagePos.x + 4, stagePos.y + 3); continue; }`);
+NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'if (stars !== undefined)', 'if (self.archipelagoState?.drawCoins(cx, this.frameCount, stageNum - 1, stagePos)) continue;');
+NNM.code.insertAtEndOfScope('MarineStageSelect.constructor', 'self.archipelagoState?.checkCoins(this.stageResult);');
+NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'bonusDesc.draw', 'value && this.frameCount - 90 > i * 60 && self.archipelagoState?.drawCoinMessage(cx, this.stageResult, i);');
 NNM.code.insertAtStartOfScope('Game.playBGM', 'if (self.archipelagoState) id = self.archipelagoState.getBgm(id);');
 NNM.code.insertAtEndOfScope('Game.setQuest', function() {
 	if (self.archipelagoState) {
@@ -75,12 +82,9 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", funct
 });
 
 function itemTextParticle(a, loc, side) {
-	const scout = archipelagoState.scouts[loc];
+	const scout = archipelagoState.getScout(loc);
 	if (scout) {
-		let name = scout.name;
-		if (scout.receiver.game === 'Hollow Knight')
-			name = name.replace(/_/g, ' ');
-		const text = scout.receiver.slot === scout.sender.slot ? [name] : [name, 'for ' + scout.receiver.name];
+		const text = scout.local ? [name] : [name, 'for ' + scout.target];
 		if (!side) side = a.pos.y < NNM.game.scene.currentSection.pos.y + 32 ? 'bottom' : 'top';
 		if (side === 'left' || side === 'right') {
 			archipelagoState.textParticle(
@@ -181,11 +185,11 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_PORT_EVENTS', 'else enemy = new en
 }, {enemySanity});
 NNM.code.insertAtStartOfScope('Game.setStage', function() {
 	if (self.archipelagoState) {
-		self.archipelagoState.actorsToAdd = [];
+		const stageIndex = Object.keys(this.quests[this.currentQuest].stages).indexOf(stageId);
 		if (this.currentQuest === 'maiden') {
-			self.archipelagoState.levelEndCheckA = self.archipelagoState.levelEndCheckB = 0;
+			for (let i = 0; i < 5; i++)
+				self.archipelagoState.scout((9 << 16) + 8 * stageIndex + i);
 		} else {
-			const stageIndex = Object.keys(this.quests.nuinui.stages).indexOf(stageId);
 			if (this.currentQuest === 'nuinui') {
 				self.archipelagoState.scout(10 + stageIndex);
 				self.archipelagoState.scout(30 + stageIndex);
@@ -506,24 +510,19 @@ NNM.code.insertAtStartOfScope('ShopMenu.checkEnabled', 'if(self.archipelagoState
 NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 	if (self.archipelagoState)
 	for (const option of this.options) {
-		let scout = self.archipelagoState.scouts[option.archipelago_location];
+		let scout = self.archipelagoState.getScout(option.archipelago_location);
 		if (scout) {
-			let name = scout.name;
-			if ((option.local = scout.sender.slot === scout.receiver.slot) && name[0] === '(') {
-				const [quest, stage] = name.split(') ');
-				name = stage + ' in ' + quest.substr(1);
-			} else if (scout.receiver.game === 'Hollow Knight')
-				name = name.replace(/_/g, ' ');
+			option.local = scout.local;
 			if (option.local && scout.id === (17 << 16)) {
 				option.text = new LocaleElem(game, 'menu_shop_bomb', { textAlign: 'center' });
 			} else if (option.local && game.assets.locales.en['archipelago_shop_' + scout.id]) {
 				option.text = new TextElem(game, [...game.assets.locales.en['archipelago_shop_' + scout.id]], { lang: 'en', textAlign: 'center' });
 			} else {
 				let name_width = 0;
-				for (const chr of name)
+				for (const chr of scout.name)
 					name_width += FONT_EN[chr]?.width ?? 6;
 				if (name_width < 57)
-					option.text = new TextElem(game, [...name], { lang: 'en', textAlign: 'center' });
+					option.text = new TextElem(game, [...scout.name], { lang: 'en', textAlign: 'center' });
 				else if (option.local)
 					option.text = new LocaleElem(game, 'archipelago_shop_local', { textAlign: 'center' });
 			}
@@ -535,7 +534,7 @@ NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 				scout.id === (10 << 16) ? 'archipelago_shop_coin' :
 				scout.id === (15 << 16) ? 'archipelago_shop_prog_level_nnq' :
 				scout.id === (15 << 16) + 1 ? 'archipelago_shop_prog_level_mmq' :
-				([1,2,3,4].includes(scout.id >> 16) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 16) ? 'raw: get the ' : 'raw:get ') + name,
+				([1,2,3,4].includes(scout.id >> 16) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 16) ? 'raw: get the ' : 'raw:get ') + scout.name,
 				{ textAlign: 'center' }
 			);
 			if (scout.receiver.game === 'FLARE NUINUI QUEST')

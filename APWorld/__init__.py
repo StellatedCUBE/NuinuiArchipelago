@@ -8,6 +8,7 @@ from .item import item_name_to_id, get_item, ItemCategory
 from .location import location_name_to_id, get_location, LocationCategory
 from .nnq import nnq
 from .prq import prq
+from .mmq import mmq
 
 class FNNQWebWorld(WebWorld):
 	setup_en = Tutorial(
@@ -71,6 +72,7 @@ class FNNQWorld(World):
 		self.goal_locations = []
 		self.base_region = self.create_region(self.origin_region_name)
 		self.potential_starting_levels = []
+		self.needs_starting_level = True
 		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
 		self.boss_data = dict()
 		self.required_feats = set()
@@ -82,8 +84,9 @@ class FNNQWorld(World):
 
 		if self.options.nnq: nnq(self)
 		if self.options.prq: prq(self)
+		if self.options.mmq: mmq(self)
 
-		if not any(get_item(item.name) in self.potential_starting_levels for item in self.multiworld.precollected_items[player]):
+		if self.needs_starting_level and not any(get_item(item.name) in self.potential_starting_levels for item in self.multiworld.precollected_items[player]):
 			starting_level = self.random.choice(self.potential_starting_levels)
 			self.items.remove(starting_level)
 			self.push_precollected(starting_level.build(player))
@@ -155,5 +158,5 @@ class FNNQWorld(World):
 			deathLink = self.options.death_link.value,
 			boss = self.boss_data,
 			goal = hex(sum(1 << feat for feat in self.required_feats))[2:],
-			nnq_li = self.options.nnq_level_items.value,
+			nnq_li = self.options.nnq_stage_items.value,
 		)

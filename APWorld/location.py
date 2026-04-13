@@ -108,6 +108,11 @@ location_types = [
 	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target'),
 	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
+		LocationType(LocationCategory.COIN, level * 8 + i, f'Maiden Quest stage {level:0>2} {challenge}')
+		for level in range(1, 29)
+		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
+	),
+	*(
 		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}')
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies

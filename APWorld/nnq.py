@@ -9,12 +9,12 @@ def nnq(world):
 	world.push_precollected(world.create_item('Noel' if world.options.nnq_starting_character.value else 'Flare'))
 	world.add_item('Flare' if world.options.nnq_starting_character.value else 'Noel')
 
-	levels = 7 if world.options.nnq_all_levels or world.options.nnq_goal.value > 1 else 5
+	levels = 7 if world.options.nnq_all_stages or world.options.nnq_goal.value > 1 else 5
 	level_items = []
 	level_item_bits = 256 if world.options.prq else 256|512
 	heart_entries = 10
 	for i in range(levels):
-		if world.options.nnq_level_shuffle and world.options.nnq_level_items:
+		if world.options.nnq_stage_shuffle and world.options.nnq_stage_items:
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
 			level_items.append(world.items[-1])
 		level_modules[i].create_locations(world, item, location, data)
@@ -65,7 +65,7 @@ def nnq(world):
 			world.add_location((location.LocationCategory.BOSS_DROP, i), world.get_region('nnq_castle_0_384') if arena.drop == Drop.NOEL else region)
 	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
 
-	if world.options.nnq_level_shuffle:
+	if world.options.nnq_stage_shuffle:
 		possible_starts = [i for i in range(levels) if i != 5 and (
 			i in (0, 1, 3) or
 			world.options.nnq_enemysanity or
@@ -85,20 +85,20 @@ def nnq(world):
 					5 not in level_ordering[:3 if world.options.nnq_enemysanity or (world.options.nnq_boss_all_drop and world.options.nnq_hidden_area_checks) else 5] and
 					(world.options.nnq_starting_character.value or 4 not in level_ordering[:3])
 				): break
-			world.add_item((item.ItemCategory.LEVEL, level_item_bits|level_ordering[0]))
-			world.potential_starting_levels.append(world.items[-1])
+			world.push_precollected(world.create_item((item.ItemCategory.LEVEL, level_item_bits|level_ordering[0])))
+			world.needs_starting_level = False
 			for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 				placed = None
 				if i < levels - 1: placed = (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1])
 				world.place_item('Good end' if level_ordering[i] == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, level_ordering[i]), placed)
 				world.place_item((location.LocationCategory.LEVEL_CLEAR_NAMELESS, level_ordering[i]), placed)
-	elif world.options.nnq_level_items:
+	elif world.options.nnq_stage_items:
 		for i in range(levels):
 			world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0))
 		world.potential_starting_levels.append(world.items[-1])
 	else:
-		world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0))
-		world.potential_starting_levels.append(world.items[-1])
+		world.push_precollected(world.create_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0)))
+		world.needs_starting_level = False
 		for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 			placed = (item.ItemCategory.LEVEL_PROGRESSIVE, 0)
 			if i == levels - 1: placed = None

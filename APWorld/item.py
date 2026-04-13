@@ -53,6 +53,12 @@ item_types = [
 		for m, prefix in ((256, '(Nuinui Quest) '), (512, '(Random Quest) '), (256|512, ''))
 	),
 
+	*(
+		ItemType(ItemCategory.LEVEL_MARINE, level|m, f'{prefix}Stage {level:0>2}', ItemClassification.progression)
+		for level in range(1, 29)
+		for m, prefix in ((0, ''), (256, '(Maiden Quest) '))
+	),
+
 	ItemType(ItemCategory.CHARACTER, 0, 'Flare', ItemClassification.progression),
 	ItemType(ItemCategory.CHARACTER, 1, 'Noel', ItemClassification.progression_skip_balancing),
 	
@@ -93,7 +99,8 @@ item_types = [
 
 	ItemType(ItemCategory.ALT_PALETTE, 0, 'colour palette swap', ItemClassification.trap),
 	
-	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'progressive Nuinui Quest level', ItemClassification.progression),
+	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'progressive Nuinui Quest stage', ItemClassification.progression),
+	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 1, 'progressive Maiden Quest stage', ItemClassification.progression),
 
 	ItemType(ItemCategory.CASINO_KEY, 0, 'casino key', ItemClassification.progression),
 

@@ -36,16 +36,17 @@ export class ArchipelagoState {
 	#gameCrystals = 0;
 	#crystalsToSend = 0;
 	#bombs = 0;
-	progressiveLevels = [0, 0];
+	progressiveLevels = [0, 1];
 	#reconnectTime;
 	reconnecting = false;
 	itemsHandled = 0;
 	helps = 0;
 	helpsSpent = 0;
-	#essence = 0;
+	essence = 0;
 	#bigCrystals = 0;
 	coins = 0;
 	coinsSpent = 0;
+	#coinsByQuantity;
 	bufferedHearts = 0;
 	casinoKey = Infinity;
 	hasGotNuinuiPlayer = false;
@@ -101,9 +102,11 @@ export class ArchipelagoState {
 		this.reconnecting = false;
 
 		this.#goal = BigInt('0x' + this.slotData.goal);
-		if (this.#goal === this.feats) {
+		if ((this.#goal & this.feats) === this.#goal) {
 			client.goal();
 		}
+
+		this.#coinsByQuantity = client.room.allLocations.includes((9 << 16) + 8 + 3);
 
 		client.deathLink.on('deathReceived', _ => this.incomingDeath = this.deathLink);
 
@@ -120,7 +123,16 @@ export class ArchipelagoState {
 		}]);
 		if (this.feats) packet = packet.replace('[]', `[{"operation":"or","value":${this.feats}}]`);
 		client.socket.ws.send(packet);
-		client.socket.wait('setReply', p => p.BigInt).then(([p]) => p.value && (this.feats |= BigInt(p.value)));
+		client.socket.wait('setReply', p => p.BigInt).then(([p]) => {
+			if (p.value) {
+				this.feats |= BigInt(p.value);
+				for (let i = 1, f = 1n << BigInt(Feat.MMQ_COIN); i < 29; i++, f *= 8n) {
+					if (this.feats & f) {
+						this.setSaveField('maiden', `stage-${Object.keys(NNM.game.quests.maiden.stages)[i]}-stars`);
+					}
+				}
+			}
+		});
 
 		client.room.on('locationsChecked', (locations) => this.checking = this.checking.filter(l => !locations.includes(l)));
 		const toCheck = this.checking;
@@ -187,9 +199,9 @@ export class ArchipelagoState {
 		}
 
 		if (this.#newFeats) {
-			this.#newFeats &= this.#goal & ~this.feats;
+			this.#newFeats &= ~this.feats;
 			this.feats |= this.#newFeats;
-			if (this.feats === this.#goal) {
+			if ((this.#goal & this.feats) === this.#goal) {
 				try { this.client.goal(); }
 				catch {}
 			}
@@ -226,8 +238,8 @@ export class ArchipelagoState {
 	}
 
 	unlockLevel(quest, level) {
-		this.setSaveField(quest, 'stage-' + level);
 		this.availableLevels[quest].add(level);
+		this.setSaveField(quest, 'stage-' + level);
 	}
 
 	handleItem(item) {
@@ -268,6 +280,18 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'stage', sub_id));
+				break;
+
+			case 2:
+				this.unlockLevel('maiden', Object.keys(NNM.game.quests.maiden.stages)[sub_id]);
+				if (this.progressiveLevels[1] === 1)
+					for (const key in NNM.game.quests.maiden.stages)
+						if (!['boat-0', 'holo_hq-1'].includes(key))
+							this.setSaveField('maiden', 'stage-' + key);
+				msg = ['raw:unlocked stage ' + sub_id + ((item.id & 256) ? ' in maiden quest' : '')];
+				if (!local && !item.essence)
+					msg.push('raw:received from ' + item.sender.name);
+				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 16) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
 				break;
 
 			case 3:
@@ -329,8 +353,8 @@ export class ArchipelagoState {
 				break;
 
 			case 9:
-				
-				this.#essence++;
+				if (++this.essence === 11)
+					this.handleItem({id: NNM.game.currentQuest === 'maiden' ? (2 << 16) | 256 | 28 : (2 << 16) | 28, sender: item.sender, receiver: item.receiver, locationId: item.locationId, essence: true});
 				break;
 
 			case 10:
@@ -370,7 +394,7 @@ export class ArchipelagoState {
 				break;
 
 			case 15:
-				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? 2 << 16 : ((512 * !this.slotData.boss.prq) | ((1 << 16) | 256)));
+				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? (2 << 16) | 256 : ((512 * !this.slotData.boss.prq) | ((1 << 16) | 256)));
 				this.handleItem({id: newLevelItem, sender: item.sender, receiver: item.receiver, locationId: item.locationId});
 				break;
 
@@ -436,21 +460,19 @@ export class ArchipelagoState {
 
 		if (loc && !this.checked(loc)) {
 			this.checking.push(loc);
-			if (!noPopup && this.scouts[loc] && this.scouts[loc].receiver.slot !== this.client.players.self.slot) {
-				let name = this.scouts[loc].name;
-				if (this.scouts[loc].receiver.game === 'Hollow Knight')
-					name = name.replace(/_/g, ' ');
-				this.popup(new PopUpMenu(NNM.game, null, ['raw:sent ' + name, 'raw:to ' + this.scouts[loc].receiver.name], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
+			const scout = this.getScout(loc);
+			if (!noPopup && scout && !scout.local) {
+				this.popup(new PopUpMenu(NNM.game, null, ['raw:sent ' + scout.name, 'raw:to ' + scout.target], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
 			}
-			if (this.scouts[loc] && this.scouts[loc].receiver.slot === this.client.players.self.slot) {
+			if (scout?.local) {
 				this.popupFlag = noPopup;
 				this.handleItem(this.scouts[loc]);
 				this.localIgnoreLocations.push(loc);
 				if (!this.popupFlag) {
-					let name = this.scouts[loc].name;
+					let name = scout.name;
 					if (!+name[0])
 						name = 'a ' + name;
-					this.popup(new PopUpMenu(NNM.game, null, ['raw:found ' + name], 'archipelago', getIcon(this.scouts[loc].id)));
+					this.popup(new PopUpMenu(NNM.game, null, ['raw:found ' + name], 'archipelago', getIcon(scout.id)));
 				}
 			}
 
@@ -463,12 +485,31 @@ export class ArchipelagoState {
 	}
 
 	scout(loc) {
-		if (this.scouts[loc] === undefined && !this.toScout.includes(loc) && this.client.room.missingLocations.includes(loc))
+		if (this.scouts[loc] === undefined && !this.toScout.includes(loc) && this.client.room.allLocations.includes(loc))
 			this.toScout.push(loc);
 	}
 
-	feat(feat) {
-		this.#newFeats |= 1n << BigInt(feat);
+	getScout(loc) {
+		const scout = this.scouts[loc];
+		if (!scout) return null;
+		let name = scout.name;
+		const local = scout.sender.slot === scout.receiver.slot;
+		if (scout.receiver.game === 'Hollow Knight')
+			name = name.replace(/_/g, ' ');
+		else if (local && name[0] === '(') {
+			const [quest, stage] = name.split(') ');
+			name = stage + ' in ' + quest.substr(1);
+		}
+		return {
+			name,
+			local,
+			target: scout.receiver.name,
+			id: scout.id
+		};
+	}
+
+	feat(feat, onlyIfRequired) {
+		this.#newFeats |= (1n << BigInt(feat)) & (onlyIfRequired ? this.#goal : -1n);
 		this.#lastFeat = NNM.game.frameCount;
 	}
 
@@ -670,5 +711,64 @@ export class ArchipelagoState {
 
 	getBgm(id) {
 		return this.bgmId = id;
+	}
+
+	drawCoins(cx, frame, stage, pos) {
+		let feat = 1n << BigInt(Feat.MMQ_COIN + 3 * stage);
+		let check = (9 << 16) + 8 + 8 * stage;
+		for (let i = 0; i < 3; i++) {
+			const hasFeat = this.feats & feat, hasCheck = this.checked(check);
+			cx.filter = hasCheck && !hasFeat ? 'grayscale(1) brightness(1.1)' : 'none';
+			cx.drawImage(NNM.game.assets.images.sp_star, ((frame / 8) & 3) * 8, 8*!hasCheck, 8, 8, pos.x + i * 8, pos.y + 19, 8, 8);
+			feat *= 2n;
+			check++;
+			if (!i && this.#coinsByQuantity) check += 2;
+		}
+		return true;
+	}
+
+	checkCoins(results) {
+		if (!results) return;
+		this.setSaveField('maiden', `stage-${NNM.game.currentStage}-stars`);
+		const stage = Object.keys(NNM.game.quests.maiden.stages).indexOf(NNM.game.currentStage);
+		let feat = Feat.MMQ_COIN + 3 * stage - 3;
+		let check = (9 << 16) + 8 * stage;
+		let anyNew = false;
+		for (const coin of results.stars) {
+			if (coin.value) {
+				const scout = this.getScout(check);
+				coin.__archipelagoLabel = new TextElem(NNM.game, [...(!scout ? 'sent check' : scout.local ? 'got ' + scout.name : `sent ${scout.name} to ${scout.target}`)], { lang: 'en' });
+				anyNew |= (coin.__archipelagoNew = !this.checked(check));
+				this.feat(feat);
+				this.check(check);
+			}
+			if (this.#coinsByQuantity) {
+				if (coin.value) {
+					if (!(check & 7)) check += 2;
+					check++;
+					feat++;
+				}
+			} else {
+				check++;
+				feat++;
+			}
+		}
+		if (anyNew)
+			results.__archipelagoNew = new TextElem(NNM.game, [...'new'], { lang: 'en', textAlign: 'center' });
+	}
+
+	drawCoinMessage(cx, results, i) {
+		const coin = results.stars[i];
+		if (!coin.__archipelagoLabel) return;
+		if (!coin.__archipelagoDrawn) {
+			coin.__archipelagoDrawn = true;
+			NNM.game.playSound('step');
+		}
+		if (coin.__archipelagoNew) {
+			cx.filter = 'brightness(2)';
+			results.__archipelagoNew.draw(NNM.game, cx, new Vector2(320 / 4 + 12, 192 / 4 + 16));
+			cx.filter = 'none';
+		}
+		coin.__archipelagoLabel.draw(NNM.game, cx, new Vector2(320 / 4 + 36, 192 / 4 + 16));
 	}
 }

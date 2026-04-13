@@ -206,7 +206,7 @@ Q_ALL = -1
 by_name = {boss.name.lower(): boss for boss in [
 	Boss('Usadrill', Q_NNQ, None, {'Crystal Falls midboss', "Ina's office"}),
 	Boss('Pekora', Q_NNQ|Q_MMQ, None, A_FLOORED - A_INA),
-	Boss('Veiled Mori', Q_NNQ, {SHOTS[0], SHOTS[3], SHOTS[4]}, A_FLOORED & A_WALLED - {'Random Quest Underworld Casino game room'}),
+	Boss('Veiled Mori', Q_NNQ, None, A_FLOORED & A_WALLED - {'Random Quest Underworld Casino game room'}),
 	Boss('Miko', Q_NNQ, None, A_FLOORED - A_ROOFED),
 	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED, True),
 	Boss('Fubura Tower', Q_NNQ, None, {'Yamato midboss 1'}),
@@ -221,7 +221,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Mori', Q_NNQ|Q_PRQ, None, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss'}),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, A_INA),
-	Boss('Ame', Q_NNQ, {'Time Zone Clock'}, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN - {'Random Quest Underworld Casino game room'}),
+	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN - {'Random Quest Underworld Casino game room'}),
 	Boss('Kanata', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, A_SINGLE_SCREEN),
 	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ),
 	Boss('Towa', Q_NNQ, {SHOTS[5]}, A_CAN_BE_ROOFED & A_FLOORED, True),
@@ -308,7 +308,7 @@ def allocate_bosses(random, option, arenas, source_quests):
 			case _:
 				raise OptionError('Malformed boss plando command ' + repr(command))
 
-	bosses = [b for b in by_name.values() if b.quests & source_quests and b.name not in banned]
+	bosses = [b for b in by_name.values() if b.quests & source_quests and b not in banned]
 
 	if not duplicates:
 		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas)]

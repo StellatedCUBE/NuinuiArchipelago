@@ -16,19 +16,18 @@ export class APPickup extends Actor {
 
 	update = game => {
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
-		const trap = archipelagoState.scouts[this.apLocation]?.trap;
-		if (!(this.frameCount % (24 >> trap))) game.scene.particles[trap ? 'sparkle_fire_4' : 'shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
+		if (!(this.frameCount % 24)) game.scene.particles['shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
 		if (this.canPickUp && CollisionBox.intersects(this, NNM.getPlayer()) && !game.scene.bossKillEffect && (this.duringCutscene || NNM.getPlayer().playerControl)) {
 			this.toFilter = true;
 			this.draw = _ => {};
-			const scout = archipelagoState.scouts[this.apLocation];
-			if (scout?.id === (11 << 16) && scout.sender.slot === scout.receiver.slot) {
+			const scout = archipelagoState.getScout(this.apLocation);
+			if (scout?.local && scout.id === (11 << 16)) {
 				new Heart(NNM.getPlayer().pos).update(game);
 				archipelagoState.bufferedHearts--;
 				archipelagoState.check(this.apLocation, true);
 			} else {
 				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				const jingle = !scout || scout.sender.slot !== scout.receiver.slot || (scout.id > 999 && scout.id !== (10 << 16));
+				const jingle = !scout || !scout.local || (scout.id > 999 && scout.id !== (10 << 16));
 				if (jingle) game.playSound('jingle');
 				archipelagoState.check(this.apLocation, !jingle);
 			}
@@ -53,7 +52,7 @@ export class APPickup extends Actor {
 		const yos = Math.round(this.yos);
 		if (rect) {
 			cx.drawImage(img, rect[0], rect[1], rect[2], rect[3], 10 - (rect[2] >> 1), yos + 10 - (rect[3] >> 1), rect[2], rect[3]);
-			if (rect[2] > 24 && scout.sender.slot !== scout.receiver.slot)
+			if (rect[2] > 24 - [2, 15].includes(scout.id >> 16) && scout.sender.slot !== scout.receiver.slot)
 				cx.drawImage(game.assets.images.NNM_Archipelago_logo, 2, yos + 2);
 		} else {
 			cx.drawImage(img, 10 - (img.width >> 1), yos + 10 - (img.height >> 1));

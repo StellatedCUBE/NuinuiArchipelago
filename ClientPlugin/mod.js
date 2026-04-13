@@ -260,7 +260,7 @@ class ArchipelagoConnectMenu extends Menu {
 			archipelagoState.pendingPopUp = null;
 			archipelagoState.bufferedHearts = 0;
 			if (archipelagoState.availableLevelCount === 1) {
-				for (const quest in archipelagoState.availableLevels) {
+				for (const quest of ['nuinui', 'random']) {
 					if (archipelagoState.availableLevels[quest].size) {
 						const level = [...archipelagoState.availableLevels[quest]][0];
 						game.setQuest(quest);

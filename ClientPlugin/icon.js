@@ -15,11 +15,29 @@ function getBadges() {
 	return badges;
 }
 
+let maidenStages;
+function getMaidenStages() {
+	if (!maidenStages) {
+		maidenStages = document.createElement('canvas');
+		maidenStages.width = 640;
+		maidenStages.height = 24;
+		const cx = maidenStages.getContext('2d');
+		cx.fillStyle = '#000';
+		cx.fillRect(0, 0, 640, 24);
+		for (let i = 1; i < 29; i++); {
+			cx.drawImage(NNM.game.assets.images.ui_digits, (0|(i / 10)) * 11, 0, 10, 18, 1, 2, 10, 18);
+			cx.drawImage(NNM.game.assets.images.ui_digits, i % 10 * 11, 0, 10, 18, 12, 2, 10, 18);
+			cx.translate(22, 0);
+		}
+	}
+	return maidenStages;
+}
+
 export function getIcon(item, anim) {
 	switch (item >> 16) {
 		case 0: return [NNM.game.assets.images.sp_gem, [0, 0, 16, 16]];
 		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
-
+		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
 		case 3: return (item & 1) ? [NNM.game.assets.images.sp_noel_idle, [3, 4, 24, 35]] : [NNM.game.assets.images.sp_flare_idle, [4, 2, 24, 37]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
