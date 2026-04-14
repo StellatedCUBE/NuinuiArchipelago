@@ -814,6 +814,10 @@ export class Chloe extends Actor {
 					game.stopBGM();
 				if (archipelagoState.arenaId !== 18)
 					archipelagoState.item(this.pos.plus({ x: -10, y: -8 }), 'boss');
+				if (game.currentQuest === 'maiden') {
+					game.updateMarineStageStars();
+					event.essencePos = this.pos.value();
+				}
 			} else if (!game.bgm && this.health >= this.maxHealth) {
 				game.playBGM('play_dice');
 			}

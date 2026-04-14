@@ -353,7 +353,7 @@ export class ArchipelagoState {
 				break;
 
 			case 9:
-				if (++this.essence === 11)
+				if (++this.essence === 13)
 					this.handleItem({id: NNM.game.currentQuest === 'maiden' ? (2 << 16) | 256 | 28 : (2 << 16) | 28, sender: item.sender, receiver: item.receiver, locationId: item.locationId, essence: true});
 				break;
 

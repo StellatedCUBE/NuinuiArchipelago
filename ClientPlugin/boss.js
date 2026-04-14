@@ -921,6 +921,11 @@ function fight(clear, setDefeatedPhase, allowTravelBelowSection) {
 		const player = NNM.getPlayer();
 
 		if (event.bossActor.health <= 0 && event.bossActor.canDie) {
+			if (game.currentQuest === 'maiden') {
+				game.updateMarineStageStars();
+				event.essencePos = event.bossActor.pos.value();
+			}
+
 			if (archipelagoState.arenaFinal && game.timer && !(event.bossActor instanceof Bibi)) {
 				const time = new Date().getTime() - game.timer.getTime();
 				game.scene.finalTime = time;
@@ -1755,7 +1760,7 @@ const bosses = {
 			event.bossActor.animation = 'think';
 		},
 		timeline: [
-			warn('kazama_iroha', 11, 'idle', 'crazy_bnuuy'),
+			warn('kazama_iroha', 11, 'idle', 'dethroneworld'),
 			fight()
 		]
 	},
@@ -1901,8 +1906,8 @@ export function patchBosses() {
 					if (feat) newTL.push((_, event) => self.archipelagoState.save(event.next = !self.archipelagoState.feat(feat, true)));
 					if (outroPre)
 						newTL.push(...outroPre);
-					for (let f = endingFrames??1; f > 0; f--)
-						newTL.push(ge.timeline[ge.timeline.length - f]);
+					for (let f = endingFrames ?? (game.currentQuest === 'maiden' ? 4 : 1); f > 0; f--)
+						newTL.push(ge.timeline.at(-f));
 					ge.timeline = newTL;
 					return newTL[0](game, ge);
 				}

@@ -124,13 +124,17 @@ class MMQCoinBehaviour(Choice):
 	option_per_coin = 0
 	option_by_coin_quantity = 1
 
-class MMQShuffleStages(DefaultOnToggle):
+class MMQShuffleStages(NNQShuffleStages):
 	__doc__ = NNQShuffleStages.__doc__
-	display_name = NNQShuffleStages.display_name
 
-class MMQStageItems(DefaultOnToggle):
+class MMQStageItems(NNQStageItems):
 	__doc__ = NNQStageItems.__doc__
-	display_name = NNQStageItems.display_name
+
+class MMQBossPlando(NNQBossPlando):
+	__doc__ = NNQBossPlando.__doc__
+
+class MMQCrossBoss(NNQCrossBoss):
+	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Maiden')
 
 @dataclass
 class FNNQOptions(PerGameCommonOptions):
@@ -168,6 +172,8 @@ class FNNQOptions(PerGameCommonOptions):
 	mmq_coin_behaviour: MMQCoinBehaviour
 	mmq_stage_shuffle: MMQShuffleStages
 	mmq_stage_items: MMQStageItems
+	prq_boss_shuffle: MMQBossPlando
+	prq_boss_cross: MMQCrossBoss
 
 	# c/i
 	start_inventory_from_pool: StartInventoryPool
@@ -204,5 +210,7 @@ fnnq_option_groups = [
 		MMQCoinBehaviour,
 		MMQShuffleStages,
 		MMQStageItems,
+		MMQBossPlando,
+		MMQCrossBoss,
 	]),
 ]

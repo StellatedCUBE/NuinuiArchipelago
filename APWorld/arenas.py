@@ -41,3 +41,22 @@ def prq_arenas():
 		Arena('Demon Lord Castle final boss', 'La+', 'prq_' + LEVELS[4], Drop.NEVER),
 		Arena('Holo Office', 'Koyodrill', None, Drop.NEVER)
 	]
+
+def mmq_arenas():
+	Arena.prefix = ''
+	return [
+		Arena('Stage 03', 'Ghost Marine'),
+		Arena('Stage 05', 'Lui'),
+		Arena('Stage 07', 'Ina'),
+		Arena('Stage 09', 'Iroha'),
+		Arena('Stage 11', 'Ayame'),
+		Arena('Stage 13', 'Pekora'),
+		Arena('Stage 15', 'Miko'),
+		Arena('Stage 17', 'Polka'),
+		Arena('Stage 19', 'La+'),
+		Arena('Stage 21', 'Flare'),
+		Arena('Stage 23', 'Kiara'),
+		Arena('Stage 25', 'Kanata'),
+		Arena('Stage 27', 'Towa'),
+		Arena('Stage 28', 'Dokuro')
+	]
