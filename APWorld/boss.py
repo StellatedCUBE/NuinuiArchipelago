@@ -26,7 +26,7 @@ A_BRIDGE = {
 }
 
 A_FLOORED = {
-	*A_BRIDGE
+	*A_BRIDGE,
 	'Crystal Falls midboss',
 	'Crystal Falls final boss',
 	'Underworld Casino midboss',
@@ -297,7 +297,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('La+', Q_PRQ|Q_MMQ, None, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
 	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN, True),
 	Boss('Ghost Marine', Q_MMQ, None, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
-	Boss('Dokuro', Q_MMQ, None, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_ANY_ROOFED),
+	Boss('Dokuro', Q_MMQ, None, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
 ]}
 
 class Arena:

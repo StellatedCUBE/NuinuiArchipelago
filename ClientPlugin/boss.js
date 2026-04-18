@@ -1494,7 +1494,7 @@ const bosses = {
 			warn('ninomae_inanis', 1, 'idle', null, 30, 0, {
 				'0': event => {
 					NNM.game.playBGM('ina');
-					event.bossActor = new Ina(new Vector2(archipelagoState.arenaL + ({ heaven: 40, falls: 72 }[NNM.game.currentStage] || -64), NNM.game.scene.currentSection.pos.y + NNM.game.scene.currentSection.size.y), 64);
+					event.bossActor = new Ina(new Vector2(archipelagoState.arenaL + ({ heaven: 40, falls: 72, castle: -48, holo_hq: -64 }[NNM.game.currentStage.split('-')[0]]), NNM.game.scene.currentSection.pos.y + NNM.game.scene.currentSection.size.y), 64);
 					event.bossActor.posTarget = event.bossActor.pos.plus({ x: 0, y: -5 * 16 });
 					event.bossActor.setAnimation('idle');
 					event.bossActor.dir = true;
@@ -1513,7 +1513,7 @@ const bosses = {
 					}
 				},
 				'30': event => {
-					if (!['castle', 'holo_hq'].includes(NNM.game.currentStage)) {
+					if (!/castle|holo_hq/.test(NNM.game.currentStage)) {
 						const tilesToDestroy = archipelagoState.arenaId === 18 ? 5 : 10;
 						for (const c of event.destroyedInaCol = NNM.game.scene.currentSection.collisions.filter(c => c.size.y === 16 && c.pos.x < NNM.game.scene.currentSection.pos.x + tilesToDestroy * 16))
 							c.pos.y += 64;
@@ -1617,8 +1617,8 @@ const bosses = {
 					event.next = event.bossActor.phase = 'intro';
 					event.bossActor.__archipelagoLaserBottom = [16, 18].includes(archipelagoState.arenaId) ? game.scene.view.pos.y + 192 : archipelagoState.arenaB;
 					game.scene.actors.unshift(event.bossActor);
-					NNM.game.playSound('charge2');
-					NNM.game.scene.warning = shouldWarn();
+					game.playSound('charge2');
+					game.scene.warning = shouldWarn();
 				}
 			},
 			warn(null, 1, 'idle', 'kiseki', 208, 0, {
@@ -1828,6 +1828,75 @@ const bosses = {
 							a.duration = 60;
 				}
 			})
+		]
+	},
+	'Ghost Marine': {
+		setup: event => {
+			event.bossActor = new MarineGhost(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 64);
+			event.bossActor.lookAt(NNM.getPlayer().pos);
+			event.bossActor.animation = 'charge';
+			const weapon = new Bullet(event.bossActor.pos, Vector2.zero, event.bossActor);
+			weapon.isGhostWeapon = true;
+			weapon.angle = 0;
+			weapon.floatsAround = true;
+			weapon.followGhost = true;
+			NNM.game.scene.actors.push(weapon);
+			event.bossActor.weapon = weapon;
+		},
+		timeline: [
+			(game, event) => {
+				event.bossActor.animation = 'release';
+				const bossIndex = game.scene.actors.indexOf(event.bossActor), weaponIndex = game.scene.actors.indexOf(event.bossActor.weapon);
+				game.scene.actors[bossIndex] = event.bossActor.weapon;
+				game.scene.actors[weaponIndex] = event.bossActor;
+				event.next = game.cpuKeys[event.bossActor.dir.x > 0 ? 'left' : 'right'] = true;
+			},
+			parallel(warn(null, 5, 'idle', 'dead_maam_chest'), (game, event) => event.bossActor.wind(game, event.bossActor)),
+			roof,
+			(game, event) => event.next = !game.resetCpuKeys(),
+			fight()
+		]
+	},
+	Dokuro: {
+		timeline: [
+			(game, event) => {
+				if (!game.scene.newSectionBuffer && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
+					event.bossActor = new Gashadokuro(game.scene.view.pos.plus({ x: 8.5 * 16, y: 192 }), 96);
+					event.bossActor.lookAt(NNM.getPlayer().pos);
+
+					event.bossActor.leftHand = new DokuroHand(Vector2.zero, event.bossActor, event.bossActor.pos.plus({ x: -32, y: 16 }));
+					event.bossActor.leftHand.pos = event.bossActor.leftHand.targetPos;
+					event.bossActor.leftHand.dir.x = -1;
+
+					event.bossActor.rightHand = new DokuroHand(Vector2.zero, event.bossActor, event.bossActor.pos.plus({ x: 32, y: 16 }));
+					event.bossActor.rightHand.pos = event.bossActor.rightHand.targetPos;
+					event.next = event.bossActor.rightHand.dir.x = 1;
+
+					game.scene.actors.unshift(event.bossActor, event.bossActor.leftHand, event.bossActor.rightHand);
+					event.bossActor.updateHandTargets(event.bossActor);
+
+					if (CollisionBox.intersectCollisions({ pos: { x: game.scene.currentSection.pos.x, y: archipelagoState.arenaB - 1 }, size: { x: game.scene.currentSection.size.x, y: 1} }, game.scene.collisions).length) {
+						event.bossActor.__archipelagoLeft = archipelagoState.arenaL;
+						event.bossActor.__archipelagoRight = archipelagoState.arenaR - 32;
+					} else {
+						event.bossActor.__archipelagoLeft = game.scene.currentSection.pos.x;
+						event.bossActor.__archipelagoRight = game.scene.currentSection.pos.x + game.scene.currentSection.size.x - 32;
+					}
+				}
+			},
+			parallel(
+				warn('dokuro', 1, 'idle', 'dead_maam_chest', 119),
+				(game, event) => {
+					event.bossActor.pos.y = event.bossActor.pos.y > game.scene.currentSection.pos.y + 80 ? event.bossActor.pos.y - 1 : lerp(event.bossActor.pos.y, game.scene.currentSection.pos.y + 48, 1/32);
+					for (const hand of [event.bossActor.leftHand, event.bossActor.rightHand])
+						hand.pos.y = hand.targetPos.y = event.bossActor.pos.y + 16;
+				}
+			),
+			parallel(
+				(game, event) => game.scene.actors.indexOf(NNM.getPlayer()) > game.scene.actors.indexOf(event.bossActor.leftHand) &&
+					(game.scene.actors = [...game.scene.actors.filter(actor => actor !== event.bossActor.leftHand && actor !== event.bossActor.rightHand), event.bossActor.leftHand, event.bossActor.rightHand]),
+				fight([DokuroHand])
+			)
 		]
 	}
 };
