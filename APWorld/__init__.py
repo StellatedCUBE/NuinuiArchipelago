@@ -79,6 +79,7 @@ class FNNQWorld(World):
 		self.locked_items = dict()
 		self.single_quest = 1 == bool(self.options.nnq) + bool(self.options.prq) + bool(self.options.mmq)
 		self.safety_nousagi = False
+		self.warned_about_plando = False
 
 		player = self.player
 
