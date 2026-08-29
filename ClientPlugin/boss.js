@@ -865,7 +865,7 @@ const arenas = [
 	{
 		quest: 'mmq',
 		event: MAIDEN_PORT_2_EVENTS['0_0'][1],
-		bounds: { x: 0, y: 16, w: 320, h: 160 },
+		bounds: { x: 0, y: 16, w: 320, h: 144 },
 		bossSpawnX: 14.5 * 16,
 		collision: true,
 		skip: 'Lui'
@@ -1341,6 +1341,10 @@ const bosses = {
 			}
 			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
 			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+			archipelagoState.arenaOpenSides = !(
+				CollisionBox.intersectCollisions({ pos: {x: archipelagoState.arenaL - 1, y: archipelagoState.arenaB - 16}, size: {x: 1, y: 32} }, NNM.game.scene.currentSection.collisions).length ||
+				CollisionBox.intersectCollisions({ pos: {x: archipelagoState.arenaR, y: archipelagoState.arenaB - 16}, size: {x: 1, y: 32} }, NNM.game.scene.currentSection.collisions).length
+			);
 		},
 		timeline: [
 			(_, event) => {

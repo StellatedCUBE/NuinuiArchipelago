@@ -359,7 +359,8 @@ NNM.code.insertBeforeFirstMatchingLine('Marine.update', 'this.pos.x = ', 'if (th
 NNM.code.insertAfterFirstMatchingLine('NUINUI_YAMATO_EVENTS.1_4', '!event.fubuzilla.health', 'if (event.fubuzilla.canDie < 2 && self.archipelagoState) self.archipelagoState.item(new Vector2(718, 1050), "boss");');
 NNM.code.insertAfterFirstMatchingLine('Ayame.focusPhase', 'this.vel = ', 'if (self.archipelagoState?.arenaId === 1) this.vel.y *= 0.73;');
 NNM.code.insertAfterFirstMatchingLine('Ayame.update', 'const newCollisionBox', 'if (self.archipelagoState) newCollisionBox.pos.y = Math.round(this.pos.y);');
-NNM.code.insertBeforeFirstMatchingLine('Fubuki.update', "game.currentQuest === 'random'", 'if (self.archipelagoState) {if (this.pos.x < self.archipelagoState.arenaL || this.pos.x > self.archipelagoState.arenaR - 16) {this.vel.x *= -1; this.moveDir *= -1;}} else');
+NNM.code.insertBeforeFirstMatchingLine('Fubuki.update', "game.currentQuest === 'random'",
+	'if (self.archipelagoState) {if (self.archipelagoState.arenaOpenSides && (this.pos.x < self.archipelagoState.arenaL || this.pos.x > self.archipelagoState.arenaR - 16)) {this.vel.x *= -1; this.moveDir *= -1;}} else');
 NNM.code.insertBeforeFirstMatchingLine('Flare.deathTransition', 'deathTransitionIndex === 360', 'if (self.archipelagoState && this.deathTransitionIndex===360) self.archipelagoState.diedToNoel(); else');
 NNM.code.findReplaceAllLines('Suisei.introPhase', 'scenePos.y + 6 * 16', '(self.archipelagoState ? self.archipelagoState.arenaB - 64 : scenePos.y + 6 * 16)');
 NNM.code.findReplaceAllLines('Axe.update', 'game.scene.currentSection.pos', 'self.archipelagoState ? {x:Math.min(self.archipelagoState.arenaL,self.archipelagoState.arenaTL)-32,y:self.archipelagoState.arenaB-160} : game.scene.currentSection.pos');
