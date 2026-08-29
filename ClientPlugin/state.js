@@ -201,7 +201,10 @@ export class ArchipelagoState {
 		const player = NNM.getPlayer();
 		if (!player) return;
 
-		if (!NNM.game.menu && player?.playerControl) {
+		if (this.incomingDeath && NNM.game.scene.events.some(e => e.hilo))
+			player.playerControl = true;
+
+		if (!NNM.game.menu && player.playerControl) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
