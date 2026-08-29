@@ -211,7 +211,10 @@ export class ArchipelagoState {
 
 		if (!NNM.game.menu && this.bufferedHearts > 0) {
 			this.bufferedHearts--;
-			NNM.game.scene.actors.push(new Heart(player.pos.plus({ x: 4 + 8 * Math.sign(NNM.game.currentStage === 'port' && this.arenaId === 4 ? -1 : Math.round(player.vel.x)), y: -16 })));
+			const heart = new Heart(player.pos.plus({ x: NNM.game.scene.boss?.isWatame ? 28 : 4 + 8 * Math.sign(NNM.game.currentStage === 'port' && this.arenaId === 4 ? -1 : Math.round(player.vel.x)), y: -16 }));
+			NNM.game.scene.actors.push(heart);
+			if (CollisionBox.intersectCollisions(heart, NNM.game.scene.collisions).length)
+				heart.pos = CollisionBox.center(player);
 		}
 
 		if (this.#newFeats) {
@@ -251,24 +254,26 @@ export class ArchipelagoState {
 
 		if (this.#overheadTextPopupDelay)
 			this.#overheadTextPopupDelay--;
-		else if (this.dueCrystalPopup && !NNM.game.menu) {
-			const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['    +' + this.dueCrystalPopup], 'center', -0.12);
-			const label = particle.labels[0];
-			const old = label.draw_en.bind(label);
-			label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_gem, 0, 4, 16, 8, 0, -1, 16, 8));
-			NNM.game.scene.particles.pool.push(particle);
-			NNM.game.playSound('cling2');
-			this.dueCrystalPopup = 0;
-			this.#overheadTextPopupDelay = 60;
-		} else if (this.#dueCoinPopup && !NNM.game.menu) {
-			const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['  +' + this.#dueCoinPopup], 'center', -0.12);
-			const label = particle.labels[0];
-			const old = label.draw_en.bind(label);
-			label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_star, 24, 0, 8, 8, 0, -1, 8, 8));
-			NNM.game.scene.particles.pool.push(particle);
-			NNM.game.playSound('cling2');
-			this.#dueCoinPopup = 0;
-			this.#overheadTextPopupDelay = 60;
+		else if (!NNM.game.menu && !this.incomingDeath && !NNM.game.scene.dieTransition) {
+			if (this.dueCrystalPopup && !NNM.game.menu) {
+				const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['    +' + this.dueCrystalPopup], 'center', -0.12);
+				const label = particle.labels[0];
+				const old = label.draw_en.bind(label);
+				label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_gem, 0, 4, 16, 8, 0, -1, 16, 8));
+				NNM.game.scene.particles.pool.push(particle);
+				NNM.game.playSound('cling2');
+				this.dueCrystalPopup = 0;
+				this.#overheadTextPopupDelay = 60;
+			} else if (this.#dueCoinPopup && !NNM.game.menu) {
+				const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['  +' + this.#dueCoinPopup], 'center', -0.12);
+				const label = particle.labels[0];
+				const old = label.draw_en.bind(label);
+				label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_star, 24, 0, 8, 8, 0, -1, 8, 8));
+				NNM.game.scene.particles.pool.push(particle);
+				NNM.game.playSound('cling2');
+				this.#dueCoinPopup = 0;
+				this.#overheadTextPopupDelay = 60;
+			}
 		}
 	}
 
@@ -599,6 +604,7 @@ export class ArchipelagoState {
 	onSceneStart(scene) {
 		this.latestNNQLevel = null;
 		this.bufferedHearts = 0;
+		this.#overheadTextPopupDelay = 60;
 		if (NNM.game.currentQuest === 'nuinui') {
 			const stageIndex = Object.keys(NNM.game.quests.nuinui.stages).indexOf(scene.labelId);
 			if (stageIndex < 5) {
