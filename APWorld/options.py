@@ -110,6 +110,10 @@ class PRQCrateSanity(Toggle):
 	"""Makes breaking each crate a check. Crates with an unclaimed item inside will have the Archipelago logo stamped on them."""
 	display_name = "Cratesanity"
 
+class PRQOoB(DefaultOnToggle):
+	"""Allow out-of-bounds skips to be performed."""
+	display_name = "Allow OoB Skips"
+
 class MMQ(Toggle):
 	"""Include Marine Maiden Quest"""
 	display_name = "Enabled"
@@ -170,6 +174,7 @@ class FNNQOptions(PerGameCommonOptions):
 	prq_enemysanity: PRQEnemySanity
 	prq_crystalsanity: PRQCrystalSanity
 	prq_cratesanity: PRQCrateSanity
+	prq_allow_oob: PRQOoB
 
 	# MMQ
 	mmq: MMQ
@@ -208,6 +213,7 @@ fnnq_option_groups = [
 		PRQEnemySanity,
 		PRQCrystalSanity,
 		PRQCrateSanity,
+		PRQOoB,
 	]),
 	OptionGroup("MARINE MAIDEN QUEST", [
 		MMQ,

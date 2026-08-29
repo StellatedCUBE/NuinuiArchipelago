@@ -245,6 +245,8 @@ export class ArchipelagoState {
 		if (player instanceof PekoraPlayer) {
 			player.crystalCount = Math.max(0, Math.min(999, this.#itemCrystals + this.#gameCrystals));
 			player.bombCount = this.#bombs;
+			if (!this.slotData.oob && (player.pos.x < NNM.game.scene.currentSection.pos.x - 96 || player.pos.x > NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x + 64) && (NNM.game.currentStage !== 'yamato' || player.pos.y < -16))
+				this.incomingDeath = true;
 		}
 
 		if (this.#overheadTextPopupDelay)

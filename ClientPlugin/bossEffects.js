@@ -26,7 +26,7 @@ export class SkullBanner extends Actor {
 
 	constructor(event) {
 		super(new Vector2(20 * 8.5 * 16 + 8, -4 * 16), Vector2.zero);
-		this.draw = new Function('game', 'cx', '{'+NNM.code.filesMatching('actor/casino/casino.js')[0].lines.filter(l => l.scope && l.scope.startsWith('CasinoBoss.draw')).map(l => l.code).join(''));
+		this.draw = new Function('game', 'cx', '{'+NNM.code.filesMatching('actor/casino/casino.js')[0].lines.filter(l => l.scope?.startsWith('CasinoBoss.draw')).map(l => l.code).join(''));
 		this.#event = event;
 	}
 
