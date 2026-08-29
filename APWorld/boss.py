@@ -19,6 +19,11 @@ A_PRQ = {
 	'Random Quest Holo Office',
 }
 
+A_MMQ = {
+	f'Stage {i:0>2}'
+	for i in range(3, 29)
+}
+
 A_BRIDGE = {
 	"Ina's office",
 
@@ -138,6 +143,7 @@ A_ROOFED = {
 	'Random Quest Yamato midboss',
 
 	'Stage 03',
+	'Stage 05',
 	'Stage 09',
 	'Stage 11',
 	'Stage 17',
@@ -153,14 +159,12 @@ A_CAN_BE_ROOFED = {
 	'Sky Palace secret boss',
 
 	'Stage 13',
-}
+} - {'Stage 05'}
 
 A_ANY_ROOFED = {
 	*A_ROOFED,
 	'Yamato midboss 1',
 	'Demon Lord Castle midboss 1',
-
-	'Stage 05',
 }
 
 A_SINGLE_SCREEN = {
@@ -273,14 +277,14 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Pekora', Q_NNQ|Q_MMQ, None, A_ROUGH_FLOORED - A_INA),
 	Boss('Veiled Mori', Q_NNQ, None, A_FLOORED & A_WALLED),
 	Boss('Miko', Q_NNQ|Q_MMQ, None, A_ROUGH_FLOORED - A_ROOFED),
-	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED, True),
+	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, True),
 	Boss('Fubura Tower', Q_NNQ, None, {'Yamato midboss 1'}),
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, A_ROUGH_FLOORED),
 	Boss('Suisei', Q_NNQ|Q_PRQ, None, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
 	Boss('Polka', Q_NNQ|Q_MMQ, None, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
-	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, {'Pirate Harbor boss'} | A_WALLED - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
-	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, A_ROUGH_FLOORED - A_ROOFED),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
+	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, A_ROUGH_FLOORED),
 	Boss('Demon', Q_NNQ, None, A_SINGLE_SCREEN - A_NO_DEMON),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, A_FLOORED & A_WALLED - A_INA, True),
 	Boss('Mori', Q_NNQ|Q_PRQ, None, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
@@ -400,7 +404,6 @@ def allocate_bosses(random, option, arenas, source_quests):
 def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 	arenas = arenas_[:]
 	bosses = bosses_[:]
-	#print('Boss allocation attempt %d' % attempt)
 
 	while arenas:
 		if not bosses:
@@ -446,7 +449,6 @@ def allocate_remaining_bosses(arenas_, bosses_, duplicates, random, attempt):
 			most_constrained_arena = random.choice([a for a in arenas if a.fqname in most_constrained_boss.valid_arenas])
 
 		most_constrained_arena.boss = most_constrained_boss
-		print(f'Assigned {most_constrained_boss.name} to {most_constrained_arena.fqname}')
 		arenas.remove(most_constrained_arena)
 		if not duplicates:
 			bosses.remove(most_constrained_boss)

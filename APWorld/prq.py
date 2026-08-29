@@ -40,7 +40,7 @@ def prq(world):
 				world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + i)
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
 			region = world.create_region('prq_' + level)
-			if i < 4:
+			if i in (0, 1, 3):
 				world.potential_starting_levels.append(world.items[-1])
 				source_region = world.base_region
 				region.connect(shop)

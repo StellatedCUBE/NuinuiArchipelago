@@ -257,8 +257,7 @@ class ArchipelagoConnectMenu extends Menu {
 
 		if (this.successTime > 30) {
 			this.close(game);
-			archipelagoState.pendingPopUp = null;
-			archipelagoState.bufferedHearts = 0;
+			archipelagoState.resetPopups();
 			if (archipelagoState.availableLevelCount === 1) {
 				for (const quest of ['nuinui', 'random']) {
 					if (archipelagoState.availableLevels[quest].size) {

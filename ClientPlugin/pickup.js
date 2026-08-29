@@ -27,9 +27,10 @@ export class APPickup extends Actor {
 				archipelagoState.check(this.apLocation, true);
 			} else {
 				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				const jingle = !scout || !scout.local || (scout.id > 999 && scout.id !== (10 << 16));
-				if (jingle) game.playSound('jingle');
-				archipelagoState.check(this.apLocation, !jingle);
+				const jingle = !scout || !scout.local || scout.id > 999;
+				if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : 'jingle');
+				else if (scout?.local && scout.id < 999) archipelagoState.dueCrystalPopup += scout.id;
+				archipelagoState.check(this.apLocation, !jingle || (scout.local && scout.id === (10 << 16)));
 			}
 		} else {
 			this.move();

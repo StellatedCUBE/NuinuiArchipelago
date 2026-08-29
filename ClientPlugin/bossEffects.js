@@ -534,7 +534,9 @@ export class Bridge extends Actor {
 					actor instanceof DragonHand ||
 					actor instanceof Laplus ||
 					actor instanceof Koyodrill ||
-					actor instanceof KoyodrillBody
+					actor instanceof KoyodrillBody ||
+					actor instanceof Gashadokuro ||
+					actor instanceof DokuroHand
 				)) {
 					actor.pos.x--;
 					if (!(actor instanceof BibiFire) && CollisionBox.intersectCollisions(actor, game.scene.currentSection.collisions).length)
@@ -732,12 +734,12 @@ export class Chloe extends Actor {
 		super(new Vector2(archipelagoState.arenaId === 2 ? archipelagoState.bossSpawnX - 24 : (archipelagoState.arenaL + archipelagoState.arenaR) / 2 - 32, archipelagoState.arenaB - 16), Vector2.zero);
 		this.#dir = this.#vDir = NNM.getPlayer().pos.x > this.pos.x;
 		this.damage = (NNM.game.currentQuest === 'nuinui') + 1;
-		this.#walkTo = archipelagoState.arenaId === 18 ? -archipelagoState.arenaWalkTo : this.#dir ? this.pos.x + 80 : this.pos.x - 32;
+		this.#walkTo = archipelagoState.arenaId === 37 ? this.pos.x - 40 : [18, 43].includes(archipelagoState.arenaId) ? (8 * 20 + 16.5) * 16 : this.#dir ? this.pos.x + 80 : this.pos.x - 32;
 		if (!NNM.getPlayer().playerControl)
 			archipelagoState.arenaWalkTo = (this.#dir ? -1 : 1) * this.#walkTo;
 		this.#table = new Actor(this.pos, new Vector2(64, 16));
 		this.#table.update = _ => this.#vDir = NNM.getPlayer().pos.x + 8 > this.pos.x;
-		this.#table.draw = (this.#table.isCollision = archipelagoState.arenaId !== 18) ? (game, cx) => {
+		this.#table.draw = (this.#table.isCollision = ![18, 43].includes(archipelagoState.arenaId)) ? (game, cx) => {
 			const ts = game.assets.images[game.scene.isAltColor ? 'ts_casino_alt' : 'ts_casino'];
 			cx.translate(this.#table.pos.x, this.#table.pos.y);
 			cx.drawImage(ts, 112, 48, 16, 16, 0, -16, 16, 16);
@@ -754,7 +756,11 @@ export class Chloe extends Actor {
 		};
 		this.#table.checkHit = _ => null;
 		NNM.game.scene.actors.push(this.#table);
-		this.pos = archipelagoState.arenaId === 18 ? new Vector2(2612, 112) : this.pos.plus({ x: this.#dir ? -16 : 80, y: -32 });
+		this.pos = [18, 43].includes(archipelagoState.arenaId) ? new Vector2(2612, 112) : this.pos.plus({ x: this.#dir ? -16 : 80, y: -32 });
+		if (archipelagoState.arenaId === 37) {
+			this.pos.x += 8;
+			this.#table.pos.y += 32;
+		}
 		NNM.game.scene.events.push(new GameEvent([game => {
 			if (game.scene.actors.at(-1) !== this.#table) {
 				const index = game.scene.actors.indexOf(this.#table);
@@ -820,6 +826,9 @@ export class Chloe extends Actor {
 				}
 			} else if (!game.bgm && this.health >= this.maxHealth) {
 				game.playBGM('play_dice');
+			} else if (game.keys.start) {
+				game.playSound('select');
+				game.menu = new Item(game);
 			}
 		}
 

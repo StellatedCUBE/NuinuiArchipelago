@@ -5,6 +5,10 @@ from Options import Choice, Toggle, PerGameCommonOptions, StartInventoryPool, De
 class CustomDeathLink(DeathLink):
 	__doc__ = DeathLink.__doc__ + '\n\nThis can be changed during play using the /deathlink command in the in-game text console in the pause menu.'
 
+class MusicRando(Toggle):
+	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.)"""
+	display_name = "Randomise Music"
+
 class NNQ(DefaultOnToggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
@@ -140,6 +144,7 @@ class MMQCrossBoss(NNQCrossBoss):
 class FNNQOptions(PerGameCommonOptions):
 	# General
 	death_link: CustomDeathLink
+	randomise_music: MusicRando
 
 	# NNQ
 	nnq: NNQ
@@ -172,8 +177,8 @@ class FNNQOptions(PerGameCommonOptions):
 	mmq_coin_behaviour: MMQCoinBehaviour
 	mmq_stage_shuffle: MMQShuffleStages
 	mmq_stage_items: MMQStageItems
-	prq_boss_shuffle: MMQBossPlando
-	prq_boss_cross: MMQCrossBoss
+	mmq_boss_shuffle: MMQBossPlando
+	mmq_boss_cross: MMQCrossBoss
 
 	# c/i
 	start_inventory_from_pool: StartInventoryPool

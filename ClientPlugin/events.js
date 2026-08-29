@@ -119,11 +119,11 @@ export function patchEvents() {
 		}
 	}]});
 
-	prefix(NUINUI_PORT_EVENTS['1_0'][1], 0, (_, event) => {
-		if (!event.timelineFrame)
+	NUINUI_PORT_EVENTS['1_0'].push({condition: _ => {
+		if (self.archipelagoState)
 			for (let i = 11 << 16; self.archipelagoState.client.room.allLocations.includes(i); i++)
 				self.archipelagoState.scout(i);
-	});
+	}});
 	prefix(NUINUI_PORT_EVENTS['1_0'][1], -3, (game, event) => !event.timelineFrame && event.marine && archipelagoState.item(event.marine.pos.value(), 'boss'));
 
 	patchCondition(NUINUI_YAMATO_EVENTS['2_9'][0], game => !self.archipelagoState.checked(2) && !game.scene.actors.find(a => a.apLocation === 2));

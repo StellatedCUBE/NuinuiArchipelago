@@ -1,6 +1,8 @@
 from . import item
 from . import location
 from .data import ESSENCE, FEAT_MMQ_COIN
+from .boss import allocate_bosses, Q_MMQ, Q_ALL
+from .arenas import mmq_arenas
 
 def mmq(world):
 	p = world.player
@@ -63,3 +65,7 @@ def mmq(world):
 			for i in range(3 * 28):
 				world.add_goal_location(world.locations[-i-1][0])
 				world.add_goal_feat(FEAT_MMQ_COIN + i)
+	
+	arenas = mmq_arenas()
+	allocate_bosses(world.random, world.options.mmq_boss_shuffle, arenas, Q_ALL if world.options.mmq_boss_cross else Q_MMQ)
+	world.boss_data['mmq'] = [arena.boss.name for arena in arenas]

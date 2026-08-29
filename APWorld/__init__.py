@@ -159,4 +159,5 @@ class FNNQWorld(World):
 			boss = self.boss_data,
 			goal = hex(sum(1 << feat for feat in self.required_feats))[2:],
 			nnq_li = self.options.nnq_stage_items.value,
+			mr = self.options.randomise_music.value * self.random.randrange(1 << 31)
 		)
