@@ -210,6 +210,15 @@ export class ArchipelagoState {
 				this.pendingPopUp = null;
 			} else if (this.incomingDeath)
 				player.die(NNM.game);
+		} else if (this.pendingPopUp instanceof PopUpMenu && (NNM.game.menu instanceof QuestMenu || NNM.game.menu instanceof StageSelect || NNM.game.menu instanceof MarineStageSelect) && NNM.game.menu.frameCount > 250) {
+			let pm = this.pendingPopUp;
+			while (pm.previousMenu instanceof PopUpMenu) pm = pm.previousMenu;
+			if (!pm.previousMenu) {
+				NNM.game.menu.aBuffer = true;
+				pm.previousMenu = NNM.game.menu;
+				NNM.game.menu = this.pendingPopUp;
+				this.pendingPopUp = null;
+			}
 		}
 
 		if (!NNM.game.menu && this.bufferedHearts > 0) {
