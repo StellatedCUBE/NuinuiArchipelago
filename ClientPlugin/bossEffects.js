@@ -741,7 +741,7 @@ export class RandomFubukiArenaManager extends Actor {
 		}
 	}
 
-	update = game => NNM.getPlayer().pos.y > game.scene.currentSection.pos.y + game.scene.currentSection.size.y && NNM.getPlayer().die(game, archipelagoState.deathCause = ' fell off')
+	update = game => NNM.getPlayer().pos.y > game.scene.currentSection.pos.y + game.scene.currentSection.size.y && NNM.getPlayer().die(game)
 }
 
 let chloeFunc;

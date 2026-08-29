@@ -790,7 +790,7 @@ const arenas = [
 					game.scene.foreground[`${17 * 20 + x}_10`] = '23';
 					game.scene.currentSection.collisions.push({ pos: { x: (17 * 20 + x) * 16, y: 10 * 16 }, size: { x: 16, y: 16 }});
 				}
-				event.next = true;
+				event.next = game.scene.actors = game.scene.actors.filter(actor => !(actor instanceof IceBloc && CollisionBox.intersects(actor, game.scene.view)));
 			}
 		]
 	},
