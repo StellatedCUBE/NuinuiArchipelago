@@ -112,6 +112,7 @@ NNM.code.insertAtEndOfScope('Item.constructor', function() {
 		}
 	}
 });
+NNM.code.insertBeforeFirstMatchingLine('Item.drawOptions', "'sp_cage'", 'if (!self.archipelagoState?.checked((6 << 16) | (Object.keys(game.quests.random.stages).indexOf(game.currentStage) << 2) | -~i))');
 NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", function() {
 	if (this.type === 'archipelago') {
 		const [i, r] = this.typeId;
