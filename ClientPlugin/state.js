@@ -598,6 +598,7 @@ export class ArchipelagoState {
 
 	onSceneStart(scene) {
 		this.latestNNQLevel = null;
+		this.bufferedHearts = 0;
 		if (NNM.game.currentQuest === 'nuinui') {
 			const stageIndex = Object.keys(NNM.game.quests.nuinui.stages).indexOf(scene.labelId);
 			if (stageIndex < 5) {
