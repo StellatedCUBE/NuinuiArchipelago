@@ -67,5 +67,5 @@ def mmq(world):
 				world.add_goal_feat(FEAT_MMQ_COIN + i)
 	
 	arenas = mmq_arenas()
-	allocate_bosses(world.random, world.options.mmq_boss_shuffle, arenas, Q_ALL if world.options.mmq_boss_cross else Q_MMQ)
+	allocate_bosses(world, world.options.mmq_boss_shuffle, arenas, Q_ALL if world.options.mmq_boss_cross else Q_MMQ)
 	world.boss_data['mmq'] = [arena.boss.name for arena in arenas]

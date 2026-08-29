@@ -54,7 +54,7 @@ def nnq(world):
 				world.add_goal_feat(i)
 	
 	arenas = [a for a in nnq_arenas() if a.region in world.multiworld.regions.region_cache[world.player]]
-	allocate_bosses(world.random, world.options.nnq_boss_shuffle, arenas, Q_ALL if world.options.nnq_boss_cross else Q_NNQ)
+	allocate_bosses(world, world.options.nnq_boss_shuffle, arenas, Q_ALL if world.options.nnq_boss_cross else Q_NNQ)
 	for i, arena in enumerate(arenas):
 		region = world.get_region(arena.region)
 		rule = arena.rule(world.player)

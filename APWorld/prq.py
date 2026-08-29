@@ -94,7 +94,7 @@ def prq(world):
 		world.filler.append((2, c))
 
 	arenas = prq_arenas()
-	allocate_bosses(world.random, world.options.prq_boss_shuffle, arenas, Q_ALL if world.options.prq_boss_cross else Q_PRQ)
+	allocate_bosses(world, world.options.prq_boss_shuffle, arenas, Q_ALL if world.options.prq_boss_cross else Q_PRQ)
 	for i, arena in enumerate(arenas):
 		if arena.drop == Drop.ALWAYS or (world.options.prq_boss_all_drop and arena.drop != Drop.NEVER):
 			world.add_location((location.LocationCategory.BOSS_DROP, i + 21), world.get_region(arena.region))

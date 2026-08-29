@@ -327,7 +327,8 @@ class HarborArena(Arena):
 	def easy_with(self, _):
 		return self.boss.name in ('Suisei', 'Marine')
 
-def allocate_bosses(random, option, arenas, source_quests):
+def allocate_bosses(world, option, arenas, source_quests):
+	random = world.random
 	plando = option.value
 	duplicates = None
 	try: plando = option.name_lookup[int(plando)]
@@ -355,6 +356,7 @@ def allocate_bosses(random, option, arenas, source_quests):
 				except KeyError:
 					raise OptionError('Unknown boss ' + repr(boss_name))
 			case [singularity]:
+				if world.prevent_boss_plando(): continue
 				try:
 					boss = by_name[singularity]
 					for arena in arenas:
@@ -363,6 +365,7 @@ def allocate_bosses(random, option, arenas, source_quests):
 				except KeyError:
 					raise OptionError('Unknown boss ' + repr(singularity))
 			case [arena_name, boss_name]:
+				if world.prevent_boss_plando(): continue
 				try:
 					arena = next(a for a in arenas if a.name.lower() == arena_name)
 					if arena.boss:

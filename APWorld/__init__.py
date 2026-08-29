@@ -162,3 +162,10 @@ class FNNQWorld(World):
 			mr = self.options.randomise_music.value * self.random.randrange(1 << 31),
 			oob = self.options.prq_allow_oob.value,
 		)
+	
+	def prevent_boss_plando(self):
+		if not getattr(self.multiworld, "generation_is_fake", False) and not (PlandoOptions.bosses & plando_options):
+			if not self.warned_about_plando:
+				logging.warning(f"The plando bosses module is turned off, so {self.multiworld.player_names[self.player]}'s boss plando will be ignored.")
+				self.warned_about_plando = True
+			return True
