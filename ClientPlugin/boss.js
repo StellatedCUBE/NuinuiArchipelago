@@ -3,6 +3,7 @@ import {
 	DynamicFloor,
 	SkullBanner,
 	CalliLand,
+	CalliCloak,
 	SmokeCloud,
 	Darkness,
 	SinkingBoat,
@@ -1140,12 +1141,17 @@ function calli(skullBoss) {
 				event.bossActor.pos.y = Infinity;
 				event.calliJump = f;
 			} else f();
-			NNM.game.scene.actors.push(new CalliLand(event.bossActor));
+			NNM.game.scene.actors.push(new CalliLand(event.bossActor, skullBoss));
 		},
 		timeline: [
-			warn(skullBoss ? 'unknown' : 'mori_calliope', 1, 'idle', 'mori', 0, 150, {
+			warn(skullBoss ? 'unknown' : 'mori_calliope', 1, 'idle', 'mori', 0, skullBoss ? 150 : 240, {
 				'0': event => event.calliJump && event.calliJump(),
-				'150': event => event.bossActor.scythe.intro = !(event.bossActor.scythe.shakeBuffer = 15)
+				'100': event => skullBoss || NNM.game.scene.actors.push(new CalliLand(event.bossActor, 1)),
+				'120': event => skullBoss || NNM.game.scene.actors.push(new CalliCloak(event.bossActor)),
+				[skullBoss ? '150' : '180']: event => {
+					event.bossActor.scythe.intro = !(event.bossActor.scythe.shakeBuffer = 15);
+					if (!skullBoss) NNM.game.playSound('slash');
+				}
 			}),
 			fight([Calli, CalliScythe])
 		]

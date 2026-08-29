@@ -39,18 +39,49 @@ export class SkullBanner extends Actor {
 
 export class CalliLand extends Actor {
 	#calli;
+	#scythe;
 
-	constructor(calli) {
+	constructor(calli, scythe) {
 		super(Vector2.zero, Vector2.zero);
 		this.#calli = calli;
+		this.#scythe = scythe;
 	}
 
 	update = game => {
 		if (this.toFilter = this.#calli.isGrounded) {
 			this.#calli.vel = this.pos;
 			this.#calli.setAnimation('hide');
-			game.scene.actors = [this.#calli.scythe = new CalliScythe(this.#calli.pos.plus(new Vector2(this.#calli.size.x / 2 - 24, -12 * 16)), this.#calli), ...game.scene.actors];
+			if (this.#scythe)
+				game.scene.actors = [this.#calli.scythe = new CalliScythe(this.#calli.pos.plus(new Vector2(this.#calli.size.x / 2 - 24, -12 * 16)), this.#calli), ...game.scene.actors];
 		}
+	}
+}
+
+export class CalliCloak extends Actor {
+	#frame = 0;
+
+	constructor(calli) {
+		super(calli.pos.plus({ x: -16, y: 0 }), new Vector2(48, 24));
+		this.vel = new Vector2(calli.dir ? -1 : 1, -.5);
+		calli.setAnimation('point');
+		NNM.game.playSound('dash');
+		NNM.game.playBGM('mori');
+	}
+
+	update = game => {
+		this.pos.x += this.vel.x;
+		this.pos.y += this.vel.y;
+		this.toFilter = ++this.#frame > 60;
+	}
+
+	draw = (game, cx) => {
+		if (this.#frame > 40 && (this.#frame & 2)) return;
+		cx.save();
+		const center = CollisionBox.center(this).round();
+		cx.translate(center.x, center.y);
+		if (this.#frame & 4) cx.scale(-1, -1);
+		cx.drawImage(game.assets.images.sp_cloak, 0, 0, 48, 24, -24, -12, 48, 24);
+		cx.restore();
 	}
 }
 
