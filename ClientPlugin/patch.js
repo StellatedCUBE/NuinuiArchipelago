@@ -264,7 +264,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 });
 NNM.code.insertAtEndOfScope('StageSelect.confirm', 'if (self.archipelagoState && this.nextStage === "falls") game.scene.setFromMenu = true;');
 NNM.code.insertAtEndOfScope('Scene.constructor', 'self.archipelagoState?.onSceneStart(this);');
-NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'this.canHelp = true', 'if (self.archipelagoState && !flare.helpHealth) this.canHelp = self.archipelagoState.helpsAvailable;');
+NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'this.canHelp = true', 'if (self.archipelagoState && !flare.helpHealth && game.currentQuest === "nuinui") this.canHelp = self.archipelagoState.helpsAvailable;');
 NNM.code.insertAtStartOfScope('instantBubble', 'if (self.archipelagoState && bubbleId === "helpBubble") text += ` (${self.archipelagoState.helpsAvailable})`;');
 NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'helpHealth = ', 'self.archipelagoState?.spendHelp();');
 NNM.code.insertAtEndOfScope('Arrow.constructor', 'if (self.archipelagoState) { this.enemyPool.push(MarineGhost); if (NNM.game.scene.boss?.suddenDeathMode) this.enemyPool.push(Gashadokuro); }');
