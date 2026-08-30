@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from collections.abc import Callable
 
 from BaseClasses import ItemClassification, Item
 
@@ -33,15 +34,15 @@ class ItemType:
 	type: ItemCategory
 	sub_id: int
 	name: str
-	class_: ItemClassification
+	class_: ItemClassification | Callable
 	
 	id: int = 0
 
 	def __post_init__(self):
 		self.id = (self.type.value << 16) | self.sub_id
 
-	def build(self, player):
-		return FNNQItem(self.name, self.class_, self.id, player)
+	def build(self, world):
+		return FNNQItem(self.name, self.class_ if isinstance(self.class_, ItemClassification) else self.class_(world), self.id, world.player)
 	
 	def __str__(self):
 		return self.name
@@ -60,7 +61,8 @@ item_types = [
 	),
 
 	ItemType(ItemCategory.CHARACTER, 0, 'Flare', ItemClassification.progression),
-	ItemType(ItemCategory.CHARACTER, 1, 'Noel', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.CHARACTER, 1, 'progressive Noel', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.CHARACTER, 3, 'charged mace', ItemClassification.progression),
 	
 	*(
 		ItemType(ItemCategory.FLARE_SHOT, i, name, ItemClassification.progression)
@@ -68,7 +70,7 @@ item_types = [
 	),
 
 	*(
-		ItemType(ItemCategory.KEY, i, name + ' key', ItemClassification.progression)
+		ItemType(ItemCategory.KEY, i, name + ' key', lambda world: ItemClassification.progression if world.options.nnq_goal.value > 1 or world.options.nnq_all_stages.value else ItemClassification.filler)
 		for i, name in enumerate(MYTH)
 	),
 
@@ -77,15 +79,15 @@ item_types = [
 	ItemType(ItemCategory.FLARE_ITEM, 4, "Angel's boots", ItemClassification.progression),
 
 	*(
-		ItemType(ItemCategory.HOLOX, i, name + "'s badge", ItemClassification.progression)
+		ItemType(ItemCategory.HOLOX, i, name + "'s badge", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
 		for i, name in enumerate(('Iroha', 'Koyori', 'Chloe', 'Lui'))
 	),
 	ItemType(ItemCategory.HOLOX, 4, "La+'s badge", ItemClassification.filler),
 
-	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'big reaper crystal', ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'big anchor crystal', ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 3, 'big magatama crystal', ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 4, 'big sword crystal', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'big reaper crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'big anchor crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 3, 'big magatama crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 4, 'big sword crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
 
 	ItemType(ItemCategory.IDOL_ESSENCE, 0, 'idol essence', ItemClassification.progression_deprioritized_skip_balancing),
 	

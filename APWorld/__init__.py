@@ -38,9 +38,13 @@ class FNNQWorld(World):
 		self.items.append(get_item(item))
 
 	def add_location(self, location, *a):
-		self.locations.append((get_location(location), a))
+		lo = get_location(location)
+		if (lo.characters_needed.value & (3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value)) == lo.characters_needed.value:
+			self.locations.append((lo, a))
 
 	def add_goal_location(self, *locations):
+		#has = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value
+		#self.goal_locations.extend(lo.id for lo in (get_location(location) for location in locations) if (lo.characters_needed.value & has) == lo.characters_needed.value)
 		self.goal_locations.extend(get_location(location).id for location in locations)
 	
 	def add_goal_feat(self, feat):
@@ -64,9 +68,10 @@ class FNNQWorld(World):
 		return 'heart'
 
 	def create_item(self, name):
-		return get_item(name).build(self.player)	
+		return get_item(name).build(self)
 
 	def create_items(self):
+		self.characters = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value
 		self.items = []
 		self.locations = []
 		self.goal_locations = []
@@ -87,10 +92,10 @@ class FNNQWorld(World):
 		if self.options.prq: prq(self)
 		if self.options.mmq: mmq(self)
 
-		if self.needs_starting_level and not any(get_item(item.name) in self.potential_starting_levels for item in self.multiworld.precollected_items[player]):
+		if self.needs_starting_level and not any(get_item(item.name) in self.potential_starting_levels for item in self.multiworld.precollected_items[player] if item.code):
 			starting_level = self.random.choice(self.potential_starting_levels)
 			self.items.remove(starting_level)
-			self.push_precollected(starting_level.build(player))
+			self.push_precollected(starting_level.build(self))
 
 		self.filler = [(get_item(i), j) for i, j in self.filler]
 
@@ -124,7 +129,7 @@ class FNNQWorld(World):
 
 		self.random.shuffle(self.items)
 		for item in self.items:
-			built = item.build(player)
+			built = item.build(self)
 			if item.type == ItemCategory.BIG_CRYSTAL and self.options.prq_goal.value:
 				built.classification = ItemClassification.filler
 			self.multiworld.itempool.append(built)
@@ -155,6 +160,7 @@ class FNNQWorld(World):
 		pool.remove(item)
 	
 	def fill_slot_data(self):
+		help_item = get_item(ItemCategory.HELP)
 		return dict(
 			deathLink = self.options.death_link.value,
 			boss = self.boss_data,
@@ -162,6 +168,8 @@ class FNNQWorld(World):
 			nnq_li = self.options.nnq_stage_items.value,
 			mr = self.options.randomise_music.value * self.random.randrange(1 << 31),
 			oob = self.options.prq_allow_oob.value,
+			help = int(any(item == help_item for item in self.items)),
+			hf = self.characters & 1,
 		)
 	
 	def prevent_boss_plando(self):

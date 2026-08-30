@@ -264,7 +264,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 });
 NNM.code.insertAtEndOfScope('StageSelect.confirm', 'if (self.archipelagoState && this.nextStage === "falls") game.scene.setFromMenu = true;');
 NNM.code.insertAtEndOfScope('Scene.constructor', 'self.archipelagoState?.onSceneStart(this);');
-NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'this.canHelp = true', 'if (self.archipelagoState && !flare.helpHealth && game.currentQuest === "nuinui") this.canHelp = self.archipelagoState.helpsAvailable;');
+NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'this.canHelp = true', 'if (self.archipelagoState?.slotData.help && !flare.helpHealth && game.currentQuest === "nuinui") this.canHelp = self.archipelagoState.helpsAvailable;');
 NNM.code.insertAtStartOfScope('instantBubble', 'if (self.archipelagoState && bubbleId === "helpBubble") text += ` (${self.archipelagoState.helpsAvailable})`;');
 NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'helpHealth = ', 'self.archipelagoState?.spendHelp();');
 NNM.code.insertAtEndOfScope('Arrow.constructor', 'if (self.archipelagoState) { this.enemyPool.push(MarineGhost); if (NNM.game.scene.boss?.suddenDeathMode) this.enemyPool.push(Gashadokuro); }');
@@ -305,10 +305,11 @@ for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}
 }
+NNM.code.insertAtEndOfScope('Noel.constructor', 'if (self.archipelagoState) this.chargeShot = self.archipelagoState.noelCanCharge;');
 NNM.code.insertAtEndOfScope('VaporBlock.constructor', 'this.vaporCollisionBox.__archipelagoVapor = true;');
 NNM.code.insertAtStartOfScope('IntroEvent.endIntro', 'if (self.archipelagoState) self.archipelagoState.incomingDeath = false;');
 NNM.code.findReplaceAllLines('Torche.update', ' instanceof Noel', ' instanceof Noel && !self.archipelagoState');
-NNM.code.findReplaceAllLines('NUINUI_PORT_EVENTS', "game.mode !== 'noel'", "(game.mode !== 'noel' || self.archipelagoState)");
+NNM.code.findReplaceAllLines('NUINUI_PORT_EVENTS', "game.mode !== 'noel'", "(game.mode !== 'noel' || self.archipelagoState?.slotData.hf)");
 NNM.code.insertBeforeFirstMatchingLine('Aqua.takeHit', "'dual'", 'if (self.archipelagoState) self.archipelagoState.item(this.pos.value(), 5); else');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_FALLS_EVENTS.4_0', 'actor !== event.boss', 'if (self.archipelagoState?.slotData.boss.nnq[0] === "Usadrill") self.archipelagoState.item(event.boss.middleParts[8].pos.value(), "boss");');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_FALLS_EVENTS.6_1', 'RocketPickup', 'if (self.archipelagoState?.slotData.boss.nnq[1] === "Pekora") self.archipelagoState.item(event.pekora.pos.value(), "boss");');

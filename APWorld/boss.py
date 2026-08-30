@@ -242,7 +242,7 @@ A_NO_CHLOE = {
 	'Random Quest Crystal Falls midboss',
 }
 
-#A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA
+A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA | A_MMQ | A_PRQ
 
 class Drop(Enum):
 	ALWAYS = 0
@@ -254,18 +254,18 @@ class Drop(Enum):
 class Boss:
 	name: str
 	quests: int
-	requirements: None | set[str]
+	flare_requirements: None | set[str]
+	noel_difficulty: int
 	valid_arenas: set[str]
-	require_flare: bool = False
 
 	def rule(self, player):
-		if self.requirements is not None:
-			if self.require_flare:
-				requirements = self.requirements
-				return lambda state: state.has('Flare', player) and any(state.has(item, player) for item in requirements)
-			else:
-				requirements = {*self.requirements, 'Noel'}
-				return lambda state: any(state.has(item, player) for item in requirements)
+		return lambda state: (
+			(state.has('Flare', player) and (self.flare_requirements is None or any(state.has(item, player) for item in self.flare_requirements))) or
+			(not self.noel_difficulty and state.has('progressive Noel', player)) or
+			(self.noel_difficulty == 1 and state.has('progressive Noel', player, 2)) or
+			(self.noel_difficulty == 1 and state.has('charged mace', player) and state.has('progressive Noel', player)) or
+			(self.noel_difficulty == 2 and state.has('charged mace', player) and state.has('NOEL NUINUI QUEST', player))
+		)
 
 Q_NNQ = 1
 Q_PRQ = 2
@@ -273,35 +273,36 @@ Q_MMQ = 4
 Q_ALL = -1
 
 by_name = {boss.name.lower(): boss for boss in [
-	Boss('Usadrill', Q_NNQ, None, A_BRIDGE | {'Crystal Falls midboss'}),
-	Boss('Pekora', Q_NNQ|Q_MMQ, None, A_ROUGH_FLOORED - A_INA),
-	Boss('Veiled Mori', Q_NNQ, None, A_FLOORED & A_WALLED),
-	Boss('Miko', Q_NNQ|Q_MMQ, None, A_ROUGH_FLOORED - A_ROOFED),
-	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, True),
-	Boss('Fubura Tower', Q_NNQ, None, {'Yamato midboss 1'}),
-	Boss('Ayame', Q_NNQ|Q_MMQ, None, A_CAN_BE_ROOFED),
-	Boss('Fubuki', Q_NNQ|Q_PRQ, None, A_ROUGH_FLOORED),
-	Boss('Suisei', Q_NNQ|Q_PRQ, None, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
-	Boss('Polka', Q_NNQ|Q_MMQ, None, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
-	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
-	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, None, A_SINGLE_SCREEN - A_NO_DEMON),
-	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, A_FLOORED & A_WALLED - A_INA, True),
-	Boss('Mori', Q_NNQ|Q_PRQ, None, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
-	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN),
-	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, A_INA),
-	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
-	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, A_SINGLE_SCREEN),
-	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ),
-	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, A_CAN_BE_ROOFED & A_FLOORED, True),
-	Boss('Robot', Q_PRQ, None, A_ROUGH_FLOORED),
-	Boss('Chloe', Q_PRQ, None, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE),
-	Boss('Lui', Q_PRQ|Q_MMQ, None, A_ROUGH_FLOORED),
-	Boss('Iroha', Q_PRQ|Q_MMQ, None, A_FLOORED & A_WALLED),
-	Boss('La+', Q_PRQ|Q_MMQ, None, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
-	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, A_SINGLE_SCREEN, True),
-	Boss('Ghost Marine', Q_MMQ, None, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
-	Boss('Dokuro', Q_MMQ, None, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
+	Boss('None', 0, None, 0, A_ALL),
+	Boss('Usadrill', Q_NNQ, None, 0, A_BRIDGE | {'Crystal Falls midboss'}),
+	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_INA),
+	Boss('Veiled Mori', Q_NNQ, None, 0, A_FLOORED & A_WALLED),
+	Boss('Miko', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_ROOFED),
+	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ),
+	Boss('Fubura Tower', Q_NNQ, None, 0, {'Yamato midboss 1'}),
+	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
+	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ROUGH_FLOORED),
+	Boss('Suisei', Q_NNQ|Q_PRQ, None, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
+	Boss('Polka', Q_NNQ|Q_MMQ, None, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
+	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
+	Boss('Demon', Q_NNQ, None, 0, A_SINGLE_SCREEN - A_NO_DEMON),
+	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA),
+	Boss('Mori', Q_NNQ|Q_PRQ, None, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
+	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN),
+	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA),
+	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
+	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN),
+	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ),
+	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, 2, A_CAN_BE_ROOFED & A_FLOORED),
+	Boss('Robot', Q_PRQ, None, 0, A_ROUGH_FLOORED),
+	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE),
+	Boss('Lui', Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
+	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, A_FLOORED & A_WALLED),
+	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
+	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN),
+	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
+	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
 ]}
 
 class Arena:
@@ -317,7 +318,7 @@ class Arena:
 		return self.boss.rule(player)
 	
 	def easy_with(self, character):
-		return not self.boss.require_flare if character else self.boss.requirements is None
+		return not self.boss.noel_difficulty if character else self.boss.flare_requirements is None
 
 class HarborArena(Arena):
 	def rule(self, player):
@@ -382,7 +383,17 @@ def allocate_bosses(world, option, arenas, source_quests):
 			case _:
 				raise OptionError('Malformed boss plando command ' + repr(command))
 
-	bosses = [b for b in by_name.values() if b.quests & source_quests and b not in banned]
+	nnq = arenas[0].region and arenas[0].region[0] == 'n'
+	bosses = [b for b in by_name.values() if b.quests & source_quests and b not in banned and (not nnq or world.options.nnq_other_character.value or ((
+		b.noel_difficulty < 3
+	) if world.options.nnq_starting_character.value else (
+		b.flare_requirements is None or b.flare_requirements
+	)))]
+
+	if nnq and world.characters == 2:
+		bosses = [b if b.name == 'Suisei' or 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {'Pirate Harbor boss'}) for b in bosses]
+		if by_name['marine'] not in banned:
+			bosses.append(Boss('Marine', Q_NNQ, None, 0, {'Pirate Harbor boss'}))
 
 	if not duplicates:
 		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas)]

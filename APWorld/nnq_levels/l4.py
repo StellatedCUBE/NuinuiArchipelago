@@ -2,7 +2,7 @@ pre_miko_enemies=[("Nousakumo",1,0),("Nousakumo",2,1),("Nousakumo",2,2),("Nousak
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1344=w.create_region('nnq_castle_0_1344')
-	w.base_region.connect(r_0_1344,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,260)).name,j=I.get_item((I.ItemCategory.LEVEL,772)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest level",p,5))
+	w.base_region.connect(r_0_1344,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,260)).name,j=I.get_item((I.ItemCategory.LEVEL,772)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,5))
 	r_320_1152=w.create_region('nnq_castle_320_1152')
 	r_640_1152=w.create_region('nnq_castle_640_1152')
 	r_1280_1152=w.create_region('nnq_castle_1280_1152')
@@ -48,7 +48,7 @@ def create_locations(w,I,L,D):
 	r_4160_0.connect(r_960_576)
 	r_960_576.connect(r_320_576)
 	r_2560_768.connect(r_3200_768)
-	r_320_576.connect(r_0_384,rule=lambda s:(s.has("Noel",p)))
+	r_320_576.connect(r_0_384,rule=lambda s:(s.has("progressive Noel",p)))
 	r_0_384.connect(r_320_384)
 	r_320_384.connect(r_320_192)
 	if w.options.nnq_enemysanity:

@@ -31,11 +31,18 @@ class LocationCategory(Enum):
 	ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE = 12
 	SANITY_RANDOM = 13
 
+class CharactersNeeded(Enum):
+	NONE = 0
+	FLARE = 1
+	NOEL = 2
+	BOTH = 3
+
 @dataclass
 class LocationType:
 	type: LocationCategory
 	sub_id: int
 	name: str
+	characters_needed: CharactersNeeded = CharactersNeeded.NONE
 
 	id: int = 0
 	
@@ -61,9 +68,9 @@ class LocationType:
 location_types = [
 	LocationType(LocationCategory.MANUAL, 1, "Elfriends' gift (Underworld Casino)"),
 	LocationType(LocationCategory.MANUAL, 2, "Elfriends' gift (Yamato)"),
-	LocationType(LocationCategory.MANUAL, 3, 'Bad end'),
-	LocationType(LocationCategory.MANUAL, 4, 'Good end'),
-	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua'),
+	LocationType(LocationCategory.MANUAL, 3, 'Bad end', CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 4, 'Good end', CharactersNeeded.NOEL),
+	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', CharactersNeeded.FLARE),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel'),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),
 	*(
@@ -71,8 +78,8 @@ location_types = [
 		for i, level in enumerate(LEVELS[:5], start=10)
 	),
 	*(
-		LocationType(LocationCategory.MANUAL, i, name + "'s badge")
-		for i, name in enumerate(('Koyori', 'Chloe', 'Lui', 'Iroha', 'La+'), start=20)
+		LocationType(LocationCategory.MANUAL, i, name + "'s badge", characters)
+		for i, (name, characters) in enumerate((('Koyori', CharactersNeeded.NONE), ('Chloe', CharactersNeeded.NONE), ('Lui', CharactersNeeded.BOTH), ('Iroha', CharactersNeeded.BOTH), ('La+', CharactersNeeded.FLARE)), start=20)
 	),
 	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end"),
 	LocationType(LocationCategory.MANUAL, 32, "Hidden treasure room"),
@@ -84,7 +91,11 @@ location_types = [
 		if (i != 4 or category != LocationCategory.LEVEL_CLEAR_NUINUI) and (i != 6 or category != LocationCategory.LEVEL_CLEAR_RANDOM)
 	),
 	*(
-		LocationType(LocationCategory.BOSS_DROP, i, arena.fqname + ' drop' if 'boss' in arena.name else arena.fqname + ' boss drop')
+		LocationType(LocationCategory.BOSS_DROP, i, arena.fqname + ' drop' if 'boss' in arena.name else arena.fqname + ' boss drop', {
+			'Demon Lord Castle lift': CharactersNeeded.NOEL,
+			'Demon Lord Castle turret': CharactersNeeded.NOEL,
+			'Sky Palace secret boss': CharactersNeeded.FLARE
+		}.get(arena.fqname, CharactersNeeded.NONE))
 		for i, arena in enumerate(nnq_arenas() + prq_arenas())
 		if arena.drop != Drop.NEVER
 	),
@@ -113,7 +124,7 @@ location_types = [
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' else CharactersNeeded.NONE)
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),

@@ -36,6 +36,10 @@ class NNQStartingCharacter(Choice):
 	option_flare = 0
 	option_noel = 1
 
+class NNQOtherCharacter(DefaultOnToggle):
+	"""Is the other character included in the item pool."""
+	display_name = "Include Other Character"
+
 class NNQShuffleStages(DefaultOnToggle):
 	"""Randomise the unlock order of the stages."""
 	display_name = "Randomise Stage Order"
@@ -157,6 +161,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_stage_shuffle: NNQShuffleStages
 	nnq_stage_items: NNQStageItems
 	nnq_starting_character: NNQStartingCharacter
+	nnq_other_character: NNQOtherCharacter
 	nnq_hidden_area_checks: NNQHiddenAreas
 	nnq_boss_shuffle: NNQBossPlando
 	nnq_boss_cross: NNQCrossBoss
@@ -196,6 +201,7 @@ fnnq_option_groups = [
 		NNQShuffleStages,
 		NNQStageItems,
 		NNQStartingCharacter,
+		NNQOtherCharacter,
 		NNQHiddenAreas,
 		NNQBossPlando,
 		NNQCrossBoss,

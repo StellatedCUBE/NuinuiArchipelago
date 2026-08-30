@@ -1,7 +1,7 @@
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1920=w.create_region('nnq_yamato_0_1920')
-	w.base_region.connect(r_0_1920,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,259)).name,j=I.get_item((I.ItemCategory.LEVEL,771)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest level",p,4))
+	w.base_region.connect(r_0_1920,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,259)).name,j=I.get_item((I.ItemCategory.LEVEL,771)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,4))
 	r_320_1152=w.create_region('nnq_yamato_320_1152')
 	r_640_1728=w.create_region('nnq_yamato_640_1728')
 	w.add_location((L.LocationCategory.MANUAL,2),r_640_1728)
@@ -29,7 +29,7 @@ def create_locations(w,I,L,D):
 	w.add_location((L.LocationCategory.MANUAL,23),r_960_1152)
 	r_0_1920.connect(r_320_1152)
 	r_320_1152.connect(r_640_1728)
-	r_320_1152.connect(r_640_1152,rule=lambda s:(s.has("Flare",p)and s.has("Noel",p)and s.has("Elfriend's feathers",p)and s.has("Angel's boots",p)))
+	r_320_1152.connect(r_640_1152,rule=lambda s:(s.has("Flare",p)and s.has("progressive Noel",p)and s.has("Elfriend's feathers",p)and s.has("Angel's boots",p)))
 	r_640_1152.connect(r_960_1152)
 	r_320_1152.connect(r_640_1536)
 	r_640_1536.connect(r_1280_960)
@@ -44,7 +44,7 @@ def create_locations(w,I,L,D):
 	r_3200_0.connect(r_4160_0)
 	r_4160_0.connect(r_4480_0)
 	r_4480_0.connect(r_4800_0)
-	r_4800_0.connect(r_5120_0,rule=lambda s:(s.has("Noel",p))or(s.has(D.SHOTS[5],p)))
+	r_4800_0.connect(r_5120_0,rule=lambda s:(s.has("progressive Noel",p))or(s.has(D.SHOTS[5],p)))
 	r_0_384.connect(r_320_576)
 	r_3200_0.connect(r_3520_192)
 	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI if w.options.prq else L.LocationCategory.LEVEL_CLEAR_NAMELESS,3),r_4800_0)

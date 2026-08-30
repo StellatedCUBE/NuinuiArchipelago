@@ -1,7 +1,7 @@
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_768=w.create_region('nnq_casino_0_768')
-	w.base_region.connect(r_0_768,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,257)).name,j=I.get_item((I.ItemCategory.LEVEL,769)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest level",p,2))
+	w.base_region.connect(r_0_768,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,257)).name,j=I.get_item((I.ItemCategory.LEVEL,769)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,2))
 	r_960_768=w.create_region('nnq_casino_960_768')
 	r_1280_384=w.create_region('nnq_casino_1280_384')
 	r_1600_384=w.create_region('nnq_casino_1600_384')

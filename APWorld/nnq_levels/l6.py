@@ -1,7 +1,7 @@
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1152=w.create_region('nnq_heaven_0_1152')
-	w.base_region.connect(r_0_1152,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,262)).name,j=I.get_item((I.ItemCategory.LEVEL,774)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest level",p,7))
+	w.base_region.connect(r_0_1152,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,262)).name,j=I.get_item((I.ItemCategory.LEVEL,774)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,7))
 	r_320_1152=w.create_region('nnq_heaven_320_1152')
 	r_960_1152=w.create_region('nnq_heaven_960_1152')
 	r_1280_1152=w.create_region('nnq_heaven_1280_1152')

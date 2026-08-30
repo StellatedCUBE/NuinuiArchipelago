@@ -38,7 +38,7 @@ export function getIcon(item, anim) {
 		case 0: return [NNM.game.assets.images.sp_gem, [0, 0, 16, 16]];
 		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
-		case 3: return (item & 1) ? [NNM.game.assets.images.sp_noel_idle, [3, 4, 24, 35]] : [NNM.game.assets.images.sp_flare_idle, [4, 2, 24, 37]];
+		case 3: return [NNM.game.assets.images.ui_items, [(item & 1) * 60, 0, 20, 20]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
 		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 0, 20, 20]];

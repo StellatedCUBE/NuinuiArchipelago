@@ -3,7 +3,7 @@ enemies = []
 def create_locations(world, item, location, data):
 	p = world.player
 	level_region = world.create_region('nnq_hq')
-	world.base_region.connect(level_region,rule=lambda s,i=item.get_item((item.ItemCategory.LEVEL,261)).name,j=item.get_item((item.ItemCategory.LEVEL,773)).name:s.has(i,p)or s.has(j,p)or s.has('progressive Nuinui Quest level',p,6))
+	world.base_region.connect(level_region,rule=lambda s,i=item.get_item((item.ItemCategory.LEVEL,261)).name,j=item.get_item((item.ItemCategory.LEVEL,773)).name:s.has(i,p)or s.has(j,p)or s.has('progressive Nuinui Quest stage',p,6))
 
 	regions = []
 	for arena in data.MYTH:

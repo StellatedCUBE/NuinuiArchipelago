@@ -53,7 +53,7 @@ export class ArchipelagoState {
 	#musicMap = {};
 	bufferedHearts = 0;
 	casinoKey = Infinity;
-	hasGotNuinuiPlayer = false;
+	nuinuiPlayers = 0;
 	saves = {
 		nuinui: {'item-gun': true},
 		random: {},
@@ -70,6 +70,7 @@ export class ArchipelagoState {
 	scouts = {};
 	localIgnoreLocations = [];
 	chat = [];
+	noelCanCharge = false;
 
 	constructor(slotData, reconnect) {
 		this.slotData = slotData;
@@ -85,6 +86,9 @@ export class ArchipelagoState {
 			}
 			for (const i in musicA)
 				this.#musicMap[musicA[i]] = musicB[i];
+		}
+		if (slotData.boss.nnq) {
+			while (slotData.boss.nnq.length < 21) slotData.boss.nnq.push('None');
 		}
 	}
 
@@ -343,13 +347,26 @@ export class ArchipelagoState {
 				break;
 
 			case 3:
-				if (this.hasGotNuinuiPlayer) {
-					this.setSaveField('nuinui', 'item-gun');
-					this.setSaveField('nuinui', 'item-noel');
-					this.popup(new PopUpMenu(NNM.game, null, [sub_id ? 'castle_2' : 'archipelago_flare', local ? 'castle_3' : 'raw:received from ' + item.sender.name], 'item', sub_id * 3));
+				if (sub_id > 1) {
+					this.noelCanCharge = true;
+					if (NNM.getPlayer()) NNM.getPlayer().chargeShot = true;
+					msg = ['archipelago_noel_charge'];
+					if (!local)
+						msg.push('raw:received from ' + item.sender.name);
+					this.popup(new PopUpMenu(NNM.game, null, msg, 'item', 3));
 				} else {
-					this.hasGotNuinuiPlayer = true;
-					this.setSaveField('nuinui', 'current-mode', sub_id ? 'noel' : 'flare');
+					if (!this.nuinuiPlayers) {
+						this.setSaveField('nuinui', 'current-mode', sub_id ? 'noel' : 'flare');
+					} else if (sub_id === 1 && (this.nuinuiPlayers & 2)) {
+						this.handleItem({id: item.id | 2, sender: item.sender, receiver: item.receiver, locationId: item.locationId});
+						break;
+					}
+					this.nuinuiPlayers |= 1 << sub_id;
+					if (this.nuinuiPlayers === 3) {
+						this.setSaveField('nuinui', 'item-gun');
+						this.setSaveField('nuinui', 'item-noel');
+						this.popup(new PopUpMenu(NNM.game, null, [sub_id ? 'castle_2' : 'archipelago_flare', local ? 'castle_3' : 'raw:received from ' + item.sender.name], 'item', sub_id * 3));
+					}
 				}
 				break;
 
@@ -382,16 +399,19 @@ export class ArchipelagoState {
 
 			case 7:
 				this.setSaveField('nuinui', 'emblem-' + sub_id);
-				msg = ['archipelago_emblem_' + sub_id];
-				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
-				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
+				if (local || this.slotData.hf) {
+					msg = ['archipelago_emblem_' + sub_id];
+					if (!local)
+						msg.push('raw:received from ' + item.sender.name);
+					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
+				}
 				break;
 
 			case 8:
 				this.setSaveField('random', 'crystal-' + Object.keys(NNM.game.quests.random.stages)[sub_id]);
 				if (!(this.#goal & (1n << BigInt(Feat.PRQ_LEVEL_CLEAR)))) {
-					if (++this.#bigCrystals > 3)
+					this.#bigCrystals |= 1 << sub_id;
+					if (this.#bigCrystals === 30)
 						this.unlockLevel('random', 'holo_hq');
 					msg = ['archipelago_big_crystal'];
 					if (!local)
@@ -736,6 +756,7 @@ export class ArchipelagoState {
 	}
 
 	spendHelp(q = 1) {
+		if (!this.slotData.help) return;
 		this.helpsSpent += q;
 		if (q > 0) NNM.game.deathCount = 3;
 		try {
