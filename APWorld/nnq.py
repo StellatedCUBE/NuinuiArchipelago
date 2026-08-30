@@ -117,7 +117,7 @@ def nnq(world):
 			for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 				placed = None
 				if i < levels - 1: placed = (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1])
-				world.place_item('Good end' if level_ordering[i] == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, level_ordering[i]), placed)
+				world.place_item(('Bad end' if world.characters == 1 else 'Good end') if level_ordering[i] == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, level_ordering[i]), placed)
 				world.place_item((location.LocationCategory.LEVEL_CLEAR_NAMELESS, level_ordering[i]), placed)
 	elif world.options.nnq_stage_items:
 		for i in range(levels):
@@ -129,6 +129,6 @@ def nnq(world):
 		for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 			placed = (item.ItemCategory.LEVEL_PROGRESSIVE, 0)
 			if i == levels - 1: placed = None
-			world.place_item('Good end' if i == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, i), placed)
+			world.place_item(('Bad end' if world.characters == 1 else 'Good end') if i == 4 else (location.LocationCategory.LEVEL_CLEAR_NUINUI, i), placed)
 			world.place_item((location.LocationCategory.LEVEL_CLEAR_NAMELESS, i), placed)
 
