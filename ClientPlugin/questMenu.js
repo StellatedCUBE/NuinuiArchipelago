@@ -13,7 +13,7 @@ export class APQuestMenu extends QuestMenu {
 			superUpdate(game);
 			if (!game.menu) {
 				if (this.confirmBuffer)
-					archipelagoState.selectLevel(new APQuestMenu(game, prev));
+					archipelagoState.selectLevel(new APQuestMenu(game));
 				else
 					game.menu = prev;
 			}

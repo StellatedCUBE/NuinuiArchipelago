@@ -219,8 +219,21 @@ export class ArchipelagoState {
 			while (pm.previousMenu instanceof PopUpMenu) pm = pm.previousMenu;
 			if (!pm.previousMenu) {
 				NNM.game.menu.aBuffer = true;
+				const om = NNM.game.menu;
 				pm.previousMenu = NNM.game.menu;
 				NNM.game.menu = this.pendingPopUp;
+				pm = this.pendingPopUp;
+				while (pm instanceof PopUpMenu) {
+					pm.draw = function(game) {
+						om.draw(game);
+						const cx = game.ctx3;
+						cx.save();
+						this.drawBackground(game, cx);
+						this.drawOptions(game, cx);
+						cx.restore();
+					};
+					pm = pm.previousMenu;
+				}
 				this.pendingPopUp = null;
 			}
 		}
