@@ -137,3 +137,14 @@ export class HoloXDrop extends APPickup {
 		this.draw = (game, cx) => NNM.getPlayer().playerControl ? superDraw(game, cx) : (this.frameCount = 1, this.yos = 0);
 	}
 }
+
+export class WorldText extends Actor {
+	checkHit = _ => false;
+
+	constructor(pos, text) {
+		super(pos, Vector2.zero);
+		this.text = new TextElem(NNM.game, [...text], { lang: 'en', textAlign: 'center' });
+	}
+
+	update = game => game.scene.customDraw.push(game => this.text.draw(game, game.ctx1, this.pos.plus(game.scene.view.pos.times(-1))));
+}

@@ -1,4 +1,4 @@
-import { APPickup, NoelDrop, NousagiItem } from "./pickup.js";
+import { APPickup, NoelDrop, NousagiItem, WorldText } from "./pickup.js";
 import { enemySanity } from "./patch.js";
 import { patchBosses } from "./boss.js";
 
@@ -109,9 +109,11 @@ export function patchEvents() {
 	patchCondition(NUINUI_CASINO_EVENTS['5_2'][0], game => !self.archipelagoState.checked(1) && !game.scene.actors.find(a => a.apLocation === 1));
 	prefix(NUINUI_CASINO_EVENTS['5_2'][0], -1, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(event.elfriend.pos.value().plus(new Vector2(0, -16)), 1)));
 	
-	NUINUI_CASINO_EVENTS['7_2'].push({condition: _ => self.archipelagoState && !self.archipelagoState.casinoKeyHinted && NNM.getPlayer().pos.x < 2352 && !self.archipelagoState.checked(11), timeline: [(_, event) => {
+	NUINUI_CASINO_EVENTS['7_2'].push({condition: _ => self.archipelagoState && NNM.getPlayer().pos.x < 2352 && !self.archipelagoState.checked(11), timeline: [(game, event) => {
 		event.end = true;
-		self.archipelagoState.casinoKeyHinted = true;
+		const scout = self.archipelagoState.getScout(11);
+		if (scout && !scout.local)
+			game.scene.actors.push(new WorldText(new Vector2(150 * 16 + 8, 30 * 16 - 8), scout.name), new WorldText(new Vector2(150 * 16 + 8, 30 * 16), 'for ' + scout.target));
 		try {
 			self.archipelagoState.client.socket.ws.send('[{"cmd":"CreateHints","locations":[11]}]');
 		} catch (e) {

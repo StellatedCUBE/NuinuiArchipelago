@@ -555,6 +555,8 @@ export class ArchipelagoState {
 		const local = scout.sender.slot === scout.receiver.slot;
 		if (scout.receiver.game === 'Hollow Knight')
 			name = name.replace(/_/g, ' ');
+		else if (scout.receiver.game.includes('Factorio'))
+			name = name.replace(/-/g, ' ');
 		else if (local && name[0] === '(') {
 			const [quest, stage] = name.split(') ');
 			name = stage + ' in ' + quest.substr(1);
