@@ -1,7 +1,7 @@
 import { APQuestMenu } from "./questMenu.js";
 import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
-import { APPickup, BossDrop } from "./pickup.js";
+import { APPickup, BossDrop, HoloXDrop } from "./pickup.js";
 import { getIcon } from './icon.js';
 import { ConsoleMenu } from "./consoleMenu.js";
 import * as Feat from "./feat.js";
@@ -652,7 +652,7 @@ export class ArchipelagoState {
 
 	emblem(event, level) {
 		if (level || event.score > 49)
-			NNM.game.scene.actors.push(new APPickup(event[['koyori', 'chloe', 'lui', 'iroha'][level]].pos.plus(new Vector2(-8, -8)), level + 20));
+			NNM.game.scene.actors.push(new HoloXDrop(event[['koyori', 'chloe', 'lui', 'iroha'][level]].pos.plus(new Vector2(-8, -8)), level + 20));
 	}
 
 	item(pos, loc) {

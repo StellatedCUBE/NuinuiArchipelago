@@ -16,7 +16,7 @@ export class APPickup extends Actor {
 
 	update = game => {
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
-		if (!(this.frameCount % 24)) game.scene.particles['shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
+		if (!(++this.frameCount % 24)) game.scene.particles['shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
 		if (this.canPickUp && CollisionBox.intersects(this, NNM.getPlayer()) && !game.scene.bossKillEffect && (this.duringCutscene || NNM.getPlayer().playerControl)) {
 			this.toFilter = true;
 			this.draw = _ => {};
@@ -35,7 +35,6 @@ export class APPickup extends Actor {
 		} else {
 			this.move();
 		}
-		this.frameCount++;
 	}
 
 	move() {}
@@ -128,5 +127,13 @@ export class NousagiItem extends APPickup {
 			this.pos.y -= Math.max(0, this.#yVel);
 			this.#yVel -= .05;
 		}
+	}
+}
+
+export class HoloXDrop extends APPickup {
+	constructor(pos, apLocation) {
+		super(pos, apLocation);
+		const superDraw = this.draw;
+		this.draw = (game, cx) => NNM.getPlayer().playerControl ? superDraw(game, cx) : (this.frameCount = 1, this.yos = 0);
 	}
 }
