@@ -216,5 +216,7 @@ export function patchEvents() {
 		}
 	});
 
+	prefix(MAIDEN_HOLO_1_HQ_EVENTS['0_0'][2], -2, (game, event) => event.end = game.menu = new MarineStageSelect(game));
+
 	patchBosses();
 }
