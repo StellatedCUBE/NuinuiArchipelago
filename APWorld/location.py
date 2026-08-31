@@ -71,7 +71,7 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 3, 'Bad end', CharactersNeeded.FLARE),
 	LocationType(LocationCategory.MANUAL, 4, 'Good end', CharactersNeeded.NOEL),
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel'),
+	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', CharactersNeeded.FLARE),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' key')
