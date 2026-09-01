@@ -356,6 +356,8 @@ def allocate_bosses(world, option, arenas, source_quests):
 					banned.append(by_name[boss_name])
 				except KeyError:
 					raise OptionError('Unknown boss ' + repr(boss_name))
+			case [_, "none"]:
+				raise OptionError("Unknown boss 'none'")
 			case [singularity]:
 				if world.prevent_boss_plando(): continue
 				try:
