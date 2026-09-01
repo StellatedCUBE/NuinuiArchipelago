@@ -396,7 +396,7 @@ def allocate_bosses(world, option, arenas, source_quests):
 			bosses.append(Boss('Marine', Q_NNQ, None, 0, {'Pirate Harbor boss'}))
 
 	if not duplicates:
-		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas)]
+		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas) and (not nnq or b.name != 'Chloe')]
 
 	arenas = [a for a in arenas if not a.boss]
 
