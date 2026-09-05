@@ -1212,8 +1212,8 @@ const bosses = {
 				game.scene.bossText = new LocaleElem(game, 'usadrill');
 				game.scene.warning = shouldWarn();
 				game.scene.currentSection.collisions.push(
-					{ pos: { x: archipelagoState.arenaL - 1, y: archipelagoState.arenaT }, size: { x: 1, y: 192 } },
-					{ pos: { x: archipelagoState.arenaR, y: archipelagoState.arenaT }, size: { x: 1, y: 192 } }
+					{ pos: { x: archipelagoState.arenaL - 16, y: archipelagoState.arenaT }, size: { x: 16, y: 192 } },
+					{ pos: { x: archipelagoState.arenaR, y: archipelagoState.arenaT }, size: { x: 16, y: 192 } }
 				);
 				for (const part of event.bossActor.leftParts)
 					part.pos.y += archipelagoState.arenaT;
@@ -2100,8 +2100,8 @@ export function patchBosses() {
 			} else if (collision === true) {
 				const csp = NNM.game.scene.currentSection.pos, css = NNM.game.scene.currentSection.size;
 				event.collisions = [
-					{ pos: csp.plus({ x: -1, y: 0 }), size: { x: 1, y: css.y } },
-					{ pos: csp.plus({ x: css.x, y: 0 }), size: { x: 1, y: css.y } }
+					{ pos: csp.plus({ x: -16, y: 0 }), size: { x: 16, y: css.y } },
+					{ pos: csp.plus({ x: css.x, y: 0 }), size: { x: 16, y: css.y } }
 				];
 				NNM.game.scene.currentSection.collisions.push(...event.collisions);
 			} else if (collision) {
