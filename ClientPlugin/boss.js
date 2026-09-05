@@ -2140,7 +2140,7 @@ export function patchBosses() {
 						if (id !== 4 && !(archipelagoState.bgmId === 'kiseki' && ['Kanata', 'Coco'].includes(boss)) && !(archipelagoState.bgmId === 'play_dice' && boss === 'Chloe'))
 							game.stopBGM();
 					}
-					if (floorData) game.scene.actors.push(new DynamicFloor(ge, floorData));
+					if (floorData && boss !== 'Marine') game.scene.actors.push(new DynamicFloor(ge, floorData));
 					const newTL = bossTL(bossData, intro, introPre, introPost);
 					if (feat) newTL.push((_, event) => self.archipelagoState.save(event.next = !self.archipelagoState.feat(feat, true)));
 					if (outroPre)
