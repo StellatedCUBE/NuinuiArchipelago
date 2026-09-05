@@ -106,7 +106,7 @@ item_types = [
 
 	ItemType(ItemCategory.CASINO_KEY, 0, 'casino key', ItemClassification.progression),
 
-	ItemType(ItemCategory.BOMB, 0, 'bomb', ItemClassification.filler),
+	ItemType(ItemCategory.BOMB, 0, 'bomb', lambda world: ItemClassification.filler if world.logical_bomb and not getattr(world.multiworld, 'generation_is_fake', False) else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized),
 
 	ItemType(ItemCategory.CRYSTALS, 1, 'crystal', ItemClassification.filler),
 	*(

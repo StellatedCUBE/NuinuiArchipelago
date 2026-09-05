@@ -70,22 +70,27 @@ class FNNQWorld(World):
 	def create_item(self, name):
 		return get_item(name).build(self)
 
-	def create_items(self):
+	def generate_early(self):
 		self.characters = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value
+		match self.options.nnq.value + self.options.prq.value + self.options.mmq.value:
+			case 0: raise OptionError('At least one quest must be enabled')
+			case 1: self.single_quest = True
+			case _: self.single_quest = False
+		self.safety_nousagi = False
+		self.warned_about_plando = False
+		self.logical_bomb = False
+
+	def create_items(self):
+		self.base_region = self.create_region(self.origin_region_name)
+		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
 		self.items = []
 		self.locations = []
 		self.goal_locations = []
-		self.base_region = self.create_region(self.origin_region_name)
 		self.potential_starting_levels = []
 		self.needs_starting_level = True
-		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
 		self.boss_data = dict()
 		self.required_feats = set()
 		self.locked_items = dict()
-		self.single_quest = 1 == bool(self.options.nnq) + bool(self.options.prq) + bool(self.options.mmq)
-		self.safety_nousagi = False
-		self.warned_about_plando = False
-
 		player = self.player
 
 		if self.options.nnq: nnq(self)
@@ -110,7 +115,7 @@ class FNNQWorld(World):
 		while len(self.items) > location_count:
 			filler = [item for item in self.items if ItemClassification.progression not in item.class_]
 			if not filler:
-				raise OptionError('Not enough checks')
+				raise Exception('Not enough checks')
 			self.items.remove(self.random.choice(filler))
 
 		if self.safety_nousagi:
