@@ -78,7 +78,7 @@ location_types = [
 		for i, level in enumerate(LEVELS[:5], start=10)
 	),
 	*(
-		LocationType(LocationCategory.MANUAL, i, name + "'s badge", characters)
+		LocationType(LocationCategory.MANUAL, i, name + "'s challenge", characters)
 		for i, (name, characters) in enumerate((('Koyori', CharactersNeeded.NONE), ('Chloe', CharactersNeeded.NONE), ('Lui', CharactersNeeded.BOTH), ('Iroha', CharactersNeeded.BOTH), ('La+', CharactersNeeded.FLARE)), start=20)
 	),
 	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end"),

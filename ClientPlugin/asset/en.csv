@@ -11,11 +11,11 @@ archipelago_shot_4,you obtained the ice shield
 archipelago_shot_5,you obtained kirito's swords
 archipelago_flare,you can now freely play as flare!
 archipelago_key,you obtained a key
-archipelago_emblem_0,you obtained iroha's badge
-archipelago_emblem_1,you obtained koyori's badge
-archipelago_emblem_2,you obtained chloe's badge
-archipelago_emblem_3,you obtained lui's badge
-archipelago_emblem_4,you obtained la+'s badge
+archipelago_emblem_0,you obtained iroha's emblem
+archipelago_emblem_1,you obtained koyori's emblem
+archipelago_emblem_2,you obtained chloe's emblem
+archipelago_emblem_3,you obtained lui's emblem
+archipelago_emblem_4,you obtained la+'s emblem
 menu_archipelago_console,text console
 archipelago_noel_greeting,konmassuru!
 archipelago_gsh,got some help
@@ -55,11 +55,11 @@ archipelago_shop_262147,cutlass
 archipelago_shop_262149,swords
 archipelago_shop_393217,clock
 archipelago_shop_393220,boots
-archipelago_shop_458752,badge
-archipelago_shop_458753,badge
-archipelago_shop_458754,badge
-archipelago_shop_458755,badge
-archipelago_shop_458756,badge
+archipelago_shop_458752,emblem
+archipelago_shop_458753,emblem
+archipelago_shop_458754,emblem
+archipelago_shop_458755,emblem
+archipelago_shop_458756,emblem
 archipelago_shop_524289,crystal
 archipelago_shop_524290,crystal
 archipelago_shop_524291,crystal

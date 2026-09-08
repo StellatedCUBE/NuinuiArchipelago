@@ -79,10 +79,10 @@ item_types = [
 	ItemType(ItemCategory.FLARE_ITEM, 4, "Angel's boots", ItemClassification.progression),
 
 	*(
-		ItemType(ItemCategory.HOLOX, i, name + "'s badge", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
+		ItemType(ItemCategory.HOLOX, i, name + "'s emblem", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
 		for i, name in enumerate(('Iroha', 'Koyori', 'Chloe', 'Lui'))
 	),
-	ItemType(ItemCategory.HOLOX, 4, "La+'s badge", ItemClassification.filler),
+	ItemType(ItemCategory.HOLOX, 4, "La+'s emblem", ItemClassification.filler),
 
 	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'big reaper crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
 	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'big anchor crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
