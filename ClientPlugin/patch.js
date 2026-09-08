@@ -18,8 +18,12 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 NNM.code.insertAtStartOfScope('TextBubble.parse_en', 'char = char.toLowerCase(); if (!FONT_EN[char] && char !== "\\n") char = "?";');
 NNM.code.insertBeforeFirstMatchingLine('KeyboardListener.handler', 'preventDefault', 'if (document.activeElement.tagName === "INPUT") return;');
 NNM.code.insertAtStartOfScope('Game.update', 'self.archipelagoState?.update();');
+NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMenu)', 'if (self.archipelagoState && this.previousMenu instanceof Item) this.previousMenu.menuInit(game); else');
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
+NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
+NNM.code.insertAfterFirstMatchingLine('StageSelect.drawOptions', 'vfx_smoke_spirit', 'if (self.archipelagoState?.isStageComplete(game.currentQuest, this.stages[i].index)) cx.drawImage(game.assets.images.NNM_Archipelago_check, pos.x + 1, pos.y - 7);');
+NNM.code.insertAtEndOfScope('MarineStageSelect.drawOptions', 'self.archipelagoState?.drawItemAvailability(game, cx, "maiden");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.update', 'this.endTransitionBuffer = 30',
 	'if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(this.sections[Object.keys(this.sections)[this.cursorIndex.y]].stages[this.cursorIndex.x])) return game.playSound("no_damage");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.drawOptions', 'stageNum.toString', `if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(Object.keys(game.quests.maiden.stages)[stageNum]))
@@ -86,28 +90,30 @@ NNM.code.insertBeforeFirstMatchingLine('Item.constructor', 'achievementCount', f
 	}
 });
 NNM.code.insertAtEndOfScope('Item.constructor', function() {
-	for (const o of this.options) {
-		if (o.id.includes('bonus'))
-			o.func = _ => {};
-		if (o.id === 'stage_bonus')
-			o.text = {draw: _ => this.optionIndex = this.options[this.optionIndex].id === 'stage_bonus' ? 0 : this.options[this.optionIndex].id === 'health_bonus' ? Math.max(...this.options.map((o, i) => (o.id === 'stage_bonus') * i)) - 1 : this.optionIndex};
-		else if (o.id === 'time_bonus')
-			o.text = {draw: (game, cx) => {
-				cx.translate(0, -16);
-				cx.globalAlpha = (o.disabled = Date.now() - game.timer > 1e3 * game.scene.starTimeLimit) ? .5 : 1;
-			}};
-		else if (o.id === 'health_bonus')
-			o.text = {draw: (game, cx) => {
-				cx.translate(0, -16);
-				cx.globalAlpha = (o.disabled = NNM.getPlayer().health < game.scene.starHealthLimit) ? .5 : 1;
-			}};
-		else if (o.id === 'archipelago_spend_coin') {
-			const oldDraw = o.text.draw.bind(o.text);
-			o.text.draw = (game, cx, pos) => {
-				cx.translate(0, 12);
-				oldDraw(game, cx, pos);
-				cx.drawImage(game.assets.images.sp_star, (Math.floor(this.frameCount / 8) % 4) * 8, 0, 8, 8, 96, 0, 8, 8);
-				new TextElem(game, [...`${Math.max(0, self.archipelagoState.coins - self.archipelagoState.coinsSpent)}`], { lang: 'en' }).draw(game, cx, {x: 108, y: 0});
+	if (self.archipelagoState) {
+		for (const o of this.options) {
+			if (o.id.includes('bonus'))
+				o.func = _ => {};
+			if (o.id === 'stage_bonus')
+				o.text = {draw: _ => this.optionIndex = this.options[this.optionIndex].id === 'stage_bonus' ? 0 : this.options[this.optionIndex].id === 'health_bonus' ? Math.max(...this.options.map((o, i) => (o.id === 'stage_bonus') * i)) - 1 : this.optionIndex};
+			else if (o.id === 'time_bonus')
+				o.text = {draw: (game, cx) => {
+					cx.translate(0, -16);
+					cx.globalAlpha = (o.disabled = Date.now() - game.timer > 1e3 * game.scene.starTimeLimit) ? .5 : 1;
+				}};
+			else if (o.id === 'health_bonus')
+				o.text = {draw: (game, cx) => {
+					cx.translate(0, -16);
+					cx.globalAlpha = (o.disabled = NNM.getPlayer().health < game.scene.starHealthLimit) ? .5 : 1;
+				}};
+			else if (o.id === 'archipelago_spend_coin') {
+				const oldDraw = o.text.draw.bind(o.text);
+				o.text.draw = (game, cx, pos) => {
+					cx.translate(0, 12);
+					oldDraw(game, cx, pos);
+					cx.drawImage(game.assets.images.sp_star, (Math.floor(this.frameCount / 8) % 4) * 8, 0, 8, 8, 96, 0, 8, 8);
+					self.archipelagoState.singleCachedEnText(`${Math.max(0, self.archipelagoState.coins - self.archipelagoState.coinsSpent)}`).draw(game, cx, {x: 108, y: 0});
+				}
 			}
 		}
 	}
@@ -309,7 +315,7 @@ NNM.code.insertAtEndOfScope('Noel.constructor', 'if (self.archipelagoState) this
 NNM.code.insertAtEndOfScope('VaporBlock.constructor', 'this.vaporCollisionBox.__archipelagoVapor = true;');
 NNM.code.insertAtStartOfScope('IntroEvent.endIntro', 'if (self.archipelagoState) self.archipelagoState.incomingDeath = false;');
 NNM.code.findReplaceAllLines('Torche.update', ' instanceof Noel', ' instanceof Noel && !self.archipelagoState');
-NNM.code.findReplaceAllLines('NUINUI_PORT_EVENTS', "game.mode !== 'noel'", "(game.mode !== 'noel' || self.archipelagoState?.slotData.hf)");
+NNM.code.findReplaceAllLines('NUINUI_PORT_EVENTS', "game.mode !== 'noel'", "(game.mode !== 'noel' || (self.archipelagoState && (self.archipelagoState.slotData.c & 1)))");
 NNM.code.insertBeforeFirstMatchingLine('Aqua.takeHit', "'dual'", 'if (self.archipelagoState) self.archipelagoState.item(this.pos.value(), 5); else');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_FALLS_EVENTS.4_0', 'actor !== event.boss', 'if (self.archipelagoState?.slotData.boss.nnq[0] === "Usadrill") self.archipelagoState.item(event.boss.middleParts[8].pos.value(), "boss");');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_FALLS_EVENTS.6_1', 'RocketPickup', 'if (self.archipelagoState?.slotData.boss.nnq[1] === "Pekora") self.archipelagoState.item(event.pekora.pos.value(), "boss");');

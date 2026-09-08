@@ -2,7 +2,7 @@ import { APQuestMenu } from "./questMenu.js";
 import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
 import { APPickup, BossDrop, HoloXDrop } from "./pickup.js";
-import { getIcon } from './icon.js';
+import { getIcon, getBackedHoloX } from './icon.js';
 import { ConsoleMenu } from "./consoleMenu.js";
 import * as Feat from "./feat.js";
 
@@ -71,6 +71,9 @@ export class ArchipelagoState {
 	localIgnoreLocations = [];
 	chat = [];
 	noelCanCharge = false;
+	hasPistols = true;
+	#cachedText;
+	#cachedTextObject;
 
 	constructor(slotData, reconnect) {
 		this.slotData = slotData;
@@ -214,7 +217,7 @@ export class ArchipelagoState {
 				this.pendingPopUp = null;
 			} else if (this.incomingDeath)
 				player.die(NNM.game);
-		} else if (this.pendingPopUp instanceof PopUpMenu && (NNM.game.menu instanceof QuestMenu || NNM.game.menu instanceof StageSelect || NNM.game.menu instanceof MarineStageSelect) && NNM.game.menu.frameCount > 250) {
+		} else if (this.pendingPopUp instanceof PopUpMenu && (((NNM.game.menu instanceof QuestMenu || NNM.game.menu instanceof StageSelect || NNM.game.menu instanceof MarineStageSelect) && NNM.game.menu.frameCount > 250) || NNM.game.menu instanceof Item)) {
 			let pm = this.pendingPopUp;
 			while (pm.previousMenu instanceof PopUpMenu) pm = pm.previousMenu;
 			if (!pm.previousMenu) {
@@ -328,7 +331,7 @@ export class ArchipelagoState {
 				this.#itemCrystals += sub_id;
 				if (!this.noPopup && !local)
 					this.dueCrystalPopup += sub_id;
-				break;
+			break;
 
 			case 1:
 				this.setSaveField('nuinui', 'item-gun');
@@ -345,7 +348,7 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'stage', sub_id));
-				break;
+			break;
 
 			case 2:
 				this.unlockLevel('maiden', Object.keys(NNM.game.quests.maiden.stages)[sub_id]);
@@ -353,11 +356,11 @@ export class ArchipelagoState {
 					for (const key in NNM.game.quests.maiden.stages)
 						if (!['boat-0', 'holo_hq-1'].includes(key))
 							this.setSaveField('maiden', 'stage-' + key);
-				msg = ['raw:unlocked stage ' + sub_id + ((item.id & 256) ? ' in maiden quest' : '')];
+				msg = ['raw:unlocked stage ' + sub_id + (this.slotData.boss.nnq || this.slotData.boss.prq ? ' in maiden quest' : '')];
 				if (!local && !item.essence)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 16) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
-				break;
+			break;
 
 			case 3:
 				if (sub_id > 1) {
@@ -381,7 +384,7 @@ export class ArchipelagoState {
 						this.popup(new PopUpMenu(NNM.game, null, [sub_id ? 'castle_2' : 'archipelago_flare', local ? 'castle_3' : 'raw:received from ' + item.sender.name], 'item', sub_id * 3));
 					}
 				}
-				break;
+			break;
 
 			case 4:
 				this.setSaveField('nuinui', 'item-' + ['fire', 'rocket', 'petal', 'sword', 'shield', 'dual'][sub_id]);
@@ -391,7 +394,7 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
-				break;
+			break;
 
 			case 5:
 				this.setSaveField('nuinui', 'key-' + sub_id);
@@ -401,24 +404,24 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
-				break;
+			break;
 
 			case 6:
 				this.setSaveField('nuinui', 'item-' + ['clock', 'jump', '', 'boots'][sub_id - 1]);
 				if (NNM.game.currentQuest === 'nuinui' && NNM.getPlayer() && (sub_id === 4 || NNM.game.playerClass === Flare))
 					NNM.getPlayer()[['item', 'doubleJump', '', 'canWallJump'][sub_id - 1]] = true;
 				this.popup(new PopUpMenu(NNM.game, null, [['casino_7', 'yamato_8', '', 'heaven_0'][sub_id - 1], local ? ['casino_70', 'yamato_9', '', 'heaven_1'][sub_id - 1] : 'raw:received from ' + item.sender.name], 'item', sub_id));
-				break;
+			break;
 
 			case 7:
 				this.setSaveField('nuinui', 'emblem-' + sub_id);
-				if (local || this.slotData.hf) {
+				if (local || (this.slotData.c & 1)) {
 					msg = ['archipelago_emblem_' + sub_id];
 					if (!local)
 						msg.push('raw:received from ' + item.sender.name);
 					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 				}
-				break;
+			break;
 
 			case 8:
 				this.setSaveField('random', 'crystal-' + Object.keys(NNM.game.quests.random.stages)[sub_id]);
@@ -431,28 +434,28 @@ export class ArchipelagoState {
 						msg.push('raw:received from ' + item.sender.name);
 					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 				}
-				break;
+			break;
 
 			case 9:
 				if (++this.essence === 13)
 					this.handleItem({id: NNM.game.currentQuest === 'maiden' ? (2 << 16) | 256 | 28 : (2 << 16) | 28, sender: item.sender, receiver: item.receiver, locationId: item.locationId, essence: true});
-				break;
+			break;
 
 			case 10:
 				this.coins++;
 				if (!local && !this.noPopup)
 					this.#dueCoinPopup++;
-				break;
+			break;
 
 			case 11:
 				this.bufferedHearts++;
-				break;
+			break;
 
 			case 12:
 				this.helps++;
 				if (local && !this.popupFlag)
 					this.popup(new PopUpMenu(NNM.game, null, ['archipelago_gsh'], 'archipelago', getIcon(item.id)));
-				break;
+			break;
 
 			case 14:
 				this.popupFlag = true;
@@ -463,12 +466,12 @@ export class ArchipelagoState {
 						NNM.game.scene.shakeBuffer = 12;
 					}
 				}
-				break;
+			break;
 
 			case 15:
 				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? (2 << 16) | 256 : ((512 * !this.slotData.boss.prq) | ((1 << 16) | 256)));
 				this.handleItem({id: newLevelItem, sender: item.sender, receiver: item.receiver, locationId: item.locationId});
-				break;
+			break;
 
 			case 16:
 				this.casinoKey = 0;
@@ -476,7 +479,7 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
-				break;
+			break;
 
 			case 17:
 				this.#bombs++;
@@ -484,7 +487,7 @@ export class ArchipelagoState {
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
-				break;
+			break;
 		}
 	}
 
@@ -863,5 +866,163 @@ export class ArchipelagoState {
 	resetPopups() {
 		this.pendingPopUp = null;
 		this.bufferedHearts = this.dueCrystalPopup = this.#dueCoinPopup = 0;
+	}
+
+	singleCachedEnText(text) {
+		return text === this.#cachedText ? this.#cachedTextObject : (this.#cachedTextObject = new TextElem(NNM.game, [...(this.#cachedText = text)], { lang: 'en' }));
+	}
+
+	isStageComplete(quest, stage) {
+		if (quest === 'maiden') {
+			for (let i = 0, feat = 1n << BigInt(Feat.MMQ_COIN + 3 * stage); i < 3; i++, feat *= 2n)
+				if (((feat & this.#goal) || !i) && !(feat & this.feats))
+					return false;
+
+			for (let i = 0; i < 5; i++)
+				if (this.checkAvailable((9 << 16) | (8 * stage + i + 8)))
+					return 1;
+
+			return 2;
+		}
+
+		if (!(this.feats & BigInt(1 << ((quest === 'nuinui' ? Feat.NNQ_LEVEL_CLEAR : Feat.PRQ_LEVEL_CLEAR) + stage))))
+			return false;
+
+		if (quest === 'nuinui') {
+			if (stage === 4 && (this.#goal & BigInt(1 << Feat.NNQ_GOOD_END)) && !(this.feats & BigInt(1 << Feat.NNQ_GOOD_END)))
+				return false;
+
+			const bossFeats = ([3n, 12n, 16n, 224n, 7936n, 0n, 1835008n][stage] << BigInt(Feat.NNQ_BOSS_DEFEAT)) & this.#goal;
+			if ((this.feats & bossFeats) !== bossFeats)
+				return false;
+		}
+
+		return true;
+	}
+
+	drawItemAvailability(game, cx, quest, stages, sky_palace) {
+		if (quest === 'maiden') {
+			if (!(this.#goal & (1n << BigInt(Feat.MMQ_COIN)))) {
+				cx.save();
+				cx.translate(stages ? 320 - 120 - 2 : 100, 1);
+				cx.fillStyle = '#222';
+				cx.beginPath();
+				cx.roundRect(0, 0, 120, 8, 1);
+				cx.fill();
+				cx.fillStyle = '#00CFFF';
+				cx.fillRect(1, 1, Math.round(118 * Math.min(1, this.essence / 13)), 3);
+				cx.fillStyle = '#FFF';
+				cx.fillRect(1, 2, Math.round(118 * Math.min(1, this.essence / 13)), 1);
+				cx.fillStyle = '#0077FF';
+				cx.fillRect(1, 4, Math.round(118 * Math.min(1, this.essence / 13)), 2);
+				cx.fillStyle = '#3F37CF';
+				cx.fillRect(1, 6, Math.round(118 * Math.min(1, this.essence / 13)), 1);
+				cx.restore();
+				const text = this.singleCachedEnText(`${Math.max(0, this.coins - this.coinsSpent)}`);
+				text.draw(game, cx, { x: 318 - text.width, y: stages ? 11 : 2 });
+				cx.drawImage(game.assets.images.sp_star, 9, 0, 6, 8, 310 - text.width, stages ? 10 : 1, 6, 8);
+			}
+			if (stages) {
+				let x = 160 - 16, y = 0, i = 0, ps;
+				for (const stage in game.quests.maiden.stages) {
+					const [section, id] = stage.split('-');
+					if (+id) {
+						if (ps !== section) {
+							y = 0;
+							x += 4;
+						}
+						const sc = this.isStageComplete(quest, i++);
+						cx.fillStyle = sc === 2 ? '#0f0' : sc ? '#080' : this.availableLevels.maiden.has(stage) ? '#fff' : '#888';
+						cx.fillRect(x, y, 3, 3);
+						y += 4;
+					}
+					ps = section;
+				}
+			}
+		} else {
+			if (quest === 'random') {
+				if (!(this.#goal & BigInt(1 << Feat.PRQ_LEVEL_CLEAR))) {
+					for (let i = 0; i < 4; i++) {
+						cx.filter = (this.#bigCrystals & (2 << i)) ? 'none' : 'grayscale(100%)';
+						cx.drawImage(game.assets.images.ui_crystal, i * 24, 0, 24, 24, i * 24 - (i === 3 ? 9 : 2), -1, 24, 24);
+					}
+					cx.filter = 'none';
+				}
+
+				cx.drawImage(game.assets.images.sp_gem, 0, 4, 16, 8, 320 - 38, 1, 16, 8);
+				this.singleCachedEnText(`${Math.max(0, Math.min(999, this.#itemCrystals + this.#gameCrystals))}`.padStart(3,0)).draw(game, cx, { x: 320 - 20, y: 1 });
+				cx.drawImage(game.assets.images.sp_bomb, 0, 0, 12, 11, 320 - 34, 10, 12, 11);
+				const digit = FONT_EN[this.#bombs];
+				if (digit) cx.drawImage(game.assets.images.font_en, digit.pos.x, digit.pos.y, digit.width, 8, 320 - 20, 12, digit.width, 8);
+			} else {
+				cx.save();
+				if (sky_palace) cx.globalAlpha = .3;
+				if (this.#goal & BigInt(32 << Feat.NNQ_LEVEL_CLEAR)) {
+					for (let i = 0; i < 5; i++) {
+						cx.filter = this.saves.nuinui['key-' + i] ? 'none' : i === 4 ? 'brightness(0.7) grayscale(1)' : 'grayscale(1)';
+						cx.drawImage(game.assets.images.sp_key, i * 16, 0, 16, 16, i * 18 + 2, 1, 16, 16);
+					}
+					cx.translate(0, 17);
+				}
+				if (this.slotData.c & 1) {
+					for (let i = 0; i < 6; i++) {
+						cx.filter = this.saves.nuinui['item-' + ['fire', 'rocket', 'petal', 'sword', 'shield', 'dual'][i]] ? 'none' : 'grayscale(1) brightness(9) brightness(0.4)';
+						cx.drawImage(game.assets.images.ui_charge_type, i * 12 + 1, 1, 10, 10, i * 10 + 2, 1, 10, 10);
+					}
+					for (let i = 0; i < 5; i++) {
+						cx.filter = this.saves.nuinui['emblem-' + i] ? 'none' : 'grayscale(1) brightness(9) brightness(0.4)';
+						cx.drawImage(getBackedHoloX(), i * 10, 0, 10, 10, i * 10 + 66, 1, 10, 10);
+					}
+				}
+				cx.restore();
+				cx.globalAlpha = this.saves.nuinui['item-boots'] ? 1 : .2;
+				cx.drawImage(game.assets.images.ui_items, 80, 1, 20, 19, 320 - 20, 0, 20, 19);
+
+				switch (this.slotData.c) {
+					case 1:
+						cx.globalAlpha = this.saves.nuinui['item-jump'] ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 40, 1, 20, 19, 320 - 20 - 18, 0, 20, 19);
+						cx.globalAlpha = this.saves.nuinui['item-clock'] ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 20, 1, 20, 19, 320 - 20 - 18 * 2, 0, 20, 19);
+						cx.globalAlpha = this.hasPistols ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 0, 1, 20, 19, 320 - 20 - 18 * 3, 0, 20, 19);
+					break;
+
+					case 3:
+						cx.globalAlpha = this.saves.nuinui['item-jump'] ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 40, 1, 20, 19, 320 - 20 - 18 * 2, 0, 20, 19);
+						cx.globalAlpha = this.saves.nuinui['item-clock'] ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 20, 1, 20, 19, 320 - 20 - 18 * 3, 0, 20, 19);
+						cx.globalAlpha = this.hasPistols ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 0, 1, 20, 19, 320 - 20 - 18 * 4, 0, 20, 19);
+						cx.globalAlpha = (this.nuinuiPlayers & 2) ? 1 : .2;
+						cx.drawImage(game.assets.images.NNM_Archipelago_noel, 320 - 22, 22);
+						cx.globalAlpha = (this.nuinuiPlayers & 1) ? 1 : .2;
+						cx.drawImage(game.assets.images.NNM_Archipelago_flare, 320 - 44, 20);
+
+					case 2:
+						cx.globalAlpha = this.noelCanCharge ? 1 : .2;
+						cx.drawImage(game.assets.images.ui_items, 60, 0, 20, 20, 320 - 40, 0, 20, 20);
+					break;
+				}
+
+				cx.globalAlpha = 1;
+			}
+
+			if (stages) {
+				stages = quest === 'random' ? 6 : this.slotData.boss.nnq[16] === 'None' ? 5 : this.slotData.boss.nnq[20] === 'None' ? 6 : 7;
+				const stageNames = Object.keys(game.quests.nuinui.stages);
+				for (let i = 0, x = 162 - stages * 6; i < stages; i++, x += 12) {
+					if (this.availableLevels[quest].has(stageNames[i])) {
+						cx.drawImage(game.assets.images.vfx_smoke_black, 0, 0, 8, 8, x, 2, 8, 8);
+						cx.drawImage(game.assets.images.vfx_smoke_white, 16, 0, 8, 8, x, 2, 8, 8);
+						if (this.isStageComplete(quest, i))
+							cx.drawImage(game.assets.images.NNM_Archipelago_check, x + 1, 11);
+					} else {
+						cx.drawImage(game.assets.images.NNM_Archipelago_lock2, x, 2);
+					}
+				}
+			}
+		}
 	}
 }

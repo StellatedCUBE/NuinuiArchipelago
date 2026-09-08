@@ -24,7 +24,7 @@ function getMaidenStages() {
 		const cx = maidenStages.getContext('2d');
 		cx.fillStyle = '#000';
 		cx.fillRect(0, 0, 640, 24);
-		for (let i = 1; i < 29; i++); {
+		for (let i = 1; i < 29; i++) {
 			cx.drawImage(NNM.game.assets.images.ui_digits, (0|(i / 10)) * 11, 0, 10, 18, 1, 2, 10, 18);
 			cx.drawImage(NNM.game.assets.images.ui_digits, i % 10 * 11, 0, 10, 18, 12, 2, 10, 18);
 			cx.translate(22, 0);
@@ -33,12 +33,26 @@ function getMaidenStages() {
 	return maidenStages;
 }
 
+let backedHoloX;
+export function getBackedHoloX() {
+	if (!backedHoloX) {
+		backedHoloX = document.createElement('canvas');
+		backedHoloX.width = 50;
+		backedHoloX.height = 10;
+		const cx = backedHoloX.getContext('2d');
+		cx.fillStyle = '#000';
+		cx.fillRect(0, 0, 50, 10);
+		cx.drawImage(NNM.game.assets.images.sp_holox, 0, 0);
+	}
+	return backedHoloX;
+}
+
 export function getIcon(item, anim) {
 	switch (item >> 16) {
 		case 0: return [NNM.game.assets.images.sp_gem, [0, 0, 16, 16]];
 		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
-		case 3: return [NNM.game.assets.images.ui_items, [(item & 1) * 60, 0, 20, 20]];
+		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? ((item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare) : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 0, 20, 20]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
 		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 0, 20, 20]];

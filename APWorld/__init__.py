@@ -174,7 +174,7 @@ class FNNQWorld(World):
 			mr = self.options.randomise_music.value * self.random.randrange(1 << 31),
 			oob = self.options.prq_allow_oob.value,
 			help = int(any(item == help_item for item in self.items)),
-			hf = self.characters & 1,
+			c = self.characters,
 		)
 	
 	def prevent_boss_plando(self):

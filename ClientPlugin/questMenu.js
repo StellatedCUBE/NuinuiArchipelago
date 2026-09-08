@@ -18,5 +18,11 @@ export class APQuestMenu extends QuestMenu {
 					game.menu = prev;
 			}
 		};
+
+		const superDraw = this.drawOptions;
+		this.drawOptions = (game, cx) => {
+			superDraw(game, cx);
+			archipelagoState.drawItemAvailability(game, cx, this.questIdList[this.questIndex], true);
+		}
 	}
 }
