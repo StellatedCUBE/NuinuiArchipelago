@@ -306,7 +306,7 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.13_0', 'flare.pos.y 
 NNM.code.insertAtStartOfScope('Flare.die', 'self.archipelagoState?.death();');
 for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
 	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other;');
-	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand] : []),');
+	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss] : []),');
 	if (character !== 'MarinePlayer') {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}
@@ -322,6 +322,7 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_FALLS_EVENTS.6_1', 'RocketPickup',
 NNM.code.findReplaceAllLines('PekoraBoss.update', 'if (CollisionBox.intersectCollisions', 'if (!this.__archipelagoNoCollide&&CollisionBox.intersectCollisions');
 NNM.code.findReplaceAllLines('PekoraBoss', "game.mode === 'marine'", "(self.archipelagoState ? [21, 37].includes(self.archipelagoState.arenaId) : game.mode === 'marine')");
 NNM.code.insertAfterFirstMatchingLine('PekoraBoss.update', 'if (!this.canDie)', 'if (self.archipelagoState && ![21, 37].includes(self.archipelagoState.arenaId) && this.maxHealth > 40 && this.frameCount % 4 === 2) this.health++;');
+NNM.code.insertBeforeFirstMatchingLine('Bullet.update', 'else if (!CollisionBox.intersects(this, game.scene.currentSection))', 'else if (self.archipelagoState && CollisionBox.intersects(this, game.scene.view)) {}');
 NNM.code.findReplaceAllLines('PekoMiniBoss.draw', 'part.pos.y > game.height', '(part.pos.y > game.height && !self.archipelagoState)');
 NNM.code.findReplaceAllLines('PekoMiniBoss', 'size.y < 0', 'size.y < (self.archipelagoState?.arenaT ?? 0)');
 NNM.code.findReplaceAllLines('PekoMiniBoss.update', '9 * 16', '(self.archipelagoState ? self.archipelagoState.arenaT + 144 : 9 * 16)');
@@ -527,8 +528,9 @@ NNM.code.findReplaceAllLines('Ina.update', '&&', '&& (!self.archipelagoState || 
 NNM.code.findReplaceAllLines('Ina.takeHit', '21.5 * 16', '(self.archipelagoState ? game.scene.currentSection.pos.y + game.scene.currentSection.size.y - 40 : 22.5 * 16)');
 NNM.code.findReplaceAllLines('Ina.idlePhase', 'Math', '(self.archipelagoState ? game.scene.currentSection.pos.y + game.scene.currentSection.size.y - 384 : 0) + Math');
 NNM.code.findReplaceAllLines('Tentacle.update', '22.5 * 16', '(self.archipelagoState ? game.scene.currentSection.pos.y + game.scene.currentSection.size.y - 24 : 22.5 * 16)');
-NNM.code.insertAfterFirstMatchingLine('Tentacle.update', 'const x', 'if (!self.archipelagoState || game.scene.rain)');
-NNM.code.insertBeforeFirstMatchingLine('Tentacle.update', 'water_trail', 'if (!self.archipelagoState || game.scene.rain)');
+NNM.code.insertAfterFirstMatchingLine('Tentacle.update', 'const x',
+	'if (self.archipelagoState?.arenaId === 22) game.scene.actors.find(a => a.archipelagoInaBridge).destroy(game, this, true); else if (!self.archipelagoState || [16, 34].includes(self.archipelagoState.arenaId))');
+NNM.code.insertBeforeFirstMatchingLine('Tentacle.update', 'water_trail', 'if (!self.archipelagoState || [16, 34].includes(self.archipelagoState.arenaId))');
 NNM.code.findReplaceAllLines('Ame.clockPhase', 'flare instanceof Noel', 'game.mode !== "flare"');
 NNM.code.insertAfterFirstMatchingLine('Ame.clockPhase', 'flare.dir =', _ => {
 	if (self.archipelagoState?.ameResetData) {
@@ -539,7 +541,7 @@ NNM.code.insertAfterFirstMatchingLine('Ame.clockPhase', 'flare.dir =', _ => {
 	}
 });
 NNM.code.insertAtStartOfScope('Scene.get collisions', 'const __archipelago_plr=NNM.getPlayer();')
-NNM.code.findReplaceAllLines('Scene.get collisions', 'this.currentSection.collisions', '([16, 34].includes(self.archipelagoState?.arenaId) && __archipelago_plr.pos.y + __archipelago_plr.size.y > self.archipelagoState.arenaB &&' +
+NNM.code.findReplaceAllLines('Scene.get collisions', 'this.currentSection.collisions', '([16, 22, 34].includes(self.archipelagoState?.arenaId) && __archipelago_plr.pos.y + __archipelago_plr.size.y > self.archipelagoState.arenaB &&' +
 	'__archipelago_plr.pos.y < self.archipelagoState.arenaB + 16 ? this.currentSection.collisions.map(c => !c.archipelagoInaBridge || c.pos.x + c.size.x <= __archipelago_plr.pos.x || c.pos.x >= __archipelago_plr.pos.x + __archipelago_plr.size.x ?' +
 	'c : {pos:{x:__archipelago_plr.pos.x + __archipelago_plr.size.x,y:c.pos.y},size:c.size}) : this.currentSection.collisions)');
 NNM.code.findReplaceAllLines('Kanata.divePhase', '-8 * 16', '(self.archipelagoState ? game.scene.currentSection.pos.y - 128 : -8 * 16)');

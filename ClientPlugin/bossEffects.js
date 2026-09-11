@@ -470,7 +470,7 @@ export class Bridge extends Actor {
 
 	constructor(game) {
 		super(Vector2.zero, Vector2.zero);
-		this.l = game.scene.view.pos.x;
+		this.l = game.scene.currentSection.pos.x;
 		game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(c => c.pos.y != archipelagoState.arenaB);
 		for (let i = 0; i < 23; i++) {
 			const segment = { pos: new Vector2(this.l + i * 16 - 16, archipelagoState.arenaB), size: new Vector2(16, 16), archipelagoInaBridge: true };
@@ -503,7 +503,7 @@ export class Bridge extends Actor {
 		const cx = game.ctx1;
 		const ts = game.assets.images.ts_holo_hq;
 		cx.save();
-		cx.translate(-16, archipelagoState.arenaB - game.scene.view.pos.y);
+		cx.translate(this.l - game.scene.view.pos.x - 16, archipelagoState.arenaB - game.scene.view.pos.y);
 		for (let i = 1; i < 22; i++) {
 			if (this.segments[i].pos.y) {
 				cx.drawImage(ts, 32, 80, 16, 16, i * 16 - this.scroll, -16, 16, 16);
@@ -532,7 +532,7 @@ export class Bridge extends Actor {
 			}
 		}
 
-		if (!game.scene.rain) {
+		if (this.done) {
 			for (const segment of this.segments)
 				segment.pos.y = archipelagoState.arenaB;
 		} else if (!(this.frameCount % this.scrollSpeed) && game.scene.boss?.health && game.scene.boss.canDie && !game.scene.warning) {
@@ -553,6 +553,9 @@ export class Bridge extends Actor {
 					actor instanceof APPickup ||
 					actor instanceof PekoMiniBoss ||
 					(actor instanceof Gura && actor.pos.y + actor.size.y < archipelagoState.arenaB) ||
+					actor instanceof Ina ||
+					actor instanceof Tentacle ||
+					actor instanceof BridgeBreaker ||
 					actor instanceof EvilMiko ||
 					actor instanceof Block ||
 					actor instanceof Kanata ||
@@ -593,6 +596,17 @@ export class Bridge extends Actor {
 			}
 		}
 	}
+}
+
+export class BridgeBreaker extends Actor {
+	#bridge;
+
+	constructor() {
+		super(new Vector2(NNM.game.scene.view.pos.x, 0), new Vector2(9 * 16 + 1, 0));
+		this.#bridge = NNM.game.scene.actors.find(a => a instanceof Bridge);
+	}
+
+	update = game => this.#bridge.destroy(game, this, true, true);
 }
 
 export class AmeSpiral extends Actor {

@@ -16,6 +16,7 @@ import {
 	KiaraFire,
 	Spikes,
 	Bridge,
+	BridgeBreaker,
 	AmeSpiral,
 	TowaOpen,
 	FadeReveal,
@@ -65,7 +66,7 @@ function bridge(arena) {
 		wait(40)
 	];
 	arena.introPost = [
-		(game, event) => NNM.getPlayer().dir = !(event.next = game.scene.actors.push(new Bridge(game))),
+		(game, event) => NNM.getPlayer().dir = !(event.next = game.scene.actors.push(event.archipelagoBridge = new Bridge(game))),
 		(game, event) => {
 			if (event.next = event.timelineFrame === 30) {
 				for (let i = 40; i < 60; i++) {
@@ -78,7 +79,7 @@ function bridge(arena) {
 	];
 	arena.outroPre = [
 		(game, event) => {
-			game.scene.rain = !(event.next = true);
+			game.scene.rain = !(event.next = event.archipelagoBridge.done = true);
 			for (let i = 40; i < 60; i++) {
 				game.scene.background[`${i}_22`] = '40';
 				game.scene.background[`${i}_23`] = '41';
@@ -1167,6 +1168,13 @@ const bosses = {
 			event.bossActor.dir = true;
 			archipelagoState.arenaL += 48;
 			archipelagoState.arenaR -= 48;
+			if (archipelagoState.arenaId === 22) {
+				for (let i = 20; i < 40; i++)
+					for (let j = 0; j < 4; j++)
+						NNM.game.scene.background[`1${i}_6${j}`] = j || i < 27 || i > 31 ? '1' : 'c';
+				NNM.game.scene.background['126_60'] = '2b';
+				NNM.game.scene.background['132_60'] = '2c';
+			}
 		},
 		timeline: [
 			(game, event) => {
@@ -1184,13 +1192,18 @@ const bosses = {
 			(game, event) => {
 				const increase = Math.round(event.targetRaised = lerp(event.targetRaised, 68, .03)) - event.raised;
 				event.raised += increase;
-				archipelagoState.arenaB -= increase;
-				for (const actor of game.scene.actors) {
-					if (actor instanceof Bridge)
-						for (const segment of actor.segments)
-							segment.pos.y -= increase;
-					else if (actor.pos.y > archipelagoState.arenaT)
-						actor.pos.y -= increase;
+				if (archipelagoState.arenaId === 22) {
+					game.scene.lockedViewPos = game.scene.currentSection.pos.plus({ x: 0, y: event.raised|0 });
+					archipelagoState.arenaT += increase;
+				} else {
+					archipelagoState.arenaB -= increase;
+					for (const actor of game.scene.actors) {
+						if (actor instanceof Bridge)
+							for (const segment of actor.segments)
+								segment.pos.y -= increase;
+						else if (actor.pos.y > archipelagoState.arenaT)
+							actor.pos.y -= increase;
+					}
 				}
 				event.next = event.raised > 63;
 			},
@@ -1215,6 +1228,8 @@ const bosses = {
 					{ pos: { x: archipelagoState.arenaL - 16, y: archipelagoState.arenaT }, size: { x: 16, y: 192 } },
 					{ pos: { x: archipelagoState.arenaR, y: archipelagoState.arenaT }, size: { x: 16, y: 192 } }
 				);
+				if (archipelagoState.arenaId === 22)
+					event.collisions.push(game.scene.currentSection.collisions.at(-1), game.scene.currentSection.collisions.at(-2));
 				for (const part of event.bossActor.leftParts)
 					part.pos.y += archipelagoState.arenaT;
 				for (const part of event.bossActor.middleParts)
@@ -1243,7 +1258,8 @@ const bosses = {
 				event.bossActor.middleVel = Vector2.zero;
 				if (!(event.timelineFrame % 32))
 					game.playSound('rumble');
-				event.bossActor.toFilter = event.next = event.timelineFrame > 159;
+				if ((event.bossActor.toFilter = event.next = event.timelineFrame > 159) && archipelagoState.arenaId === 22)
+					game.scene.lockedViewPos = null;
 			}
 		]
 	},
@@ -1604,7 +1620,25 @@ const bosses = {
 		]
 	},
 	Ina: {
-		setup: _ => ['castle', 'holo_hq'].includes(NNM.game.currentStage) && (NNM.game.scene.background = NNM.game.scene.foreground, NNM.game.scene.foreground = {}),
+		setup: event => {
+			if (/castle|holo_hq/.test(NNM.game.currentStage)) {
+				NNM.game.scene.background = NNM.game.scene.foreground;
+				NNM.game.scene.foreground = {};
+			} else if (archipelagoState.arenaId === 22) {
+				NNM.game.scene.actors.push(new Bridge(NNM.game));
+				event.destroyedInaTiles = {};
+				NNM.game.scene.currentSection.collisions.push(...(event.destroyedInaCol = [{ pos: {x: 1920, y: 928 + 64}, size: {x: 320, y: 16} }]));
+				for (let i = 20; i < 40; i++) {
+					for (let j = 7; j < 9; j++) {
+						const k = `1${i}_5${j}`;
+						event.destroyedInaTiles[k] = NNM.game.scene.foreground[k];
+						delete NNM.game.scene.foreground[k];
+						if (NNM.game.scene.background[k] == 3)
+							NNM.game.scene.background[k] = '1';
+					}
+				}
+			}
+		},
 		timeline: [
 			warn('ninomae_inanis', 1, 'idle', null, 30, 0, {
 				'0': event => {
@@ -1619,8 +1653,8 @@ const bosses = {
 						[-24, 0],
 						[0, 16],
 						[8, 16],
-						[24, 0],
-						[40, 8]
+						[archipelagoState.arenaId === 22 ? 40 : 24, 0],
+						[archipelagoState.arenaId === 22 ? 56 : 40, 8]
 					]) {
 						const tentacle = new Tentacle(event.bossActor.pos.plus({x, y}));
 						tentacle.posTarget = tentacle.pos.plus({ x: 0, y: -64 });
@@ -1628,38 +1662,33 @@ const bosses = {
 					}
 				},
 				'30': event => {
-					if (!/castle|holo_hq/.test(NNM.game.currentStage)) {
-						const tilesToDestroy = [18, 43].includes(archipelagoState.arenaId) ? 5 : 10;
+					if (!/castle|holo_hq|falls/.test(NNM.game.currentStage)) {
+						const tilesToDestroy = 5;//[18, 43].includes(archipelagoState.arenaId) ? 5 : 10;
 						for (const c of event.destroyedInaCol = NNM.game.scene.currentSection.collisions.filter(c => c.size.y === 16 && c.pos.x < NNM.game.scene.currentSection.pos.x + tilesToDestroy * 16))
 							c.pos.y += 64;
 						event.destroyedInaTiles = {};
 						for (let i = 0; i <= tilesToDestroy; i++) {
-							for (let j = 10 - (i < tilesToDestroy); j < 11; j++) {
-								const k = `${i + NNM.game.scene.currentSection.pos.x / 16}_${j + NNM.game.scene.currentSection.pos.y / 16}`;
+							//for (let j = 10 - (i < tilesToDestroy); j < 11; j++) {
+								const k = `${i + NNM.game.scene.currentSection.pos.x / 16}_58`; //`${i + NNM.game.scene.currentSection.pos.x / 16}_${j + NNM.game.scene.currentSection.pos.y / 16}`;
 								event.destroyedInaTiles[k] = NNM.game.scene.foreground[k];
 								delete NNM.game.scene.foreground[k];
-								if (NNM.game.scene.background[k] == 3)
-									NNM.game.scene.background[k] = '1';
-							}
+								//if (NNM.game.scene.background[k] == 3)
+								//	NNM.game.scene.background[k] = '1';
+							//}
 						}
 						NNM.game.playSound('explosion');
-						if ([18, 43].includes(archipelagoState.arenaId)) {
+						//if ([18, 43].includes(archipelagoState.arenaId)) {
 							for (let x = 2564; x < 2621; x += 2) {
 								NNM.game.scene.particles.smoke_white(new Vector2(x, 164), Vector2.zero, 0);
 								NNM.game.scene.particles.smoke_white(new Vector2(x, 168), Vector2.zero, 0);
 								NNM.game.scene.particles.smoke_white(new Vector2(x, 170), Vector2.zero, 0);
 								NNM.game.scene.particles.smoke_white(new Vector2(x, 172), Vector2.zero, 0);
 							}
-						} else {
-							NNM.game.scene.actors.push(new BridgeLip());
-							for (let x = 1928; x < 2080; x += 16) {
-								NNM.game.scene.particles.explosion(new Vector2(x, archipelagoState.arenaB), 0);
-							}
-						}
-					}
+						//}
+					} else if (archipelagoState.arenaId === 22) NNM.game.scene.actors.push(new BridgeBreaker());
 				}
 			}),
-			fight([Bullet, Tentacle], true, true),
+			fight([Bullet, Tentacle, Bridge], true, true),
 			(game, event) => {
 				event.next = true;
 				if (event.destroyedInaCol) {
