@@ -1265,11 +1265,53 @@ const bosses = {
 	},
 	Pekora: {
 		setup: event => {
-			event.bossActor = new PekoraBoss(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), archipelagoState.arenaId < 2 ? 32 : 64);
-			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
-			event.bossActor.setAnimation('idle');
-			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
-			event.bossActor.dir ^= 1;
+			const boss = event.bossActor = new PekoraBoss(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), [0, 1, 4].includes(archipelagoState.arenaId) ? 32 : 64);
+			boss.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
+			boss.setAnimation('idle');
+			boss.lookAt(CollisionBox.center(NNM.getPlayer()));
+			boss.dir ^= 1;
+			if (archipelagoState.arenaId === 4) {
+				boss.setAnimation('fall');
+				boss.pos.y = archipelagoState.arenaT - 32;
+				//boss.checkHit = (_, cb) => !(cb instanceof Aircon) && boss.phase !== 'defeated' && CollisionBox.intersects(event.bossActor, cb);
+				const oldUpdate = boss.update, oldMove = boss.movePhase, gravity = boss.gravity;
+				boss.update = game => {
+					const boat = game.scene.actors.find(a => a instanceof Boat);
+					const bottom = boat?.y + (137 - 32);
+					if (boss.canFall) {
+						boss.gravity = gravity;
+					} else if (boss.vel.y >= 0 && (boss.pos.y + boss.vel.y >= bottom || !boss.gravity)) {
+						boss.gravity = 0;
+						boss.vel = Vector2.zero;
+						boss.pos.y = bottom;
+						if (boss.animation === 'fall')
+							boss.setAnimation('idle');
+					}
+					oldUpdate(game);
+					if (boss.phase !== 'attack') {
+						for (const a of [...game.scene.actors]) {
+							if (a instanceof Bullet && !a.frameCount && a.vel.y && a.originActor === boss && !a.__archipelagoDuplicated) {
+								const b = new Bullet(a.pos.value(), new Vector2(a.vel.x, -a.vel.y), boss);
+								a.__archipelagoDuplicated = b.__archipelagoDuplicated = true;
+								game.scene.actors.push(b);
+							}
+						}
+					}
+				};
+				boss.movePhase = game => {
+					if (!boss.phaseBuffer) {
+						boss.gravity = gravity;
+						boss.moveSpeed = (176 / -2) * gravity / boss.vel.y;
+						boss.moveDir = Math.sign(30 * 16 - boss.pos.x);
+					}
+					if (!boss.gravity) {
+						boss.lastMove = 'move';
+						boss.phase = 'idle';
+					} else {
+						oldMove(game);
+					}
+				};
+			}
 		},
 		timeline: [
 			(game, event) => event.next = event.timelineFrame === 20 || !(game.scene.warning = shouldWarn()),

@@ -240,14 +240,13 @@ export class SinkingBoat extends Actor {
 
 export class Boat extends Actor {
 	#event;
-	#yOffset;
 	#previousArenaB = 0;
 
 	#customDraw = game => {
 		if (game.scene.bossKillEffect) {
 			this.toFilter = true;
 		} else {
-			game.ctx0.drawImage(game.assets.images.sp_boat, Math.round(this.#event.boat.pos.x) - game.scene.view.pos.x, Math.round(this.#event.boat.pos.y) + this.#yOffset);
+			game.ctx0.drawImage(game.assets.images.sp_boat, Math.round(this.#event.boat.pos.x) - game.scene.view.pos.x, Math.round(this.#event.boat.pos.y) + this.y);
 		}
 	}
 
@@ -258,15 +257,15 @@ export class Boat extends Actor {
 		if (archipelagoState.bossId === 'Demon Lord Miko') {
 			this.draw = (game, cx) => {
 				if (!event.bossActor && event.boat) {
-					cx.drawImage(game.assets.images.sp_miko_sit, Math.round(event.boat.pos.x) + 180, this.#yOffset + 106);
-					for (let _ in '..') game.scene.particles.smoke_pink(new Vector2(random() * 16 + 192 + event.boat.pos.x, random() * 20 + (96 + 20) + this.#yOffset), new Vector2(random() - .5, random() * -2), 0);
+					cx.drawImage(game.assets.images.sp_miko_sit, Math.round(event.boat.pos.x) + 180, this.y + 106);
+					for (let _ in '..') game.scene.particles.smoke_pink(new Vector2(random() * 16 + 192 + event.boat.pos.x, random() * 20 + (96 + 20) + this.y), new Vector2(random() - .5, random() * -2), 0);
 				}
 			};
 		}
 	}
 
 	update = game => {
-		this.#yOffset = Math.round(Math.cos(Math.floor(this.#event.timelineFrame / 16) * (180 / Math.PI)));
+		this.y = Math.round(Math.cos(Math.floor(this.#event.timelineFrame / 16) * (180 / Math.PI)));
 
 		if (this.#event.index) {
 			for (const a of game.scene.actors) {
@@ -293,7 +292,7 @@ export class Boat extends Actor {
 				if (!this.col.pos.y) {
 					game.scene.actors.splice(game.scene.actors.indexOf(this.#event.bossActor) + 1, 0, new BoatColReset(this.col));
 				}
-				const targetArenaB = this.#yOffset + 137;
+				const targetArenaB = this.y + 137;
 				const delta = targetArenaB - this.#previousArenaB;
 				this.col.pos.y = archipelagoState.arenaB = this.#previousArenaB = targetArenaB;
 				if (this.#event.bossActor.phase === 'intro')
@@ -306,7 +305,7 @@ export class Boat extends Actor {
 			}
 
 			else if (this.#event.bossActor instanceof EvilMiko && this.#event.bossActor.phase === 'sit') {
-				this.#event.bossActor.pos = this.#event.boat.pos.plus({ x: 192, y: this.#yOffset + 110 });
+				this.#event.bossActor.pos = this.#event.boat.pos.plus({ x: 192, y: this.y + 110 });
 			}
 		}
 	}
