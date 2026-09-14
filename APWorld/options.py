@@ -20,6 +20,7 @@ class NNQGoal(Choice):
 	option_good = 1
 	option_true = 2
 	option_all_bosses = 3
+	option_holo_office = 4
 	default = 2
 
 	@classmethod
@@ -29,6 +30,7 @@ class NNQGoal(Choice):
 			case 1: return 'First 5 Stages (Good Ending)'
 			case 2: return 'All Stages'
 			case 3: return 'All Bosses'
+			case 4: return 'Holo Office'
 
 class NNQStartingCharacter(Choice):
 	"""Which character you start as."""
