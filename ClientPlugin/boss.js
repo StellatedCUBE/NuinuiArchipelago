@@ -1102,6 +1102,23 @@ function parallel() {
 	};
 }
 
+function dontJumpOffEdge(boss, simWithYVel) {
+	const oldPhase = boss.movePhase;
+	boss.movePhase = game => {
+		if (!boss.phaseBuffer && !simWithYVel(game, boss.vel.y)) {
+			const st = performance.now();
+			for (let y = boss.vel.y + 1; y > boss.vel.y - 2; y -= .5) {
+				if (simWithYVel(game, y)) {
+					boss.vel.y = y;
+					break;
+				}
+			}
+			console.log(`Sim delay: ${performance.now() - st} for ${boss.vel.y}`);
+		}
+		oldPhase(game);
+	}
+}
+
 function calli(skullBoss) {
 	return {
 		setup: event => {
@@ -1283,7 +1300,7 @@ const bosses = {
 					} else if (boss.vel.y >= 0 && (boss.pos.y + boss.vel.y >= bottom || !boss.gravity)) {
 						boss.gravity = 0;
 						boss.vel = Vector2.zero;
-						boss.pos.y = bottom;
+						boss.pos = new Vector2(boss.pos.x < 30 * 16 ? archipelagoState.bossSpawnX : archipelagoState.bossSpawnX + 176, bottom);
 						if (boss.animation === 'fall')
 							boss.setAnimation('idle');
 					}
@@ -1311,6 +1328,23 @@ const bosses = {
 						oldMove(game);
 					}
 				};
+			} else if ([18, 43].includes(archipelagoState.arenaId)) {
+				dontJumpOffEdge(boss, (game, yv) => {
+					const shadowBoss = new PekoraBoss(boss.pos.value(), 1);
+					shadowBoss.phase = 'move';
+					shadowBoss.vel = new Vector2(boss.vel.x, yv);
+					shadowBoss.moveDir = boss.moveDir;
+					shadowBoss.moveSpeed = boss.moveSpeed;
+					while (true) {
+						shadowBoss.phaseBuffer = 5;
+						shadowBoss.update(game);
+						if (shadowBoss.pos.y > 128) return false;
+						if (shadowBoss.phase !== 'move') {
+							shadowBoss.update(game);
+							return shadowBoss.isGrounded && !(shadowBoss.pos.y % 16);
+						}
+					}
+				});
 			}
 		},
 		timeline: [

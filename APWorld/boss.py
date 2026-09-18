@@ -6,7 +6,7 @@ from Options import OptionError
 from .data import SHOTS
 
 A_PRQ = {
-	'Random Quest Crystal Falls modboss',
+	'Random Quest Crystal Falls midboss',
 	'Random Quest Crystal Falls final boss',
 	'Random Quest Underworld Casino game room',
 	'Random Quest Underworld Casino final boss',
@@ -21,8 +21,8 @@ A_PRQ = {
 
 A_MMQ = {
 	f'Stage {i:0>2}'
-	for i in range(3, 29)
-}
+	for i in range(3, 28, 2)
+} | {'Stage 28'}
 
 A_BRIDGE = {
 	"Ina's office",
@@ -275,7 +275,7 @@ Q_ALL = -1
 by_name = {boss.name.lower(): boss for boss in [
 	Boss('None', 0, None, 0, A_ALL),
 	Boss('Usadrill', Q_NNQ, None, 0, A_BRIDGE | {'Crystal Falls midboss', 'Random Quest Crystal Falls final boss'}),
-	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, {'Pirate Harbor boss'} | A_ROUGH_FLOORED - A_INA),
+	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, A_ALL - A_BRIDGE),
 	Boss('Veiled Mori', Q_NNQ, None, 0, A_FLOORED & A_WALLED),
 	Boss('Miko', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_ROOFED),
 	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ),
