@@ -545,7 +545,9 @@ export class ArchipelagoState {
 				this.localIgnoreLocations.push(loc);
 				if (!this.popupFlag) {
 					let name = scout.name;
-					if (!+name[0])
+					if (scout.id === (9 << 16))
+						name = 'some idol essence';
+					else if (!+name[0])
 						name = 'a ' + name;
 					this.popup(new PopUpMenu(NNM.game, null, ['raw:found ' + name], 'archipelago', getIcon(scout.id)));
 				}

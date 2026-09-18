@@ -281,7 +281,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ),
 	Boss('Fubura Tower', Q_NNQ, None, 0, {'Yamato midboss 1'}),
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
-	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ROUGH_FLOORED),
+	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL),
 	Boss('Suisei', Q_NNQ|Q_PRQ, None, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
 	Boss('Polka', Q_NNQ|Q_MMQ, None, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),

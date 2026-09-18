@@ -1102,18 +1102,32 @@ function parallel() {
 	};
 }
 
-function dontJumpOffEdge(boss, simWithYVel) {
-	const oldPhase = boss.movePhase;
+function dontJumpOffEdge(boss) {
+	const oldPhase = boss.movePhase, simWithYVel = (game, yv) => {
+		const shadowBoss = new boss.constructor(boss.pos.value(), 1);
+		shadowBoss.phase = 'move';
+		shadowBoss.vel = new Vector2(boss.vel.x, yv);
+		shadowBoss.moveDir = boss.moveDir;
+		shadowBoss.moveSpeed = boss.moveSpeed;
+		shadowBoss.moveAttack = boss.moveAttack;
+		while (true) {
+			shadowBoss.phaseBuffer = 5;
+			shadowBoss.update(game);
+			if (shadowBoss.pos.y > 128) return false;
+			if (shadowBoss.phase !== 'move') {
+				shadowBoss.update(game);
+				return shadowBoss.isGrounded && !(shadowBoss.pos.y % 16);
+			}
+		}
+	};
 	boss.movePhase = game => {
 		if (!boss.phaseBuffer && !simWithYVel(game, boss.vel.y)) {
-			const st = performance.now();
 			for (let y = boss.vel.y + 1; y > boss.vel.y - 2; y -= .5) {
 				if (simWithYVel(game, y)) {
 					boss.vel.y = y;
 					break;
 				}
 			}
-			console.log(`Sim delay: ${performance.now() - st} for ${boss.vel.y}`);
 		}
 		oldPhase(game);
 	}
@@ -1329,22 +1343,7 @@ const bosses = {
 					}
 				};
 			} else if ([18, 43].includes(archipelagoState.arenaId)) {
-				dontJumpOffEdge(boss, (game, yv) => {
-					const shadowBoss = new PekoraBoss(boss.pos.value(), 1);
-					shadowBoss.phase = 'move';
-					shadowBoss.vel = new Vector2(boss.vel.x, yv);
-					shadowBoss.moveDir = boss.moveDir;
-					shadowBoss.moveSpeed = boss.moveSpeed;
-					while (true) {
-						shadowBoss.phaseBuffer = 5;
-						shadowBoss.update(game);
-						if (shadowBoss.pos.y > 128) return false;
-						if (shadowBoss.phase !== 'move') {
-							shadowBoss.update(game);
-							return shadowBoss.isGrounded && !(shadowBoss.pos.y % 16);
-						}
-					}
-				});
+				dontJumpOffEdge(boss);
 			}
 		},
 		timeline: [
@@ -1424,23 +1423,57 @@ const bosses = {
 	},
 	Fubuki: {
 		setup: event => {
+			let boss;
 			if (archipelagoState.bossSpawnX > archipelagoState.arenaTL && archipelagoState.bossSpawnX < archipelagoState.arenaTR - 16) {
-				event.bossActor = new Fubuki(new Vector2(archipelagoState.bossSpawnX, Infinity), 64);
-				event.bossActor.setAnimation('jump');
+				boss = new Fubuki(new Vector2(archipelagoState.bossSpawnX, Infinity), 64);
+				boss.setAnimation('jump');
 			} else {
-				event.bossActor = new Fubuki(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 64);
-				event.bossActor.setAnimation('idle');
+				boss = new Fubuki(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 64);
+				boss.setAnimation('idle');
 			}
-			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
-			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+			event.bossActor = boss;
+			boss.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
+			boss.lookAt(CollisionBox.center(NNM.getPlayer()));
 			archipelagoState.arenaOpenSides = !(
 				CollisionBox.intersectCollisions({ pos: {x: archipelagoState.arenaL - 1, y: archipelagoState.arenaB - 16}, size: {x: 1, y: 32} }, NNM.game.scene.currentSection.collisions).length ||
 				CollisionBox.intersectCollisions({ pos: {x: archipelagoState.arenaR, y: archipelagoState.arenaB - 16}, size: {x: 1, y: 32} }, NNM.game.scene.currentSection.collisions).length
 			);
+			if (archipelagoState.arenaId === 4) {
+				const oldUpdate = boss.update, oldMove = boss.movePhase, gravity = boss.gravity;
+				boss.update = game => {
+					const boat = game.scene.actors.find(a => a instanceof Boat);
+					const bottom = boat?.y + (137 - 32);
+					if (boss.canDie && !boss.health) {
+						boss.gravity = gravity;
+					} else if (boss.vel.y >= 0 && (boss.pos.y + boss.vel.y >= bottom || !boss.gravity) && boss.pos.y < 9e9) {
+						boss.gravity = 0;
+						boss.vel = Vector2.zero;
+						boss.pos = new Vector2(boss.pos.x < 30 * 16 ? archipelagoState.bossSpawnX : archipelagoState.bossSpawnX + 176, bottom);
+						if (boss.animation === 'jump')
+							boss.setAnimation('idle');
+					}
+					oldUpdate(game);
+				};
+				boss.movePhase = game => {
+					if (!boss.phaseBuffer) {
+						boss.gravity = gravity;
+						boss.moveSpeed = boss.moveAttack ? 704 / 137 : 176 / 52;
+						if (boss.moveDir !== Math.sign(30 * 16 - boss.pos.x)) boss.moveDir = 0;
+					}
+					if (!boss.gravity) {
+						boss.lastMove = 'move';
+						boss.phase = 'idle';
+					} else {
+						oldMove(game);
+					}
+				};
+			} else if ([18, 43].includes(archipelagoState.arenaId)) {
+				dontJumpOffEdge(boss);
+			}
 		},
 		timeline: [
 			(_, event) => {
-				if (event.bossActor.isGrounded) {
+				if (event.bossActor.isGrounded || !event.bossActor.gravity) {
 					event.bossActor.setAnimation('idle');
 					event.next = true;
 				}

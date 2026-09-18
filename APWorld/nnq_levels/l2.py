@@ -85,5 +85,5 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,130),r_1600_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,642),r_1600_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1154),r_1600_0)
-		for i in range(len(pre_marine_enemies)):w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE,i),r_320_0)
+		for i in range(len(pre_marine_enemies)):w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE,i),r_960_0)
 enemies=[(2058,"Sword robot",23,44),(2570,"Robot",33,47),(3082,"Cannon",22,56),(3594,"Sword robot",45,54),(1554,"Cannon",73,46),(2066,"Nousakumo",67,44),(2578,"Sword robot",65,51),(4626,"Cannon",61,66),(5138,"Nousakumo",75,68),(1050,"Dokuro-kun",90,62),(1562,"Sword robot",110,69),(42,"Robot",170,68),(554,"Dokuro-kun",172,64),(2618,"Cannon",198,62),(3130,"Nousakumo",185,57),(3642,"Cannon",190,49),(4154,"Cannon",185,43),(578,"Ghost",125,26),(74,"Ghost",150,26),(594,"Ghost",175,31),(90,"Ghost",125,38),(610,"Ghost",148,43),(618,"Ghost",173,38),(2162,"Nousakumo",106,45),(2674,"Nousakumo",110,45),(634,"Cannon",83,31),(1146,"Dokuro-kun",88,15),(130,"Robot",115,21),(642,"Sword robot",113,12),(1154,"Sword robot",116,8)]
