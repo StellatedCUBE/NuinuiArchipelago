@@ -631,6 +631,7 @@ NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.full_punch', 'isDamag
 NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', '< scenePos.x', '< (actor.__archipelagoLeft ?? scenePos.x)');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', 'scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x', '(actor.__archipelagoRight ?? (scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x))');
 NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.punch', 'isDamage = false', 'if (self.archipelagoState) actor.rightHand.pos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Right" : "Left")];');
+NNM.code.insertAfterFirstMatchingLine('Gashadokuro.phases.move_away', '.xTarget = ', 'if (game.scene.actors.some(a => a.archipelagoInaBridge)) actor.xTarget -= scene.currentSection.size.x / 4');
 
 NNM.code.insertAfterFirstMatchingLine('BowPickup.update', 'CollisionBox.intersects', 'if (self.archipelagoState) self.archipelagoState.setSaveField("nuinui", "item-gun");');
 for (const scope of NNM.code.filesMatching('bowPickup.js')[0].scopes)
