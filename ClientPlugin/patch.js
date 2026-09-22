@@ -18,7 +18,7 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 NNM.code.insertAtStartOfScope('TextBubble.parse_en', 'char = char.toLowerCase(); if (!FONT_EN[char] && char !== "\\n") char = "?";');
 NNM.code.insertBeforeFirstMatchingLine('KeyboardListener.handler', 'preventDefault', 'if (document.activeElement.tagName === "INPUT") return;');
 NNM.code.insertAtStartOfScope('Game.update', 'self.archipelagoState?.update();');
-NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMenu)', 'if (self.archipelagoState && this.previousMenu instanceof Item) this.previousMenu.menuInit(game); else');
+NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMenu)', 'if (self.archipelagoState) this.previousMenu.menuInit(game); else');
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');

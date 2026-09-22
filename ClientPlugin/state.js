@@ -206,12 +206,8 @@ export class ArchipelagoState {
 		}
 
 		const player = NNM.getPlayer();
-		if (!player) return;
-
-		if (this.incomingDeath && NNM.game.scene.events.some(e => e.hilo))
-			player.playerControl = true;
-
-		if (!NNM.game.menu && player.playerControl) {
+		
+		if (!NNM.game.menu && player?.playerControl) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
@@ -221,9 +217,20 @@ export class ArchipelagoState {
 			let pm = this.pendingPopUp;
 			while (pm.previousMenu instanceof PopUpMenu) pm = pm.previousMenu;
 			if (!pm.previousMenu) {
-				NNM.game.menu.aBuffer = true;
 				const om = NNM.game.menu;
-				pm.previousMenu = NNM.game.menu;
+				if (om instanceof StageSelect) {
+					pm.previousMenu = new StageSelect(NNM.game, om.previousMenu);
+					pm.previousMenu.cursorPos = om.cursorPos;
+					pm.previousMenu.frameCount = om.frameCount;
+					pm.previousMenu.progress = om.progress;
+					const stage = om.stages[om.stageIndex].index;
+					for (const i in pm.previousMenu.stages)
+						if (pm.previousMenu.stages[i].index === stage)
+							pm.previousMenu.stageIndex = +i;
+				} else {
+					pm.previousMenu = om;
+				}
+				pm.previousMenu.aBuffer = true;
 				NNM.game.menu = this.pendingPopUp;
 				pm = this.pendingPopUp;
 				while (pm instanceof PopUpMenu) {
@@ -240,6 +247,11 @@ export class ArchipelagoState {
 				this.pendingPopUp = null;
 			}
 		}
+		
+		if (!player) return;
+
+		if (this.incomingDeath && NNM.game.scene.events.some(e => e.hilo))
+			player.playerControl = true;
 
 		if (!NNM.game.menu && this.bufferedHearts > 0) {
 			this.bufferedHearts--;
