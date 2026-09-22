@@ -306,7 +306,7 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.13_0', 'flare.pos.y 
 NNM.code.insertAtStartOfScope('Flare.die', 'self.archipelagoState?.death();');
 for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
 	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other;');
-	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss] : []),');
+	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel] : []),');
 	if (character !== 'MarinePlayer') {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}

@@ -287,7 +287,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Demon', Q_NNQ, None, 0, A_SINGLE_SCREEN - A_NO_DEMON),
-	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA),
+	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}),
 	Boss('Mori', Q_NNQ|Q_PRQ, None, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA),
@@ -298,12 +298,14 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Robot', Q_PRQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE),
 	Boss('Lui', Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, A_FLOORED & A_WALLED),
+	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, (A_FLOORED & A_WALLED) | {'Pirate Harbor boss'}),
 	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
 	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN),
 	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
 	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
 ]}
+
+BOSSES_PH_WITHOUT_FEATHERS = ('Suisei', 'Marine', 'Iroha', 'Fubuki', 'Pekora')
 
 class Arena:
 	def __init__(self, name, default, region=None, drop=Drop.SETTING):
@@ -322,7 +324,7 @@ class Arena:
 
 class HarborArena(Arena):
 	def rule(self, player):
-		if self.boss.name not in ('Suisei', 'Marine'):
+		if self.boss.name not in BOSSES_PH_WITHOUT_FEATHERS:
 			return lambda state: state.has("Elfriend's feathers", player)
 	
 	def easy_with(self, _):
@@ -393,7 +395,7 @@ def allocate_bosses(world, option, arenas, source_quests):
 	)))]
 
 	if nnq and world.characters == 2:
-		bosses = [b if b.name == 'Suisei' or 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {'Pirate Harbor boss'}) for b in bosses]
+		bosses = [b if b.name in BOSSES_PH_WITHOUT_FEATHERS or 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {'Pirate Harbor boss'}) for b in bosses]
 		if by_name['marine'] not in banned:
 			bosses.append(Boss('Marine', Q_NNQ, None, 0, {'Pirate Harbor boss'}))
 

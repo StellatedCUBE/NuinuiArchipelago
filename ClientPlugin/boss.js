@@ -2039,9 +2039,54 @@ const bosses = {
 	},
 	Iroha: {
 		setup: event => {
-			event.bossActor = new Iroha(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 48);
-			event.bossActor.lookAt(NNM.getPlayer().pos);
-			event.bossActor.animation = 'think';
+			const boss = event.bossActor = new Iroha(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 48);
+			boss.lookAt(NNM.getPlayer().pos);
+			boss.animation = 'think';
+			if (archipelagoState.arenaId === 4) {
+				const oldUpdate = boss.update, gravity = boss.gravity, oldUpdatePos = boss.updatePos.bind(boss), oldDash = boss.phases.dash, oldCharge = boss.phases.charge;
+				let bottom;
+				boss.update = game => {
+					const boat = game.scene.actors.find(a => a instanceof Boat);
+					bottom = boat?.y + (137 - 32);
+					if (boss.canDie && !boss.health) {
+						boss.gravity = gravity;
+					} else if (boss.vel.y >= 0 && (boss.pos.y + boss.vel.y >= bottom || !boss.gravity) && boss.phase !== 'dash') {
+						boss.gravity = 0;
+						boss.vel = Vector2.zero;
+						boss.pos = new Vector2(boss.pos.x < 30 * 16 ? archipelagoState.bossSpawnX : archipelagoState.bossSpawnX + 176, bottom);
+						if (boss.animation === 'jump')
+							boss.animation = boss.canDie ? 'idle' : 'think';
+					}
+					oldUpdate(game);
+					if (boss.vel.y < 0)
+						boss.gravity = gravity;
+				};
+				boss.updatePos = game => {
+					if (boss.vel.x && boss.gravity && boss.health) {
+						//boss.vel.x = (archipelagoState.bossSpawnX + (boss.vel.x > 0) * 176 - boss.pos.x) * gravity / (Math.sqrt(2 * gravity * Math.max(0, bottom - boss.pos.y) - boss.vel.y * boss.vel.y) - boss.vel.y);
+						let t = 0, y = boss.pos.y, yv = boss.vel.y;
+						while (y < bottom) {
+							t++;
+							yv += gravity;
+							y += yv;
+						}
+						boss.vel.x = (archipelagoState.bossSpawnX + (boss.vel.x > 0) * 176 - boss.pos.x) / t;
+					}
+					oldUpdatePos(game);
+					boss.isGrounded = !boss.gravity;
+				};
+				boss.phases.dash = (game, actor) => {
+					if (actor.pos.x < archipelagoState.bossSpawnX || actor.pos.x > archipelagoState.bossSpawnX + 176) actor.vel.x = 0;
+					return oldDash(game, actor);
+				};
+				boss.phases.charge = (game, actor) => {
+					const np = oldCharge(game, actor);
+					if (actor.chargePhase === 'dash') actor.lookAt({x: 30 * 16});
+					return np;
+				};
+				boss.animation = 'jump';
+				boss.pos.y = archipelagoState.arenaT - 32;
+			}
 		},
 		timeline: [
 			warn('kazama_iroha', 11, 'idle', {nuinui: 'dethroneworld', maiden: 'dethroneworld', random: 'crazy_bnuuy'}),
