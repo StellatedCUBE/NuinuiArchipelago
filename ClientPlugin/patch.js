@@ -23,7 +23,7 @@ NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPo
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.drawOptions', 'vfx_smoke_spirit', 'if (self.archipelagoState?.isStageComplete(game.currentQuest, this.stages[i].index)) cx.drawImage(game.assets.images.NNM_Archipelago_check, pos.x + 1, pos.y - 7);');
-NNM.code.insertAtEndOfScope('MarineStageSelect.drawOptions', 'self.archipelagoState?.drawItemAvailability(game, cx, "maiden");');
+NNM.code.insertAtEndOfScope('MarineStageSelect.drawOptions', 'this.endTransitionBuffer || self.archipelagoState?.drawItemAvailability(game, cx, "maiden");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.update', 'this.endTransitionBuffer = 30',
 	'if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(this.sections[Object.keys(this.sections)[this.cursorIndex.y]].stages[this.cursorIndex.x])) return game.playSound("no_damage");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.drawOptions', 'stageNum.toString', `if (self.archipelagoState && !self.archipelagoState.availableLevels.maiden.has(Object.keys(game.quests.maiden.stages)[stageNum]))
