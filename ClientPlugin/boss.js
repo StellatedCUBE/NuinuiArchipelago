@@ -1486,6 +1486,24 @@ const bosses = {
 			fight([Bullet], true),
 		]
 	},
+	Noel: {
+		setup: event => {
+			const boss = event.bossActor = new EvilNoel(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 96);
+			boss.phase = 'intro';
+			boss.setAnimation('idle');
+			boss.posTargets = boss.posTargets.map(t => t.plus({x: -5120, y: -384}).plus(NNM.game.scene.currentSection.pos));
+			boss.posTarget = boss.posTargets[0];
+			for (const t of boss.posTargets)
+				if (Math.abs(t.x - archipelagoState.bossSpawnX) < Math.abs(boss.posTarget.x - archipelagoState.bossSpawnX))
+					boss.posTarget = t;
+		},
+		timeline: [
+			(_, event) => event.bossActor.phase = event.next = 'intro2',
+			warn('shirogane_noel', 10, 'idle', 'corrupted_partner', 60),
+			fight([Bullet])
+		],
+		timeCoin: 180
+	},
 	Suisei: {
 		setup: event => {
 			const x = archipelagoState.arenaId === 4 ? 24 * 16 + 8 : (archipelagoState.arenaL + archipelagoState.arenaR) >> 1;

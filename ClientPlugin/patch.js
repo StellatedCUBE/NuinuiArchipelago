@@ -374,6 +374,10 @@ NNM.code.insertAfterFirstMatchingLine('Ayame.update', 'this.isUpsideDown = ',
 	'if (self.archipelagoState && this.isUpsideDown && !this.vel.y && !CollisionBox.intersectCollisions({pos: this.pos.plus({x: 0, y: -16}), size: this.size}, game.scene.currentSection.collisions).length) this.pos.y -= 16;');
 NNM.code.insertBeforeFirstMatchingLine('Fubuki.update', "game.currentQuest === 'random'",
 	'if (self.archipelagoState) {if (self.archipelagoState.arenaOpenSides && (this.pos.x < self.archipelagoState.arenaL || this.pos.x > self.archipelagoState.arenaR - 16)) {this.vel.x *= -1; this.moveDir *= -1;}} else');
+NNM.code.findReplaceAllLines('EvilNoel.takeHit', 'const damage = ', 'const damage = self.archipelagoState && game.currentQuest !== "nuinui" ? other.damage ?? 1 :');
+NNM.code.insertAfterFirstMatchingLine('EvilNoel.takeHit', "this.phase = 'defeated';", 'if (self.archipelagoState && game.currentQuest !== "nuinui") return;');
+NNM.code.insertAfterFirstMatchingLine('EvilNoel.defeatedPhase', 'this.vel.mult', 'if (self.archipelagoState && game.currentQuest !== "nuinui") return;');
+NNM.code.findReplaceAllLines('EvilNoel.idlePhase', 'random()', 'random() / (1 + !!(self.archipelagoState && game.mode === "marine"))');
 NNM.code.insertBeforeFirstMatchingLine('Flare.deathTransition', 'deathTransitionIndex === 360', 'if (self.archipelagoState && this.deathTransitionIndex===360) self.archipelagoState.diedToNoel(); else');
 NNM.code.findReplaceAllLines('Suisei.introPhase', 'scenePos.y + 6 * 16', '(self.archipelagoState ? self.archipelagoState.arenaB - 64 : scenePos.y + 6 * 16)');
 NNM.code.findReplaceAllLines('Axe.update', 'game.scene.currentSection.pos', 'self.archipelagoState ? {x:Math.min(self.archipelagoState.arenaL,self.archipelagoState.arenaTL)-32,y:self.archipelagoState.arenaB-160} : game.scene.currentSection.pos');
