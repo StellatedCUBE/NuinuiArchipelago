@@ -66,7 +66,7 @@ def prq(world):
 						world.add_location((location.LocationCategory.PACHINKO, j), region)
 
 			for j in range(1, 4):
-				world.add_location((location.LocationCategory.NOUSAGI, i * 4 + j), region2 if i == 1 and j > 1 else region, (lambda state: state.has(bomb, p)) if (i, j) in ((1, 3), (3, 3)) else None)
+				world.add_location((location.LocationCategory.NOUSAGI, i * 4 + j), region2 if i == 1 and j == 3 else region, (lambda state: state.has(bomb, p)) if (i, j) in ((1, 3), (3, 3)) else None)
 
 			for l, type_, _, y in prq_enemy_data[i]:
 				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else world.options.prq_enemysanity):
