@@ -1864,10 +1864,11 @@ const bosses = {
 	},
 	Kanata: {
 		setup: event => {
-			event.bossActor = new Kanata(new Vector2(Infinity, Infinity), 64);
-			event.bossActor.checkHit = (_, cb) => !(cb instanceof Aircon) && CollisionBox.intersects(event.bossActor, cb);
-			event.bossActor.phase = 'move';
-			event.bossActor.intro = true;
+			const boss = event.bossActor = new Kanata(new Vector2(Infinity, Infinity), 64);
+			boss.checkHit = (_, cb) => !(cb instanceof Aircon) && CollisionBox.intersects(event.bossActor, cb);
+			boss.phase = 'move';
+			boss.intro = true;
+			if (NNM.game.currentQuest === 'random') boss.damage = 1;
 		},
 		timeline: [
 			warn('amane_kanata', 1, 'idle', 'kiseki', 30, 180, {
