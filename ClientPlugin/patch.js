@@ -604,6 +604,7 @@ NNM.code.insertAfterFirstMatchingLine('Laplus.draw', 'sp_demon_laser', `
 	} else
 `);
 NNM.code.insertAtEndOfScope('KoyodrillBody.takeHit', 'if (self.archipelagoState && game.currentQuest !== "random") this.dropHeart(game, .4);');
+NNM.code.insertBeforeFirstMatchingLine('Bullet.takeHit', 'IceShield', 'if (!self.archipelagoState || !this.isGhostWeapon)');
 NNM.code.insertAfterFirstMatchingLine('MarineGhost.phases.tp', 'actor.tpPos = ', _ => {
 	if (self.archipelagoState) {
 		let y = scenePos.y + ((random() * scene.currentSection.size.y) & ~15), dy = 16;
