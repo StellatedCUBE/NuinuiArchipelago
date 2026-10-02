@@ -1903,6 +1903,7 @@ const bosses = {
 				'209': _ => NNM.game.scene.warning = !(NNM.getPlayer().playerControl = true),
 			}),
 			fight([Bullet]),
+			(_, event) => event.next = event.bossActor.draw = _ => {}
 		],
 		timeCoin: 35,
 		healthCoin: 8
