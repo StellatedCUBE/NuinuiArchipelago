@@ -42,6 +42,22 @@ class NNQOtherCharacter(DefaultOnToggle):
 	"""Is the other character included in the item pool."""
 	display_name = "Include Other Character"
 
+class NNQStartingWeapon(Choice):
+	"""If starting with Flare, which weapon you start with."""
+	display_name = "Flare's Starting Weapon"
+	default = 'random'
+	option_dual_pistols = 0
+	option_fire_shot = 1
+	option_peko_rockets = 2
+	option_sakura_shot = 3
+	option_cutlass = 4
+	option_dual_swords = 6
+
+	@classmethod
+	def get_option_name(cls, id_):
+		return "Marine's Cutlass" if id_ == 4 else super(NNQStartingWeapon, cls).get_option_name(id_)
+
+
 class NNQShuffleStages(DefaultOnToggle):
 	"""Randomise the unlock order of the stages."""
 	display_name = "Randomise Stage Order"
@@ -164,6 +180,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_stage_items: NNQStageItems
 	nnq_starting_character: NNQStartingCharacter
 	nnq_other_character: NNQOtherCharacter
+	nnq_flare_starting_weapon: NNQStartingWeapon
 	nnq_hidden_area_checks: NNQHiddenAreas
 	nnq_boss_shuffle: NNQBossPlando
 	nnq_boss_cross: NNQCrossBoss
@@ -204,6 +221,7 @@ fnnq_option_groups = [
 		NNQStageItems,
 		NNQStartingCharacter,
 		NNQOtherCharacter,
+		NNQStartingWeapon,
 		NNQHiddenAreas,
 		NNQBossPlando,
 		NNQCrossBoss,

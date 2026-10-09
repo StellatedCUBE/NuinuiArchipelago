@@ -11,8 +11,12 @@ def nnq(world):
 	if world.options.nnq_starting_character.value:
 		world.push_precollected(world.create_item('progressive Noel'))
 		world.add_item('charged mace')
+		weapon = 'mace'
 		if world.options.nnq_other_character.value:
 			world.add_item('Flare')
+			world.add_item(item.ItemCategory.DUAL_PISTOLS)
+			for i in data.SHOTS:
+				world.add_item(i)
 		else:
 			world.push_precollected(item.FNNQItem('NOEL NUINUI QUEST', ItemClassification.progression, None, world.player))
 			world.add_item((item.ItemCategory.FLARE_ITEM, 4))
@@ -21,6 +25,19 @@ def nnq(world):
 				world.add_item((item.ItemCategory.HOLOX, i))
 	else:
 		world.push_precollected(world.create_item('Flare'))
+		if world.options.nnq_flare_starting_weapon.value:
+			world.add_item(item.ItemCategory.DUAL_PISTOLS)
+			for i, shot in enumerate(data.SHOTS):
+				if world.options.nnq_flare_starting_weapon.value - 1 == i:
+					world.push_precollected(world.create_item(shot))
+					weapon = shot
+				else:
+					world.add_item(shot)
+		else:
+			weapon = 'dual pistols'
+			world.push_precollected(world.create_item(item.ItemCategory.DUAL_PISTOLS))
+			for i in data.SHOTS:
+				world.add_item(i)
 		if world.options.nnq_other_character.value:
 			world.add_item('progressive Noel')
 			world.add_item('progressive Noel')
@@ -29,7 +46,7 @@ def nnq(world):
 	
 	if world.characters & 1:
 		for it in item.item_types:
-			if it.type in (item.ItemCategory.KEY, item.ItemCategory.HOLOX, item.ItemCategory.FLARE_SHOT, item.ItemCategory.FLARE_ITEM):
+			if it.type in (item.ItemCategory.KEY, item.ItemCategory.HOLOX, item.ItemCategory.FLARE_ITEM):
 				world.add_item(it)
 
 	levels = 7 if world.options.nnq_all_stages else (6 if world.options.nnq_goal.value == 4 else (7 if world.options.nnq_goal.value > 1 else 5))
@@ -102,8 +119,8 @@ def nnq(world):
 			i in (0, 1, 3) or
 			world.options.nnq_enemysanity or
 			(i != 2 and (
-				(world.options.nnq_boss_all_drop and (i == 6 or next(arena for arena in arenas if data.LEVELS[i] in arena.name).easy_with(world.options.nnq_starting_character.value))) or
-				(not world.options.nnq_boss_all_drop and all(arena.easy_with(world.options.nnq_starting_character.value) for arena in arenas if data.LEVELS[i] in arena.name))
+				(world.options.nnq_boss_all_drop and (i == 6 or next(arena for arena in arenas if data.LEVELS[i] in arena.name).easy_with(weapon))) or
+				(not world.options.nnq_boss_all_drop and all(arena.easy_with(weapon) for arena in arenas if data.LEVELS[i] in arena.name))
 			))
 		)]
 		if level_items:

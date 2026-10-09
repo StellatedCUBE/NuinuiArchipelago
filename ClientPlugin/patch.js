@@ -119,6 +119,7 @@ NNM.code.insertAtEndOfScope('Item.constructor', function() {
 	}
 });
 NNM.code.insertBeforeFirstMatchingLine('Item.drawOptions', "'sp_cage'", 'if (!self.archipelagoState?.checked((6 << 16) | (Object.keys(game.quests.random.stages).indexOf(game.currentStage) << 2) | -~i))');
+NNM.code.insertAtEndOfScope('Item.menuInit', 'if (self.archipelagoState) this.items[0] &= self.archipelagoState.hasGun;');
 NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", function() {
 	if (this.type === 'archipelago') {
 		const [i, r] = this.typeId;
@@ -257,7 +258,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 					this.mode = 'noel';
 			} else {
 				if (stageId === 'casino')
-					for (let i in '......')
+					for (let i = 0; i < 6; i++)
 						self.archipelagoState.scout((8 << 16) | i);
 				for (let i in '....')
 					self.archipelagoState.scout((6 << 16) | (stageIndex << 2) | i);
@@ -270,6 +271,10 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 });
 NNM.code.insertAtEndOfScope('StageSelect.confirm', 'if (self.archipelagoState && this.nextStage === "falls") game.scene.setFromMenu = true;');
 NNM.code.insertAtEndOfScope('Scene.constructor', 'self.archipelagoState?.onSceneStart(this);');
+NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.scene.actors.push(arrow)', 'if (self.archipelagoState && !self.archipelagoState.hasGun && this.weapon === "gun" && !keyChargeAttack) this.__archipelagoGunBlock = this.frameCount; else');
+NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.playSound(this.jetski || this.moto ? "pew"', 'if (this.__archipelagoGunBlock !== this.frameCount) {');
+NNM.code.insertAfterFirstMatchingLine('Flare.update', 'this.animationFrameGun = 0', '} else this.attackBuffer = true;');
+NNM.code.insertBeforeFirstMatchingLine('Scene.displayHUD', 'sp_bow_pickup', 'if (!self.archipelagoState || self.archipelagoState.hasGun || flare.weapon === "bow")');
 NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'this.canHelp = true', 'if (self.archipelagoState?.slotData.help && !flare.helpHealth && game.currentQuest === "nuinui") this.canHelp = self.archipelagoState.helpsAvailable;');
 NNM.code.insertAtStartOfScope('instantBubble', 'if (self.archipelagoState && bubbleId === "helpBubble") text += ` (${self.archipelagoState.helpsAvailable})`;');
 NNM.code.insertAfterFirstMatchingLine('Checkpoint.update', 'helpHealth = ', 'self.archipelagoState?.spendHelp();');
@@ -446,9 +451,6 @@ NNM.code.findReplaceAllLines('FlareBoss.update', "game.mode === 'marine'", "(sel
 NNM.code.findReplaceAllLines('EvilFlare.attackPhase', '24 * 16', 'self.archipelagoState ? game.scene.currentSection.pos.y : 24 * 16');
 NNM.code.findReplaceAllLines('EvilFlare.jumpPhase', '32 * 16', '(self.archipelagoState ? self.archipelagoState.arenaB - 32 : 32 * 16)');
 NNM.code.findReplaceAllLines('EvilFlare.idlePhase', 'flare.pos.y !== this.pos.y', '(self.archipelagoState ? !flare.isGrounded || flare.isSliding : flare.pos.y !== this.pos.y)');
-//NNM.code.findReplaceAllLines('EvilFlare.update', '32 * 16', '(self.archipelagoState && self.archipelagoState.arenaId !== 11 ? (this.phase === "defeated") * 1e5 + self.archipelagoState.arenaB - 32 : 32 * 16)');
-//NNM.code.findReplaceAllLines('EvilFlare.update', '36 * 16', '(self.archipelagoState ? self.archipelagoState.arenaR - 16 : 36 * 16)');
-//NNM.code.findReplaceAllLines('EvilFlare.update', '23 * 16', 'self.archipelagoState?.arenaL ?? 23 * 16');
 let moveColCode = '';
 const canFall = '(self.archipelagoState.arenaId !== 11 && this.phase === "defeated")';
 for (const line of NNM.code.filesMatching('falls/pekora.js')[0].lines) {
@@ -637,10 +639,8 @@ NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', '< scenePos.x', '< (act
 NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', 'scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x', '(actor.__archipelagoRight ?? (scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x))');
 NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.punch', 'isDamage = false', 'if (self.archipelagoState) actor.rightHand.pos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Right" : "Left")];');
 NNM.code.insertAfterFirstMatchingLine('Gashadokuro.phases.move_away', '.xTarget = ', 'if (game.scene.actors.some(a => a.archipelagoInaBridge)) actor.xTarget -= scene.currentSection.size.x / 4');
-
-NNM.code.insertAfterFirstMatchingLine('BowPickup.update', 'CollisionBox.intersects', 'if (self.archipelagoState) self.archipelagoState.setSaveField("nuinui", "item-gun");');
 for (const scope of NNM.code.filesMatching('bowPickup.js')[0].scopes)
-	if (scope.endsWith('.constructor') && scope !== 'BowPickup.constructor')
+	if (scope.endsWith('.constructor'))
 		NNM.code.insertAtEndOfScope(scope, 'if (self.archipelagoState) this.toFilter = true;');
 NNM.code.insertAfterFirstMatchingLine('Crystal.update', 'player.crystalCount = ', 'self.archipelagoState?.getCrystals(1);');
 NNM.code.insertAtEndOfScope('ShopMenu.checkEnabled', 'if (self.archipelagoState) this.options = this.options.filter(o => o.id !== "menu_shop_bomb");');

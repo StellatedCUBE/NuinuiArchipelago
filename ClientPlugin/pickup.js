@@ -2,8 +2,6 @@ import { getIcon } from './icon.js';
 
 export class APPickup extends Actor {
 	yos = 0;
-	duringCutscene = true;
-	canPickUp = true;
 
 	checkHit = _ => false;
 
@@ -11,27 +9,35 @@ export class APPickup extends Actor {
 		super(pos, new Vector2(20, 20));
 		this.apLocation = apLocation;
 		this.isPersistent = !ephemeral;
-		this.toFilter = !archipelagoState.client.room.missingLocations.includes(apLocation) || archipelagoState.checking.includes(apLocation);
+		this.toFilter = !archipelagoState.checkAvailable(apLocation);
+	}
+
+	shouldPickUp() {
+		return CollisionBox.intersects(this, NNM.getPlayer()) && !NNM.game.scene.bossKillEffect;
+	}
+
+	collect(game) {
+		const scout = archipelagoState.getScout(this.apLocation);
+		if (scout?.local && scout.id === (11 << 16)) {
+			new Heart(NNM.getPlayer().pos).update(game);
+			archipelagoState.bufferedHearts--;
+			archipelagoState.check(this.apLocation, true);
+		} else {
+			game.scene.particles.sparkle_white(CollisionBox.center(this));
+			const jingle = !scout || !scout.local || scout.id > 999;
+			if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : 'jingle');
+			else if (scout?.local && scout.id < 999) archipelagoState.dueCrystalPopup += scout.id;
+			archipelagoState.check(this.apLocation, !jingle || (scout.local && scout.id === (10 << 16)));
+		}
 	}
 
 	update = game => {
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
 		if (!(++this.frameCount % 24)) game.scene.particles['shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
-		if (this.canPickUp && CollisionBox.intersects(this, NNM.getPlayer()) && !game.scene.bossKillEffect && (this.duringCutscene || NNM.getPlayer().playerControl)) {
+		if (this.shouldPickUp()) {
 			this.toFilter = true;
 			this.draw = _ => {};
-			const scout = archipelagoState.getScout(this.apLocation);
-			if (scout?.local && scout.id === (11 << 16)) {
-				new Heart(NNM.getPlayer().pos).update(game);
-				archipelagoState.bufferedHearts--;
-				archipelagoState.check(this.apLocation, true);
-			} else {
-				game.scene.particles.sparkle_white(CollisionBox.center(this));
-				const jingle = !scout || !scout.local || scout.id > 999;
-				if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : 'jingle');
-				else if (scout?.local && scout.id < 999) archipelagoState.dueCrystalPopup += scout.id;
-				archipelagoState.check(this.apLocation, !jingle || (scout.local && scout.id === (10 << 16)));
-			}
+			this.collect(game);
 		} else {
 			this.move();
 		}
@@ -39,14 +45,18 @@ export class APPickup extends Actor {
 
 	move() {}
 
+	getScout() {
+		return archipelagoState.scouts[this.apLocation];
+	}
+
 	draw = (game, cx) => {
 		cx.save();
 		cx.translate(Math.round(this.pos.x), Math.round(this.pos.y));
-		const scout = archipelagoState.scouts[this.apLocation];
+		const scout = this.getScout();
 		let img = game.assets.images.NNM_Archipelago_logo, rect;
 		if (scout?.game === 'FLARE NUINUI QUEST') {
 			[img, rect] = getIcon(scout.id, true);
-			if (scout.sender.slot !== scout.receiver.slot)
+			if (scout.sender.slot !== scout.receiver.slot && scout.sender.slot)
 				cx.drawImage(game.assets.images.NNM_Archipelago_logo, 2, 2);
 		}
 		const yos = Math.round(this.yos);
@@ -63,11 +73,14 @@ export class APPickup extends Actor {
 
 export class BossDrop extends APPickup {
 	#yVel = 0;
-	duringCutscene = false;
 
 	constructor(pos) {
 		super(pos, (4 << 16) | archipelagoState.arenaId);
 		if (this.toFilter && archipelagoState.arenaId === 23) archipelagoState.getCrystals(200);
+	}
+
+	shouldPickUp() {
+		return NNM.getPlayer().playerControl && super.shouldPickUp();
 	}
 
 	move() {
@@ -111,19 +124,23 @@ export class NoelDrop extends APPickup {
 export class NousagiItem extends APPickup {
 	#cage;
 	#yVel = 1.5;
-	canPickUp = false;
+	#canPickUp = false;
 
 	constructor(cage, loc) {
 		super(cage.pos.plus({x: -2, y: -6}), loc, true);
 		this.#cage = cage;
 	}
 
+	shouldPickUp() {
+		return this.#canPickUp || super.shouldPickUp();
+	}
+
 	move() {
 		if (this.#cage.health)
 			this.yos = 0;
 		else {
-			if (!this.canPickUp) this.frameCount = 0;
-			this.canPickUp = true;
+			if (!this.#canPickUp) this.frameCount = 0;
+			this.#canPickUp = true;
 			this.pos.y -= Math.max(0, this.#yVel);
 			this.#yVel -= .05;
 		}
@@ -135,6 +152,22 @@ export class HoloXDrop extends APPickup {
 		super(pos, apLocation);
 		const superDraw = this.draw;
 		this.draw = (game, cx) => NNM.getPlayer().playerControl ? superDraw(game, cx) : (this.frameCount = 1, this.yos = 0);
+	}
+}
+
+export class FallsWeapon extends APPickup {
+	constructor(pos) {
+		super(pos, 0);
+		this.toFilter = false;
+	}
+
+	getScout() {
+		return archipelagoState.firstWeapon;
+	}
+
+	collect(game) {
+		archipelagoState.collectFirstWeapon();
+		game.playSound('jingle');
 	}
 }
 

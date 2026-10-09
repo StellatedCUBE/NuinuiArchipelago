@@ -250,17 +250,24 @@ class Drop(Enum):
 	NOEL = 2
 	NEVER = 3
 
+ANY_FLARE_WEAPON = {'dual pistols', *SHOTS[:4], SHOTS[5]}
+NOT_CUTLASS = ANY_FLARE_WEAPON - {SHOTS[3]}
+
 @dataclass
 class Boss:
 	name: str
 	quests: int
-	flare_requirements: None | set[str]
+	flare_requirements: set[str]
 	noel_difficulty: int
 	valid_arenas: set[str]
 
+	def __post_init__(self):
+		if self.flare_requirements is None:
+			self.flare_requirements = ANY_FLARE_WEAPON
+
 	def rule(self, player):
 		return lambda state: (
-			(state.has('Flare', player) and (self.flare_requirements is None or any(state.has(item, player) for item in self.flare_requirements))) or
+			(state.has('Flare', player) and any(state.has(item, player) for item in self.flare_requirements)) or
 			(not self.noel_difficulty and state.has('progressive Noel', player)) or
 			(self.noel_difficulty == 1 and state.has('progressive Noel', player, 2)) or
 			(self.noel_difficulty == 1 and state.has('charged mace', player) and state.has('progressive Noel', player)) or
@@ -283,13 +290,13 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL),
 	Boss('Noel', Q_NNQ, {SHOTS[5]}, 2, A_MMQ & A_ROUGH_FLOORED - A_BRIDGE),
-	Boss('Suisei', Q_NNQ|Q_PRQ, None, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
-	Boss('Polka', Q_NNQ|Q_MMQ, None, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
+	Boss('Suisei', Q_NNQ|Q_PRQ, NOT_CUTLASS, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
+	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, None, 0, A_SINGLE_SCREEN - A_NO_DEMON),
+	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}),
-	Boss('Mori', Q_NNQ|Q_PRQ, None, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
+	Boss('Mori', Q_NNQ|Q_PRQ, {'dual pistols', SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA),
 	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
@@ -320,8 +327,8 @@ class Arena:
 	def rule(self, player):
 		return self.boss.rule(player)
 	
-	def easy_with(self, character):
-		return not self.boss.noel_difficulty if character else self.boss.flare_requirements is None
+	def easy_with(self, weapon):
+		return not self.boss.noel_difficulty if weapon == 'mace' else weapon in self.boss.flare_requirements
 
 class HarborArena(Arena):
 	def rule(self, player):
@@ -329,7 +336,7 @@ class HarborArena(Arena):
 			return lambda state: state.has("Elfriend's feathers", player)
 	
 	def easy_with(self, _):
-		return self.boss.name in ('Suisei', 'Marine')
+		return self.boss.name in BOSSES_PH_WITHOUT_FEATHERS
 
 def allocate_bosses(world, option, arenas, source_quests):
 	random = world.random
@@ -391,9 +398,7 @@ def allocate_bosses(world, option, arenas, source_quests):
 	nnq = arenas[0].region and arenas[0].region[0] == 'n'
 	bosses = [b for b in by_name.values() if b.quests & source_quests and b not in banned and (not nnq or world.options.nnq_other_character.value or ((
 		b.noel_difficulty < 3
-	) if world.options.nnq_starting_character.value else (
-		b.flare_requirements is None or b.flare_requirements
-	)))]
+	) if world.options.nnq_starting_character.value else b.flare_requirements))]
 
 	if nnq and world.characters == 2:
 		bosses = [b if b.name in BOSSES_PH_WITHOUT_FEATHERS or 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {'Pirate Harbor boss'}) for b in bosses]
