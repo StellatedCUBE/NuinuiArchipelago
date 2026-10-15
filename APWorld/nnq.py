@@ -51,7 +51,7 @@ def nnq(world):
 
 	levels = 7 if world.options.nnq_all_stages else (6 if world.options.nnq_goal.value == 4 else (7 if world.options.nnq_goal.value > 1 else 5))
 	level_items = []
-	level_item_bits = 256 if world.options.prq else 256|512
+	level_item_bits = 64 if world.options.prq else 64|128
 	heart_entries = 10
 	if world.options.nnq_heart_checks:
 		heart_entries = 22
@@ -115,6 +115,7 @@ def nnq(world):
 			world.add_goal_location(level_names[5])
 			world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + 5)
 			world.place_item(level_names[5], None)
+			world.place_item((location.LocationCategory.HQ_LEVEL, 5), None)
 
 	if world.options.nnq_stage_shuffle:
 		possible_starts = [i for i in range(levels) if i != 5 and (

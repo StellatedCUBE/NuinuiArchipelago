@@ -653,8 +653,10 @@ NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 		let scout = self.archipelagoState.getScout(option.archipelago_location);
 		if (scout) {
 			option.local = scout.local;
-			if (option.local && scout.id === (17 << 16)) {
+			if (option.local && scout.id === (17 << 8)) {
 				option.text = new LocaleElem(game, 'menu_shop_bomb', { textAlign: 'center' });
+			} else if (option.local && scout.id === 769) {
+				option.text = new LocaleElem(game, !(self.archipelagoState.nuinuiPlayers & 2) ? 'archipelago_shop_769' : 'archipelago_shop_771', { textAlign: 'center' });
 			} else if (option.local && game.assets.locales.en['archipelago_shop_' + scout.id]) {
 				option.text = new TextElem(game, [...game.assets.locales.en['archipelago_shop_' + scout.id]], { lang: 'en', textAlign: 'center' });
 			} else {
@@ -669,12 +671,12 @@ NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 			option.desc = new LocaleElem(
 				game,
 				!option.local ? `raw:sends ${scout.name} to ${scout.target}` :
-				scout.id === (17 << 16) ? 'archipelago_shop_bomb' :
-				scout.id === (12 << 16) ? 'archipelago_shop_gsh' :
-				scout.id === (10 << 16) ? 'archipelago_shop_coin' :
-				scout.id === (15 << 16) ? 'archipelago_shop_prog_level_nnq' :
-				scout.id === (15 << 16) + 1 ? 'archipelago_shop_prog_level_mmq' :
-				([1,2,3,4].includes(scout.id >> 16) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 16) ? 'raw: get the ' : 'raw:get ') + scout.name,
+				scout.id === (17 << 8) ? 'archipelago_shop_bomb' :
+				scout.id === (12 << 8) ? 'archipelago_shop_gsh' :
+				scout.id === (10 << 8) ? 'archipelago_shop_coin' :
+				scout.id === (15 << 8) ? 'archipelago_shop_prog_level_nnq' :
+				scout.id === (15 << 8) + 1 ? 'archipelago_shop_prog_level_mmq' :
+				([1,2,3,4].includes(scout.id >> 8) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 8) ? 'raw: get the ' : 'raw:get ') + scout.name,
 				{ textAlign: 'center' }
 			);
 			if (scout.nnq)

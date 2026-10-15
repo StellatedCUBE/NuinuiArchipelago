@@ -40,7 +40,7 @@ class ItemType:
 	id: int = 0
 
 	def __post_init__(self):
-		self.id = (self.type.value << 16) | self.sub_id
+		self.id = (self.type.value << 8) | self.sub_id
 
 	def build(self, world):
 		return FNNQItem(self.name, self.class_ if isinstance(self.class_, ItemClassification) else self.class_(world), self.id, world.player)
@@ -52,13 +52,12 @@ item_types = [
 	*(
 		ItemType(ItemCategory.LEVEL, i|m, prefix + level, ItemClassification.progression)
 		for i, level in enumerate(LEVELS)
-		for m, prefix in ((256, '(Nuinui Quest) '), (512, '(Random Quest) '), (256|512, ''))
+		for m, prefix in ((64, '(Nuinui Quest) '), (128, '(Random Quest) '), (64|128, ''))
 	),
 
 	*(
-		ItemType(ItemCategory.LEVEL_MARINE, level|m, f'{prefix}Stage {level:0>2}', ItemClassification.progression)
+		ItemType(ItemCategory.LEVEL_MARINE, level, f'Stage {level:0>2}', ItemClassification.progression)
 		for level in range(1, 29)
-		for m, prefix in ((0, ''), (256, '(Maiden Quest) '))
 	),
 
 	ItemType(ItemCategory.CHARACTER, 0, 'Flare', ItemClassification.progression),
@@ -120,9 +119,9 @@ item_types = [
 
 def get_item(x, require_valid=True):
 	if isinstance(x, tuple):
-		x = (x[0].value << 16) | x[1]
+		x = (x[0].value << 8) | x[1]
 	elif isinstance(x, ItemCategory):
-		x = x.value << 16
+		x = x.value << 8
 	try:
 		if isinstance(x, int):
 			return next(i for i in item_types if i.id == x)
@@ -136,4 +135,5 @@ def get_item(x, require_valid=True):
 item_name_to_id = {
 	i.name: i.id
 	for i in item_types
+	if i.id != 390
 }

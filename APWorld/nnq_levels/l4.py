@@ -2,7 +2,7 @@ pre_miko_enemies=[("Nousakumo",1,0),("Nousakumo",2,1),("Nousakumo",2,2),("Nousak
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1344=w.create_region('nnq_castle_0_1344')
-	w.base_region.connect(r_0_1344,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,260)).name,j=I.get_item((I.ItemCategory.LEVEL,772)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,5))
+	w.base_region.connect(r_0_1344,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,68)).name,j=I.get_item((I.ItemCategory.LEVEL,196)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,5))
 	r_320_1152=w.create_region('nnq_castle_320_1152')
 	r_640_1152=w.create_region('nnq_castle_640_1152')
 	r_1280_1152=w.create_region('nnq_castle_1280_1152')
@@ -12,7 +12,7 @@ def create_locations(w,I,L,D):
 	r_1920_768=w.create_region('nnq_castle_1920_768')
 	r_2240_768=w.create_region('nnq_castle_2240_768')
 	h_2240_768=w.create_region('nnq_castle_2240_768_h')
-	r_2240_768.connect(h_2240_768,rule=lambda s:(s.has("Angel's boots",p)and s.has("progressive Noel",p))or(s.has("Angel's boots",p)and s.has("Flare",p)and s.has("Elfriend's feathers",p)))
+	r_2240_768.connect(h_2240_768,rule=lambda s:(s.has("progressive Noel",p))or(s.has("Angel's boots",p)and s.has("Flare",p)and s.has("Elfriend's feathers",p)))
 	r_1920_1152=w.create_region('nnq_castle_1920_1152')
 	r_2240_1344=w.create_region('nnq_castle_2240_1344')
 	r_2560_768=w.create_region('nnq_castle_2560_768')

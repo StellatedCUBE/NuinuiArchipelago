@@ -28,7 +28,7 @@ def prq(world):
 
 	bomb = item.get_item(item.ItemCategory.BOMB).name
 
-	level_item_bits = 512 if world.options.nnq else 256|512
+	level_item_bits = 128 if world.options.nnq else 64|128
 	level_location_type = location.LocationCategory.LEVEL_CLEAR_RANDOM if world.options.nnq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
 	for i, level in enumerate(data.LEVELS[:6]):
 		if i == 5:

@@ -48,11 +48,11 @@ export function getBackedHoloX() {
 }
 
 export function getIcon(item, anim) {
-	switch (item >> 16) {
+	switch (item >> 8) {
 		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
 		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
-		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? ((item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare) : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
+		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? [(item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare] : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
 		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 2, 20, 15]];
@@ -64,7 +64,7 @@ export function getIcon(item, anim) {
 		case 12: return [NNM.game.assets.images.NNM_Archipelago_help];
 		case 13: return [NNM.game.assets.images.sp_nousagi, [0, 0, 24, 24]];
 		case 14: return [NNM.game.assets.images.NNM_Archipelago_alt];
-		case 15: return getIcon((item & 1) ? (2 << 16) | archipelagoState.progressiveLevels[1] - 1 : ((1 << 16) | archipelagoState.progressiveLevels[0]));
+		case 15: return getIcon((item & 1) ? (2 << 8) | archipelagoState.progressiveLevels[1] - 1 : ((1 << 8) | archipelagoState.progressiveLevels[0]));
 		case 16: return [NNM.game.assets.images.NNM_Archipelago_key];
 		case 17: return [NNM.game.assets.images.sp_bomb, [0, 0, 12, 12]];
 		case 18: return [NNM.game.assets.images.ui_items, [1, 1, 18, 18]];
@@ -72,11 +72,11 @@ export function getIcon(item, anim) {
 }
 
 export const marginBottom = {
-	[4 << 16 | 1]: 5,
-	[4 << 16 | 3]: 3,
-	[4 << 16 | 4]: 1,
-	[8 << 16 | 2]: 1,
-	[8 << 16 | 3]: 4,
-	[8 << 16 | 4]: 1,
-	[17 << 16]: 2
+	[4 << 8 | 1]: 5,
+	[4 << 8 | 3]: 3,
+	[4 << 8 | 4]: 1,
+	[8 << 8 | 2]: 1,
+	[8 << 8 | 3]: 4,
+	[8 << 8 | 4]: 1,
+	[17 << 8]: 2
 };

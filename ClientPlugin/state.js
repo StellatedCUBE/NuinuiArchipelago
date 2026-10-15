@@ -335,13 +335,13 @@ export class ArchipelagoState {
 
 	handleItem(item) {
 		let msg;
-		const sub_id = item.id & 255;
+		let sub_id = item.id & 255;
 		let local = item.sender.slot === item.receiver.slot;
 		if (local && this.localIgnoreLocations.includes(item.locationId))
 			return;
 		local |= !item.sender.slot;
 		//const levelEnd = local && [this.levelEndCheckA, this.levelEndCheckB, 3, 4].includes(item.locationId);
-		switch (item.id >> 16) {
+		switch (item.id >> 8) {
 			case 0:
 				this.#itemCrystals += sub_id;
 				if (!this.noPopup && !local)
@@ -349,16 +349,17 @@ export class ArchipelagoState {
 			break;
 
 			case 1:
+				sub_id &= 63;
 				const level = Object.keys(NNM.game.quests.nuinui.stages)[sub_id];
 				if (!level) break;
-				if ((item.id & 256) && this.slotData.boss.nnq) {
+				if ((item.id & 64) && this.slotData.boss.nnq) {
 					this.unlockLevel('nuinui', this.latestNNQLevel = level);
 					if (this.popupFlag = !this.slotData.nnq_li && item.locationId > 9) break;
 				}
-				if ((item.id & 512) && sub_id < 6 && this.slotData.boss.prq) this.unlockLevel('random', level);
+				if ((item.id & 128) && sub_id < 6 && this.slotData.boss.prq) this.unlockLevel('random', level);
 				let level_name = NNM.game.assets.locales[NNM.game.lang]['stage_' + level];
 				level_name = level_name.substring(2, level_name.length - 2);
-				msg = [(item.id & (256 | 512)) === (256 | 512) ? 'raw:you obtained access to ' + level_name : `raw:you obtained ${level_name} in ` + ((item.id & 256) ? 'nuinui quest' : 'random quest')];
+				msg = [(item.id & (64 | 128)) === (64 | 128) ? 'raw:you obtained access to ' + level_name : `raw:you obtained ${level_name} in ` + ((item.id & 64) ? 'nuinui quest' : 'random quest')];
 				if (!local)
 					msg.push('raw:received from ' + item.sender.name);
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'stage', sub_id));
@@ -373,7 +374,7 @@ export class ArchipelagoState {
 				msg = ['raw:unlocked stage ' + sub_id + (this.slotData.boss.nnq || this.slotData.boss.prq ? ' in maiden quest' : '')];
 				if (!local && !item.essence)
 					msg.push('raw:received from ' + item.sender.name);
-				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 16) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
+				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 8) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
 			break;
 
 			case 3:
@@ -455,7 +456,7 @@ export class ArchipelagoState {
 
 			case 9:
 				if (++this.essence === 13)
-					this.handleItem({id: NNM.game.currentQuest === 'maiden' ? (2 << 16) | 256 | 28 : (2 << 16) | 28, sender: item.sender, receiver: item.receiver, locationId: item.locationId, essence: true});
+					this.handleItem({id: (2 << 8) | 28, sender: item.sender, receiver: item.receiver, locationId: item.locationId, essence: true});
 			break;
 
 			case 10:
@@ -486,7 +487,7 @@ export class ArchipelagoState {
 			break;
 
 			case 15:
-				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? (2 << 16) | 256 : ((512 * !this.slotData.boss.prq) | ((1 << 16) | 256)));
+				const newLevelItem = this.progressiveLevels[sub_id]++ | (sub_id ? 2 << 8 : ((128 * !this.slotData.boss.prq) | ((1 << 8) | 64)));
 				this.handleItem({id: newLevelItem, sender: item.sender, receiver: item.receiver, locationId: item.locationId});
 			break;
 
@@ -570,7 +571,7 @@ export class ArchipelagoState {
 				this.localIgnoreLocations.push(loc);
 				if (!this.popupFlag) {
 					let name = scout.name;
-					if (scout.id === (9 << 16))
+					if (scout.id === (9 << 8))
 						name = 'some idol essence';
 					else if (!+name[0])
 						name = 'a ' + name;

@@ -1,7 +1,7 @@
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1920=w.create_region('nnq_yamato_0_1920')
-	w.base_region.connect(r_0_1920,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,259)).name,j=I.get_item((I.ItemCategory.LEVEL,771)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,4))
+	w.base_region.connect(r_0_1920,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,67)).name,j=I.get_item((I.ItemCategory.LEVEL,195)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,4))
 	r_320_1152=w.create_region('nnq_yamato_320_1152')
 	r_640_1728=w.create_region('nnq_yamato_640_1728')
 	w.add_location((L.LocationCategory.MANUAL,2),r_640_1728)

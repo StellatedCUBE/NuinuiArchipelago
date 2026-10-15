@@ -56,7 +56,7 @@ function patchPRQ(events, level) {
 				const loc = (6 << 16) | (level << 2) | nousagiMatch[1];
 				prefix(event, 0, (game, e) => {
 					if (e.timelineFrame === 1) {
-						if (archipelagoState.scouts[loc]?.receiver.game === 'FLARE NUINUI QUEST' && archipelagoState.scouts[loc].id === (13 << 16)) {
+						if (archipelagoState.scouts[loc]?.receiver.game === 'FLARE NUINUI QUEST' && archipelagoState.scouts[loc].id === (13 << 8)) {
 							if (archipelagoState.checked(loc))
 								e.box.toFilter = true;
 							else

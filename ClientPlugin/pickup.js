@@ -20,16 +20,16 @@ export class APPickup extends Actor {
 
 	collect(game) {
 		const scout = archipelagoState.getScout(this.apLocation);
-		if (scout?.local && scout.id === (11 << 16)) {
+		if (scout?.local && scout.id === (11 << 8)) {
 			new Heart(NNM.getPlayer().pos).update(game);
 			archipelagoState.bufferedHearts--;
 			archipelagoState.check(this.apLocation, true);
 		} else {
 			game.scene.particles.sparkle_white(CollisionBox.center(this));
-			const jingle = !scout || !scout.local || scout.id > 999;
-			if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : this.sound);
-			else if (scout?.local && scout.id < 999) archipelagoState.dueCrystalPopup += scout.id;
-			archipelagoState.check(this.apLocation, this.noPopup || !jingle || (scout.local && scout.id === (10 << 16)));
+			const jingle = !scout || !scout.local || scout.id > 255;
+			if (jingle) game.playSound(scout?.local && scout.id === (10 << 8) ? 'cling2' : this.sound);
+			else if (scout?.local && scout.id < 256) archipelagoState.dueCrystalPopup += scout.id;
+			archipelagoState.check(this.apLocation, this.noPopup || !jingle || (scout.local && scout.id === (10 << 8)));
 		}
 	}
 	
@@ -204,7 +204,7 @@ export class SmallPickup extends APPickup {
 	collect(game) {
 		super.collect(game);
 		const scout = archipelagoState.getScout(this.apLocation);
-		if (scout && !archipelagoState.pendingPopUp && !(scout.local && [0, 10, 11, 14].includes(scout.id >> 16)))
+		if (scout && !archipelagoState.pendingPopUp && !(scout.local && [0, 10, 11, 14].includes(scout.id >> 8)))
 			itemTextParticle(NNM.getPlayer(), this.apLocation);
 	}
 	
@@ -214,7 +214,7 @@ export class SmallPickup extends APPickup {
 		const scout = this.getScout();
 		let img, rect, yos = 0;
 		if (scout?.game === 'FLARE NUINUI QUEST') {
-			if (scout.id === 14 << 16) {
+			if (scout.id === 14 << 8) {
 				cx.drawImage(NNM.game.assets.images.NNM_Archipelago_alt_small, 0, 0);
 				return cx.restore();
 			}

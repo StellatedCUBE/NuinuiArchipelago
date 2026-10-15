@@ -2,7 +2,7 @@ pre_marine_enemies=[("Nousabot",1),("Nousabot",2),("Nousabot",3),("Nousabot",4),
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_576=w.create_region('nnq_port_0_576')
-	w.base_region.connect(r_0_576,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,258)).name,j=I.get_item((I.ItemCategory.LEVEL,770)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,3))
+	w.base_region.connect(r_0_576,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,66)).name,j=I.get_item((I.ItemCategory.LEVEL,194)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,3))
 	r_960_576=w.create_region('nnq_port_960_576')
 	h_960_576=w.create_region('nnq_port_960_576_h')
 	r_960_576.connect(h_960_576,rule=lambda s:(s.has("Angel's boots",p))or(s.has("Flare",p)and s.has("Elfriend's feathers",p)))
