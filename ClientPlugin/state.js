@@ -1,7 +1,7 @@
 import { APQuestMenu } from "./questMenu.js";
 import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
-import { APPickup, BossDrop, HoloXDrop, FallsWeapon } from "./pickup.js";
+import { APPickup, BossDrop, HoloXDrop, FallsWeapon, SmallPickup } from "./pickup.js";
 import { getIcon, getBackedHoloX } from './icon.js';
 import { ConsoleMenu } from "./consoleMenu.js";
 import * as Feat from "./feat.js";
@@ -704,7 +704,7 @@ export class ArchipelagoState {
 	}
 
 	item(pos, loc) {
-		NNM.game.scene.actors.push(new (loc === 'boss' ? BossDrop : APPickup)(pos, loc));
+		NNM.game.scene.actors.push(new (loc === 'boss' ? BossDrop : (loc >> 16) === 10 ? SmallPickup : APPickup)(pos, loc));
 	}
 
 	console(menu) {

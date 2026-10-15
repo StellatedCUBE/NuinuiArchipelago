@@ -1,7 +1,9 @@
-import { getIcon } from './icon.js';
+import { getIcon, marginBottom } from './icon.js';
+import { itemTextParticle } from './patch.js';
 
 export class APPickup extends Actor {
 	yos = 0;
+	sound = 'jingle';
 
 	checkHit = _ => false;
 
@@ -25,15 +27,20 @@ export class APPickup extends Actor {
 		} else {
 			game.scene.particles.sparkle_white(CollisionBox.center(this));
 			const jingle = !scout || !scout.local || scout.id > 999;
-			if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : 'jingle');
+			if (jingle) game.playSound(scout?.local && scout.id === (10 << 16) ? 'cling2' : this.sound);
 			else if (scout?.local && scout.id < 999) archipelagoState.dueCrystalPopup += scout.id;
-			archipelagoState.check(this.apLocation, !jingle || (scout.local && scout.id === (10 << 16)));
+			archipelagoState.check(this.apLocation, this.noPopup || !jingle || (scout.local && scout.id === (10 << 16)));
 		}
+	}
+	
+	sparkle(game) {
+		if (!(this.frameCount % 24)) game.scene.particles.shine_white(new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
 	}
 
 	update = game => {
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
-		if (!(++this.frameCount % 24)) game.scene.particles['shine_white'](new Vector2(this.pos.x + 10, this.pos.y + this.yos + 10), 1);
+		this.frameCount++;
+		this.sparkle(game);
 		if (this.shouldPickUp()) {
 			this.toFilter = true;
 			this.draw = _ => {};
@@ -168,6 +175,61 @@ export class FallsWeapon extends APPickup {
 	collect(game) {
 		archipelagoState.collectFirstWeapon();
 		game.playSound('jingle');
+	}
+}
+
+export class SmallPickup extends APPickup {
+	#moved;
+	sound = 'heal';
+	noPopup = true;
+
+	constructor(pos, apLocation) {
+		super(pos, apLocation, true);
+		this.size.x = this.size.y = 8;
+	}
+
+	move() {
+		if (!this.#moved) {
+			const box = {pos: this.pos.plus({x: 0, y: 1}), size: this.size};
+			while (!CollisionBox.intersectCollisions(box, NNM.game.scene.currentSection.collisions).length) box.pos.y++;
+			this.pos.y = box.pos.y - 1;
+			this.#moved = true;
+		}
+	}
+
+	sparkle(game) {
+		if (!(this.frameCount % 16)) game.scene.particles.charge(CollisionBox.center(this));
+	}
+
+	collect(game) {
+		super.collect(game);
+		const scout = archipelagoState.getScout(this.apLocation);
+		if (scout && !archipelagoState.pendingPopUp && !(scout.local && [0, 10, 11, 14].includes(scout.id >> 16)))
+			itemTextParticle(NNM.getPlayer(), this.apLocation);
+	}
+	
+	draw = (game, cx) => {
+		cx.save();
+		cx.translate(this.pos.x, this.pos.y);
+		const scout = this.getScout();
+		let img, rect, yos = 0;
+		if (scout?.game === 'FLARE NUINUI QUEST') {
+			if (scout.id === 14 << 16) {
+				cx.drawImage(NNM.game.assets.images.NNM_Archipelago_alt_small, 0, 0);
+				return cx.restore();
+			}
+			[img, rect] = getIcon(scout.id, true);
+			yos = marginBottom[scout.id] || 0;
+			if (scout.sender.slot !== scout.receiver.slot && scout.sender.slot)
+				cx.drawImage(game.assets.images.NNM_Archipelago_crate, 0, 0);
+		}
+		if (!img || img === game.assets.images.NNM_Archipelago_logo) img = game.assets.images.NNM_Archipelago_crate;
+		if (rect) {
+			cx.drawImage(img, rect[0], rect[1], rect[2], rect[3], 4 - (rect[2] >> 1), 8 - rect[3] + yos, rect[2], rect[3]);
+		} else {
+			cx.drawImage(img, 4 - (img.width >> 1), 8 - img.height + yos);
+		}
+		cx.restore();
 	}
 }
 

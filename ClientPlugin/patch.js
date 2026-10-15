@@ -130,7 +130,7 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", funct
 	}
 });
 
-function itemTextParticle(a, loc, side) {
+export function itemTextParticle(a, loc, side) {
 	const scout = archipelagoState.getScout(loc);
 	if (scout) {
 		const text = scout.local ? [scout.name] : [scout.name, 'for ' + scout.target];
@@ -157,6 +157,10 @@ function itemTextParticle(a, loc, side) {
 
 export function enemySanity(a, loc) {
 	if (archipelagoState.checkAvailable(loc)) {
+		if (a instanceof Heart) {
+			a.toFilter = true;
+			return archipelagoState.item(a.pos, loc);
+		}
 		const oldTakeHit = a.takeHit;
 		a.takeHit = (game, x) => {
 			const extant = game.scene.actors.includes(a);
@@ -190,7 +194,9 @@ export function enemySanity(a, loc) {
 				const oldDraw = a.draw;
 				a.draw = (game, cx) => {
 					oldDraw(game, cx);
+					cx.globalAlpha = .8;
 					cx.drawImage(game.assets.images.NNM_Archipelago_crate, Math.round(a.pos.x) + 4, Math.round(a.pos.y) + 3);
+					cx.globalAlpha = 1;
 				};
 			}
 		} else {
@@ -240,20 +246,16 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 				self.archipelagoState.scout((9 << 16) + 8 * stageIndex + i);
 		} else {
 			if (this.currentQuest === 'nuinui') {
-				self.archipelagoState.scout(10 + stageIndex);
-				self.archipelagoState.scout(30 + stageIndex);
-				if (stageId === 'casino')
-					self.archipelagoState.scout(1);
-				else if (stageId === 'port')
-					self.archipelagoState.scout(5);
-				else if (stageId === 'yamato') {
-					self.archipelagoState.scout(2);
-					self.archipelagoState.scout(6);
-				} else if (stageId === 'heaven')
-					self.archipelagoState.scout(7);
-				else if (stageId === 'holo_hq')
-					for (let i = (5 << 16) + 1; i < (5 << 16) + 6; i++)
-						self.archipelagoState.scout(i);
+				for (const l of [
+					[10, 657536],
+					[11, 31, 1, 658473, 655489],
+					[12, 32, 5, 658450, 658962, 659474, 658546, 659058, 659570],
+					[13, 33, 2, 6],
+					[14, 657940, 655428, 655940, 656452],
+					[327681, 327682, 327683, 327684, 327685],
+					[7, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
+				][stageIndex])
+					self.archipelagoState.scout(l);
 				if (self.archipelagoState.onlyNoel)
 					this.mode = 'noel';
 			} else {

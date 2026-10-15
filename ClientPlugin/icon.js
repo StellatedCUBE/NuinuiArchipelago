@@ -3,11 +3,11 @@ function getEmblems() {
 	if (!emblems) {
 		emblems = document.createElement('canvas');
 		emblems.width = 90;
-		emblems.height = 18;
+		emblems.height = 17;
 		const cx = emblems.getContext('2d');
 		cx.filter = 'invert(1)';
 		for (let i = 0; i < 80; i += 18)
-			cx.drawImage(NNM.game.assets.images.vfx_explosion, 0, 0, 18, 18, i, 0, 18, 18);
+			cx.drawImage(NNM.game.assets.images.vfx_explosion, 0, 0, 18, 17, i, 0, 18, 17);
 		cx.filter = 'none';
 		for (let i = 0; i < 5; i++)
 			cx.drawImage(NNM.game.assets.images.sp_holox, i * 10, 0, 10, 10, i * 18 + 4, 4, 10, 10);
@@ -49,15 +49,15 @@ export function getBackedHoloX() {
 
 export function getIcon(item, anim) {
 	switch (item >> 16) {
-		case 0: return [NNM.game.assets.images.sp_gem, [0, 0, 16, 16]];
+		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
 		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
-		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? ((item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare) : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 0, 20, 20]];
+		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? ((item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare) : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
-		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 0, 20, 20]];
-		case 7: return [getEmblems(), [(item & 7) * 18, 0, 18, 18]];
-		case 8: return [NNM.game.assets.images.ui_crystal, [(item - 1 & 3) * 24, 0, 24, 24]];
+		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 2, 20, 15]];
+		case 7: return [getEmblems(), [(item & 7) * 18, 0, 18, 17]];
+		case 8: return [NNM.game.assets.images.ui_crystal, [(item - 1 & 3) * 24, 2, 24, 20]];
 		case 9: return [NNM.game.assets.images.sp_cup, [0, 0, 16, 16]];
 		case 10: return [NNM.game.assets.images.sp_star, [anim ? (NNM.game.frameCount >> 3 & 3) * 8 : 24, 0, 8, 8]];
 		case 11: return [NNM.game.assets.images.sp_heart];
@@ -67,6 +67,16 @@ export function getIcon(item, anim) {
 		case 15: return getIcon((item & 1) ? (2 << 16) | archipelagoState.progressiveLevels[1] - 1 : ((1 << 16) | archipelagoState.progressiveLevels[0]));
 		case 16: return [NNM.game.assets.images.NNM_Archipelago_key];
 		case 17: return [NNM.game.assets.images.sp_bomb, [0, 0, 12, 12]];
-		case 18: return [NNM.game.assets.images.ui_items, [0, 0, 20, 20]];
+		case 18: return [NNM.game.assets.images.ui_items, [1, 1, 18, 18]];
 	}
 }
+
+export const marginBottom = {
+	[4 << 16 | 1]: 5,
+	[4 << 16 | 3]: 3,
+	[4 << 16 | 4]: 1,
+	[8 << 16 | 2]: 1,
+	[8 << 16 | 3]: 4,
+	[8 << 16 | 4]: 1,
+	[17 << 16]: 2
+};

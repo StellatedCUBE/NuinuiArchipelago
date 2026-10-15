@@ -11,6 +11,8 @@ def create_locations(w,I,L,D):
 	r_640_768=w.create_region('nnq_castle_640_768')
 	r_1920_768=w.create_region('nnq_castle_1920_768')
 	r_2240_768=w.create_region('nnq_castle_2240_768')
+	h_2240_768=w.create_region('nnq_castle_2240_768_h')
+	r_2240_768.connect(h_2240_768,rule=lambda s:(s.has("Angel's boots",p)and s.has("progressive Noel",p))or(s.has("Angel's boots",p)and s.has("Flare",p)and s.has("Elfriend's feathers",p)))
 	r_1920_1152=w.create_region('nnq_castle_1920_1152')
 	r_2240_1344=w.create_region('nnq_castle_2240_1344')
 	r_2560_768=w.create_region('nnq_castle_2560_768')
@@ -52,7 +54,8 @@ def create_locations(w,I,L,D):
 	r_0_384.connect(r_320_384)
 	r_320_384.connect(r_320_192)
 	if w.options.nnq_enemysanity:
-		b=lambda s:s.has("Angel's boots",p)
+		from rule_builder.rules import Has,HasAny
+		b=Has("Angel's boots")|(Has("Flare")&HasAny("Elfriend's feathers",*D.SHOTS[1:4]))
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,28),r_1280_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,540),r_1280_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1052),r_1280_1152)
@@ -76,4 +79,9 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,10428),r_4160_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,10940),r_4160_0)
 		for i in range(len(pre_miko_enemies)):w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE,i),r_960_576)
-enemies=[(28,"Axe robot",90,92),(540,"Axe robot",90,80),(1052,"Nousabot",85,74),(36,"Nousakumo",7,80),(548,"Nousakumo",10,80),(1060,"Nousakumo",9,76),(1572,"Nousabot",15,66),(588,"Cannon",126,79),(1100,"Cannon",130,87),(84,"Cannon",143,86),(596,"Cannon",156,86),(5716,"Cannon",190,90),(3164,"Nousakumo",170,71),(3676,"Nousakumo",175,71),(4188,"Nousakumo",180,71),(4700,"Nousakumo",185,71),(100,"Nousabot",170,39),(612,"Nousabot",180,38),(1124,"Cannon",165,38),(1636,"Cannon",196,38),(10428,"Nousakumo",269,32),(10940,"Nousakumo",270,32)]
+	if w.options.nnq_heart_checks:
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2580),r_640_1152)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,68),h_2240_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,580),h_2240_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1092),h_2240_768)
+enemies=[(2580,"Heart",60,81),(28,"Axe robot",90,92),(540,"Axe robot",90,80),(1052,"Nousabot",85,74),(36,"Nousakumo",7,80),(548,"Nousakumo",10,80),(1060,"Nousakumo",9,76),(1572,"Nousabot",15,66),(68,"Heart",156,57),(580,"Heart",156.5,57),(1092,"Heart",157,57),(588,"Cannon",126,79),(1100,"Cannon",130,87),(84,"Cannon",143,86),(596,"Cannon",156,86),(5716,"Cannon",190,90),(3164,"Nousakumo",170,71),(3676,"Nousakumo",175,71),(4188,"Nousakumo",180,71),(4700,"Nousakumo",185,71),(100,"Nousabot",170,39),(612,"Nousabot",180,38),(1124,"Cannon",165,38),(1636,"Cannon",196,38),(10428,"Nousakumo",269,32),(10940,"Nousakumo",270,32)]

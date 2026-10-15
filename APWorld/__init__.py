@@ -144,7 +144,7 @@ class FNNQWorld(World):
 			if placed is None and location.id in self.locked_items:
 				continue
 
-			built = location.build(player, *args)
+			built = location.build(self, *args)
 			if placed:
 				built.place_locked_item(self.create_item(placed))
 

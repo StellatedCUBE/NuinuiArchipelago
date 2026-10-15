@@ -49,10 +49,9 @@ class LocationType:
 	def __post_init__(self):
 		self.id = (self.type.value << 16) | self.sub_id
 	
-	def build(self, player, region, rule=None):
+	def build(self, world, region, rule=None):
+		player = world.player
 		built = FNNQLocation(player, self.name, self.id, region)
-		if rule:
-			built.access_rule = rule
 		match self.type:
 			case LocationCategory.LEVEL_CLEAR_NUINUI | LocationCategory.LEVEL_CLEAR_RANDOM | LocationCategory.LEVEL_CLEAR_NAMELESS | LocationCategory.COIN: built.item_rule = lambda item: item.player != player or item.name != 'heart'
 			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
@@ -60,6 +59,8 @@ class LocationType:
 			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
 		if self.id in (3, 4): built.item_rule = lambda item: item.player != player or item.name != 'heart'
 		region.locations.append(built)
+		if rule:
+			world.set_rule(built, rule)
 		return built
 
 	def __str__(self):
@@ -124,7 +125,7 @@ location_types = [
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' else CharactersNeeded.NONE)
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' or i in (126,638,1150) else CharactersNeeded.NONE)
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),
@@ -160,3 +161,5 @@ location_name_to_id = {
 	l.name: l.id
 	for l in location_types
 }
+
+#print({l: [v for k,v in location_name_to_id.items() if 'Heart' in k and l in k]for l in LEVELS})

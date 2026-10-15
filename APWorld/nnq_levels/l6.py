@@ -17,6 +17,8 @@ def create_locations(w,I,L,D):
 	r_1920_0=w.create_region('nnq_heaven_1920_0')
 	r_2560_0=w.create_region('nnq_heaven_2560_0')
 	r_1920_192=w.create_region('nnq_heaven_1920_192')
+	h_1920_192=w.create_region('nnq_heaven_1920_192_h')
+	r_1920_192.connect(h_1920_192,rule=lambda s:(s.has("Flare",p)and s.has(D.SHOTS[3],p)))
 	r_640_576=w.create_region('nnq_heaven_640_576')
 	r_1280_576=w.create_region('nnq_heaven_1280_576')
 	r_0_768=w.create_region('nnq_heaven_0_768')
@@ -70,4 +72,14 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1686),r_0_768)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,158),r_0_384)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,670),r_0_384)
-enemies=[(14,"Smol Kanata",48,77),(526,"Smol Towa",55,72),(46,"Smol Kanata",149,53),(558,"Robot",155,76),(54,"Smol Towa",128,51),(78,"Nousabot",193,50),(590,"Nousakumo",203,56),(1102,"Robot",204,51),(86,"Smol Kanata",222,15),(598,"Robot",236,53),(1110,"Nousakumo",230,25),(1622,"Nousakumo",230,30),(606,"Smol Kanata",200,2),(1118,"Smol Kanata",210,5),(1630,"Smol Kanata",190,15),(2142,"Smol Kanata",200,15),(102,"Robot",175,56),(1662,"Robot",132,20),(150,"Smol Towa",12,55),(662,"Smol Towa",18,51),(1174,"Smol Towa",24,55),(1686,"Smol Towa",30,51),(158,"Robot",13,28),(670,"Robot",10,37)]
+	if w.options.nnq_heart_checks:
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,126),h_1920_192)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,638),h_1920_192)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1150),h_1920_192)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,134),r_640_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,646),r_640_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1158),r_640_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,166),r_320_0)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,678),r_320_0)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1190),r_320_0)
+enemies=[(14,"Smol Kanata",48,77),(526,"Smol Towa",55,72),(46,"Smol Kanata",149.5,53),(558,"Robot",155,76),(54,"Smol Towa",128,51),(78,"Nousabot",193,50),(590,"Nousakumo",203,56),(1102,"Robot",204,51),(86,"Smol Kanata",222,15),(598,"Robot",236,53),(1110,"Nousakumo",230,25),(1622,"Nousakumo",230,30),(606,"Smol Kanata",200,2),(1118,"Smol Kanata",210,5),(1630,"Smol Kanata",190,15),(2142,"Smol Kanata",200,15),(102,"Robot",175,56),(126,"Heart",152,21),(638,"Heart",153,21),(1150,"Heart",154,21),(1662,"Robot",132.5,20),(134,"Heart",53,39),(646,"Heart",54,39),(1158,"Heart",55,39),(150,"Smol Towa",12.5,55),(662,"Smol Towa",18.5,51),(1174,"Smol Towa",24.5,55),(1686,"Smol Towa",30.5,51),(158,"Robot",13,28),(670,"Robot",10,37),(166,"Heart",22.5,22),(678,"Heart",33.5,29),(1190,"Heart",35.5,15)]

@@ -89,6 +89,10 @@ class NNQBossDrops(Toggle):
 	"""Makes all bosses drop items, even if they don't normally."""
 	display_name = "All Bosses Drop Items"
 
+class NNQHeartChecks(Toggle):
+	"""Makes hearts found on the ground items."""
+	display_name = "Heart Checks"
+
 class NNQEnemySanity(Toggle):
 	"""Makes killing each enemy a check. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
@@ -185,6 +189,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_boss_shuffle: NNQBossPlando
 	nnq_boss_cross: NNQCrossBoss
 	nnq_boss_all_drop: NNQBossDrops
+	nnq_heart_checks: NNQHeartChecks
 	nnq_enemysanity: NNQEnemySanity
 
 	# PRQ
@@ -226,6 +231,7 @@ fnnq_option_groups = [
 		NNQBossPlando,
 		NNQCrossBoss,
 		NNQBossDrops,
+		NNQHeartChecks,
 		NNQEnemySanity,
 	]),
 	OptionGroup("PEKORA RANDOM QUEST", [

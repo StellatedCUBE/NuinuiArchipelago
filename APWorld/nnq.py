@@ -53,13 +53,15 @@ def nnq(world):
 	level_items = []
 	level_item_bits = 256 if world.options.prq else 256|512
 	heart_entries = 10
+	if world.options.nnq_heart_checks:
+		heart_entries = 22
 	for i in range(levels):
 		if world.options.nnq_stage_shuffle and world.options.nnq_stage_items:
 			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
 			level_items.append(world.items[-1])
 		level_modules[i].create_locations(world, item, location, data)
 		if world.options.nnq_enemysanity:
-			heart_entries += len(level_modules[i].enemies)
+			heart_entries += sum(name != 'Heart' for _, name, x, y in level_modules[i].enemies)
 	
 	world.filler.append(('heart', heart_entries))
 	world.filler.append(('help', 4))
