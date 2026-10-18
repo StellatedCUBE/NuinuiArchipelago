@@ -180,6 +180,7 @@ export class FallsWeapon extends APPickup {
 
 export class SmallPickup extends APPickup {
 	#moved;
+	#sparkleOffset = new Vector2(4, 4);
 	sound = 'heal';
 	noPopup = true;
 
@@ -198,7 +199,7 @@ export class SmallPickup extends APPickup {
 	}
 
 	sparkle(game) {
-		if (!(this.frameCount % 16)) game.scene.particles.charge(CollisionBox.center(this));
+		if (!(this.frameCount % 16)) game.scene.particles.charge(this.pos.plus(this.#sparkleOffset));
 	}
 
 	collect(game) {
@@ -226,8 +227,10 @@ export class SmallPickup extends APPickup {
 		if (!img || img === game.assets.images.NNM_Archipelago_logo) img = game.assets.images.NNM_Archipelago_crate;
 		if (rect) {
 			cx.drawImage(img, rect[0], rect[1], rect[2], rect[3], 4 - (rect[2] >> 1), 8 - rect[3] + yos, rect[2], rect[3]);
+			this.#sparkleOffset.y = 8 - rect[3] / 2 + yos;
 		} else {
 			cx.drawImage(img, 4 - (img.width >> 1), 8 - img.height + yos);
+			this.#sparkleOffset.y = 8 - img.height / 2 + yos;
 		}
 		cx.restore();
 	}
