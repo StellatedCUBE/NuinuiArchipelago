@@ -244,6 +244,8 @@ A_NO_CHLOE = {
 
 A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA | A_MMQ | A_PRQ
 
+T_LONG = 1
+
 class Drop(Enum):
 	ALWAYS = 0
 	SETTING = 1
@@ -260,6 +262,7 @@ class Boss:
 	flare_requirements: set[str]
 	noel_difficulty: int
 	valid_arenas: set[str]
+	tags: int = 0
 
 	def __post_init__(self):
 		if self.flare_requirements is None:
@@ -285,7 +288,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, A_ALL - A_BRIDGE),
 	Boss('Veiled Mori', Q_NNQ, None, 0, A_FLOORED & A_WALLED),
 	Boss('Miko', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_ROOFED),
-	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ),
+	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, T_LONG),
 	Boss('Fubura Tower', Q_NNQ, None, 0, {'Yamato midboss 1'}),
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL),
@@ -294,21 +297,21 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON),
+	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}),
 	Boss('Mori', Q_NNQ|Q_PRQ, {'dual pistols', SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN),
-	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA),
+	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA, T_LONG),
 	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
 	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN),
-	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ),
+	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ, T_LONG),
 	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, 2, A_CAN_BE_ROOFED & A_FLOORED),
 	Boss('Robot', Q_PRQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE),
+	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE, T_LONG),
 	Boss('Lui', Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, (A_FLOORED & A_WALLED) | {'Pirate Harbor boss'}),
-	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}),
-	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN),
+	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, T_LONG),
+	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN, T_LONG),
 	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
 	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
 ]}

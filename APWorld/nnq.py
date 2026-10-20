@@ -6,6 +6,7 @@ from .nnq_levels import level_modules
 from .arenas import nnq_arenas
 
 from BaseClasses import ItemClassification
+from rule_builder.rules import CanReachLocation, Has
 
 def nnq(world):
 	if world.options.nnq_starting_character.value:
@@ -88,6 +89,15 @@ def nnq(world):
 		if (arena.drop == boss.Drop.ALWAYS or (world.options.nnq_boss_all_drop and arena.drop != boss.Drop.NEVER)) and not (arena.drop == boss.Drop.NOEL and world.characters == 1):
 			world.add_location((location.LocationCategory.BOSS_DROP, i), world.get_region('nnq_castle_0_384') if arena.drop == boss.Drop.NOEL else region)
 	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
+
+	if world.options.nnq_quick_clear_checks:
+		qc_region = world.create_region('Quick Clear')
+		world.base_region.connect(qc_region, rule=(Has("Angel's boots") & (Has("progressive Noel") | Has("Elfriend's feathers"))) | Has(world.glitches_item_name))
+		for i, stage in enumerate([*level_names[:4], 'Bad end' if world.characters & 1 else 'Good end']):
+			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good end' or any(
+				(arena.boss.tags & boss.T_LONG) and data.LEVELS[i] in arena.name and arena.name not in ('Crystal Falls midboss', 'Demon Lord Castle lift', 'Demon Lord Castle turret')
+				for arena in arenas
+			))
 
 	if world.options.nnq_goal.value != 4:
 		for i in range(5):

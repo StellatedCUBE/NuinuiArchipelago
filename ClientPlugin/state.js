@@ -209,7 +209,7 @@ export class ArchipelagoState {
 
 		const player = NNM.getPlayer();
 		
-		if (!NNM.game.menu && player?.playerControl) {
+		if (!NNM.game.menu && player?.playerControl && !NNM.game.scene.bossKillEffect) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
@@ -585,6 +585,14 @@ export class ArchipelagoState {
 				this.client.check(loc);
 			} catch {}
 		}
+	}
+
+	achieve(id) {
+		const loc = {
+			'16': 53,
+			'20': 54,
+		}[id];
+		if (loc) this.check(loc);
 	}
 
 	scout(loc) {

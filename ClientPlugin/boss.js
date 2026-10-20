@@ -426,9 +426,11 @@ const arenas = [
 			(game, event) => {
 				NNM.getPlayer().playerControl = !(event.next = true);
 				if (game.timer && game.mode !== 'noel') {
-					game.scene.finalTime = new Date().getTime() - game.timer.getTime();
+					const time = new Date().getTime() - game.timer.getTime();
+					game.scene.finalTime = time;
 					game.timer = null;
 					archipelagoState.check(3);
+					if (time <= 300000) archipelagoState.check(54);
 				}
 			}
 		]
@@ -514,6 +516,7 @@ const arenas = [
 				game.scene.enableHUD = !(event.next = true);
 				NNM.getPlayer().playerControl = false;
 				archipelagoState.check(4);
+				if (game.scene.finalTime <= 300000) archipelagoState.check(54);
 			}
 		]
 	},
@@ -1025,8 +1028,7 @@ function fight(clear, setDefeatedPhase, allowTravelBelowSection) {
 			}
 
 			if (archipelagoState.arenaFinal && game.timer && !(event.bossActor instanceof Bibi)) {
-				const time = new Date().getTime() - game.timer.getTime();
-				game.scene.finalTime = time;
+				game.scene.finalTime = new Date().getTime() - game.timer.getTime();
 				game.timer = null;
 			}
 			

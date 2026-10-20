@@ -49,7 +49,7 @@ class LocationType:
 	def __post_init__(self):
 		self.id = (self.type.value << 16) | self.sub_id
 	
-	def build(self, world, region, rule=None):
+	def build(self, world, region, rule=None, excluded=False):
 		player = world.player
 		built = FNNQLocation(player, self.name, self.id, region)
 		match self.type:
@@ -57,10 +57,12 @@ class LocationType:
 			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
 			case LocationCategory.SHOP: built.item_rule = lambda item: ItemClassification.trap not in item.classification and (item.game != GAME or get_item(item.name).type not in (ItemCategory.CRYSTALS, ItemCategory.HEART, ItemCategory.NOUSAGI))
 			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
-		if self.id in (3, 4): built.item_rule = lambda item: item.player != player or item.name != 'heart'
+		if self.id in (3, 4, 53, 54): built.item_rule = lambda item: item.player != player or item.name != 'heart'
 		region.locations.append(built)
-		if rule:
+		if rule is not None:
 			world.set_rule(built, rule)
+		if excluded:
+			built.progress_type = LocationProgressType.EXCLUDED
 		return built
 
 	def __str__(self):
@@ -85,6 +87,10 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end"),
 	LocationType(LocationCategory.MANUAL, 32, "Hidden treasure room"),
 	LocationType(LocationCategory.MANUAL, 33, "Poyoyo's room"),
+	*(
+		LocationType(LocationCategory.MANUAL, i, level + ' quick clear')
+		for i, level in enumerate(LEVELS[:5], start=50)
+	),
 	*(
 		LocationType(category, i, prefix + 'Clear ' + level)
 		for i, level in enumerate(LEVELS)

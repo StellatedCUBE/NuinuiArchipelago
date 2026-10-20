@@ -4,7 +4,7 @@ from Options import OptionError
 
 from .data import GAME
 from .options import FNNQOptions, fnnq_option_groups
-from .item import item_name_to_id, get_item, ItemCategory
+from .item import item_name_to_id, get_item, ItemCategory, FNNQItem
 from .location import location_name_to_id, get_location, LocationCategory
 from .nnq import nnq
 from .prq import prq
@@ -33,6 +33,7 @@ class FNNQWorld(World):
 	options_dataclass = FNNQOptions
 	location_name_to_id = location_name_to_id
 	item_name_to_id = item_name_to_id
+	glitches_item_name = '_'
 
 	def add_item(self, item):
 		self.items.append(get_item(item))
@@ -68,7 +69,7 @@ class FNNQWorld(World):
 		return 'heart'
 
 	def create_item(self, name):
-		return get_item(name).build(self)
+		return FNNQItem(name, ItemClassification.progression, None, self.player) if name == self.glitches_item_name else get_item(name).build(self)
 
 	def generate_early(self):
 		self.characters = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value

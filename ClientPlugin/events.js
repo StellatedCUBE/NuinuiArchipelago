@@ -10,6 +10,7 @@ function wrap(inner) {
 			if (event.timelineFrame === 1) {
 				self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
 				self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
+				if (game.scene.finalTime <= 300000 && game.currentQuest === 'nuinui') self.archipelagoState.check(50 + (7 & self.archipelagoState.levelEndCheckA));
 			} else if (event.timelineFrame === 180) {
 				game.stopBGM();
 				self.archipelagoState.popup(new StageSelect(game, null, game.currentQuest === 'nuinui' && archipelagoState.transitionLevelNNQ));

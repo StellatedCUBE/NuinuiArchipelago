@@ -31,6 +31,7 @@ NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.drawOptions', 'stageNu
 NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'if (stars !== undefined)', 'if (self.archipelagoState?.drawCoins(cx, this.frameCount, stageNum - 1, stagePos)) continue;');
 NNM.code.insertAtEndOfScope('MarineStageSelect.constructor', 'self.archipelagoState?.checkCoins(this.stageResult);');
 NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'bonusDesc.draw', 'value && this.frameCount - 90 > i * 60 && self.archipelagoState?.drawCoinMessage(cx, this.stageResult, i);');
+NNM.code.insertAtStartOfScope('SaveData.unlockAchievement', 'self.archipelagoState?.achieve(id);');
 NNM.code.insertAtStartOfScope('Game.playBGM', 'if (self.archipelagoState) id = self.archipelagoState.getBgm(id);');
 NNM.code.insertAtEndOfScope('Game.setQuest', function() {
 	if (self.archipelagoState) {
@@ -247,11 +248,11 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 		} else {
 			if (this.currentQuest === 'nuinui') {
 				for (const l of [
-					[10, 657536],
-					[11, 31, 1, 658473, 655489],
-					[12, 32, 5, 658450, 658962, 659474, 658546, 659058, 659570],
-					[13, 33, 2, 6],
-					[14, 657940, 655428, 655940, 656452],
+					[10, 50, 657536],
+					[11, 31, 51, 1, 658473, 655489],
+					[12, 32, 52, 5, 658450, 658962, 659474, 658546, 659058, 659570],
+					[13, 33, 53, 2, 6],
+					[14, 54, 657940, 655428, 655940, 656452],
 					[327681, 327682, 327683, 327684, 327685],
 					[7, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
 				][stageIndex])

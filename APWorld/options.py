@@ -93,8 +93,12 @@ class NNQHeartChecks(Toggle):
 	"""Makes hearts found on the ground items."""
 	display_name = "Heart Checks"
 
+class NNQSpeedrunChecks(Toggle):
+	"""Makes the “Quick Clear” achievements locations.\n\nWarning: The logic for these can be rough."""
+	display_name = "Quick Clear Checks"
+
 class NNQEnemySanity(Toggle):
-	"""Makes killing each enemy a check. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
+	"""Makes killing each enemy a location. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
 
 class PRQ(Toggle):
@@ -122,18 +126,18 @@ class PRQCrossBoss(NNQCrossBoss):
 	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Random')
 
 class PRQBossDrops(Toggle):
-	"""Makes midbosses drop checks upon defeat."""
+	"""Makes midbosses drop items upon defeat."""
 	display_name = "Midboss Drops"
 
 class PRQEnemySanity(NNQEnemySanity):
 	__doc__ = NNQEnemySanity.__doc__
 
 class PRQCrystalSanity(Toggle):
-	"""Makes mining each crystal a check. Crystals with an unclaimed item inside will have an Archipelago-coloured sheen."""
+	"""Makes mining each crystal a location. Crystals with an unclaimed item inside will have an Archipelago-coloured sheen."""
 	display_name = "Crystalsanity"
 
 class PRQCrateSanity(Toggle):
-	"""Makes breaking each crate a check. Crates with an unclaimed item inside will have the Archipelago logo stamped on them."""
+	"""Makes breaking each crate a location. Crates with an unclaimed item inside will have the Archipelago logo stamped on them."""
 	display_name = "Cratesanity"
 
 class PRQOoB(DefaultOnToggle):
@@ -190,6 +194,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_boss_cross: NNQCrossBoss
 	nnq_boss_all_drop: NNQBossDrops
 	nnq_heart_checks: NNQHeartChecks
+	nnq_quick_clear_checks: NNQSpeedrunChecks
 	nnq_enemysanity: NNQEnemySanity
 
 	# PRQ
@@ -232,6 +237,7 @@ fnnq_option_groups = [
 		NNQCrossBoss,
 		NNQBossDrops,
 		NNQHeartChecks,
+		NNQSpeedrunChecks,
 		NNQEnemySanity,
 	]),
 	OptionGroup("PEKORA RANDOM QUEST", [
