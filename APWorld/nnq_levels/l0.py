@@ -1,3 +1,4 @@
+from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_0=w.create_region('nnq_falls_0_0')

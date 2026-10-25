@@ -1,9 +1,10 @@
+from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1152=w.create_region('nnq_heaven_0_1152')
 	w.base_region.connect(r_0_1152,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,70)).name,j=I.get_item((I.ItemCategory.LEVEL,198)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,7))
 	r_320_1152=w.create_region('nnq_heaven_320_1152')
-	if w.options.nnq_other_achievement_checks:w.add_location(46,r_320_1152)
+	if w.options.nnq_other_achievement_checks:w.add_location(46,r_320_1152,HasAny("progressive Noel","Elfriend's feathers",w.glitches_item_name))
 	r_960_1152=w.create_region('nnq_heaven_960_1152')
 	r_1280_1152=w.create_region('nnq_heaven_1280_1152')
 	r_1920_1152=w.create_region('nnq_heaven_1920_1152')

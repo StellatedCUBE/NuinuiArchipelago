@@ -1,3 +1,5 @@
+from rule_builder.rules import Has, HasAll, HasAny
+
 from . import item
 from . import location
 from . import data
@@ -16,11 +18,15 @@ def prq(world):
 	for i in range(5):
 		world.add_item(item.ItemCategory.BOMB)
 	
+	level_item_bits = 128 if world.options.nnq else 64|128
+
 	shop = world.create_region('prq_shop')
+	shop2 = world.create_region('prq_shop_2')
 	if not world.single_quest or world.multiworld.players > 1:
 		world.add_location((location.LocationCategory.SHOP, 0), shop)
-		world.add_location((location.LocationCategory.SHOP, 1), shop, lambda state: state.has('200 crystals', p))
-		world.add_location((location.LocationCategory.SHOP, 2), shop, lambda state: state.has('200 crystals', p))
+		shop.connect(shop2, rule=HasAny(item.get_item((item.ItemCategory.CRYSTALS, 200)).name, item.get_item((item.ItemCategory.LEVEL, 1|level_item_bits)).name, world.glitches_item_name))
+		world.add_location((location.LocationCategory.SHOP, 1), shop2)
+		world.add_location((location.LocationCategory.SHOP, 2), shop2)
 		for i in range(-3, 0):
 			world.options.start_location_hints.value.add(world.locations[i][0].name)
 	
@@ -28,15 +34,14 @@ def prq(world):
 
 	bomb = item.get_item(item.ItemCategory.BOMB).name
 
-	level_item_bits = 128 if world.options.nnq else 64|128
 	level_location_type = location.LocationCategory.LEVEL_CLEAR_RANDOM if world.options.nnq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
 	for i, level in enumerate(data.LEVELS[:6]):
 		if i == 5:
 			if world.options.prq_goal.value:
 				world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
-				world.add_location((level_location_type, i), shop, lambda state, item = world.items[-1].name: state.has(item, p))
+				world.add_location((level_location_type, i), shop, Has(world.items[-1].name))
 			else:
-				world.add_location((level_location_type, i), shop, lambda state: all(state.has(c, p) for c in crystals))
+				world.add_location((level_location_type, i), shop, HasAll(*crystals))
 		else:
 			if world.options.prq_goal.value:
 				world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + i)

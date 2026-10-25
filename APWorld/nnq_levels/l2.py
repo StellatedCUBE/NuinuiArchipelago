@@ -1,4 +1,5 @@
 pre_marine_enemies=[("Nousabot",1),("Nousabot",2),("Nousabot",3),("Nousabot",4),("Nousabot",5),("Nousabot",6),("Nousabot",7),("Robot",1),("Nousabot",8),("Nousabot",9),("Cannon",0),("Cannon",1),("Robot",2),("Nousabot",10),("Nousabot",11),("Nousabot",12),("Nousabot",13),("Nousabot",14),("Nousabot",15),("Nousabot",16),("Nousabot",17),("Nousabot",18),("Nousabot",19),("Robot",3),("Nousabot",20),("Nousabot",21),("Robot",4),("Nousabot",22),("Nousabot",23),("Robot",5),("Nousabot",24),("Nousabot",25),("Robot",6),("Nousabot",26),("Nousabot",27),("Robot",7),("Nousabot",28),("Nousabot",29),("Nousabot",30),("Nousabot",31),("Nousabot",32),("Nousabot",33),("Nousabot",34),("Robot",8)]
+from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_576=w.create_region('nnq_port_0_576')
@@ -15,7 +16,7 @@ def create_locations(w,I,L,D):
 	r_1920_384=w.create_region('nnq_port_1920_384')
 	r_2240_384=w.create_region('nnq_port_2240_384')
 	r_2560_384=w.create_region('nnq_port_2560_384')
-	w.add_location(5,r_2560_384,lambda s:s.has(D.SHOTS[3],p))
+	w.add_location(5,r_2560_384,Has(D.SHOTS[3]))
 	r_1920_576=w.create_region('nnq_port_1920_576')
 	r_2240_576=w.create_region('nnq_port_2240_576')
 	r_2560_576=w.create_region('nnq_port_2560_576')

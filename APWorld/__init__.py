@@ -1,6 +1,7 @@
 from worlds.AutoWorld import WebWorld, World
 from BaseClasses import Tutorial, Region, ItemClassification, PlandoOptions
 from Options import OptionError
+from rule_builder.rules import CanReachRegion, True_
 
 from .data import GAME
 from .options import FNNQOptions, fnnq_option_groups
@@ -149,12 +150,13 @@ class FNNQWorld(World):
 			if placed:
 				built.place_locked_item(self.create_item(placed))
 
-		goal_data = [
-			(args[0], args[1] if len(args) > 1 else None)
-			for location, args in self.locations
-			if location.id in self.goal_locations
-		]
-		self.multiworld.completion_condition[player] = lambda state: all(region.can_reach(state) and (rule is None or rule(state)) for region, rule in goal_data)
+		goal_rule = True_()
+		for location, args in self.locations:
+			if location.id in self.goal_locations:
+				goal_rule &= CanReachRegion(args[0].name)
+				if len(args) > 1 and args[1] is not None:
+					goal_rule &= args[1]
+		self.set_completion_rule(goal_rule)
 	
 	def fill_hook(self, _, __, pool, locations):
 		try: location = self.get_location(get_location((LocationCategory.PACHINKO, 5)).name)

@@ -1,3 +1,4 @@
+from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_768=w.create_region('nnq_casino_0_768')

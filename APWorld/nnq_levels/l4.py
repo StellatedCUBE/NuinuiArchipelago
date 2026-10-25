@@ -1,4 +1,5 @@
 pre_miko_enemies=[("Nousakumo",1,0),("Nousakumo",2,1),("Nousakumo",2,2),("Nousakumo",3,1),("Nousakumo",3,2),("Nousabot",3,0),("Nousakumo",4,1),("Nousakumo",4,2),("Nousabot",4,0),("Mikobell",4,0),("Axe robot",5,0),("Nousabot",5,1),("Mikobell",5,0),("Nousabot",5,2),("Nousakumo",5,1),("Nousakumo",5,2),("Axe robot",6,0),("Nousabot",6,1),("Nousabot",6,2),("Nousakumo",6,1),("Nousakumo",6,2),("Nousabot",7,1),("Mikobell",7,0),("Nousakumo",7,1),("Nousakumo",7,2),("Nousabot",7,2),("Nousabot",7,3),("Nousakumo",7,3),("Nousakumo",7,4)]
+from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1344=w.create_region('nnq_castle_0_1344')
@@ -20,7 +21,7 @@ def create_locations(w,I,L,D):
 	r_1920_576=w.create_region('nnq_castle_1920_576')
 	r_960_576=w.create_region('nnq_castle_960_576')
 	r_320_576=w.create_region('nnq_castle_320_576')
-	w.add_location(3,r_320_576,lambda s:s.has("Flare",p))
+	w.add_location(3,r_320_576,Has("Flare"))
 	r_0_384=w.create_region('nnq_castle_0_384')
 	r_320_384=w.create_region('nnq_castle_320_384')
 	w.add_location(4,r_320_384)
@@ -54,7 +55,6 @@ def create_locations(w,I,L,D):
 	r_0_384.connect(r_320_384)
 	r_320_384.connect(r_320_192)
 	if w.options.nnq_enemysanity:
-		from rule_builder.rules import Has,HasAny
 		b=Has("Angel's boots")|(Has("Flare")&HasAny("Elfriend's feathers",*D.SHOTS[1:4]))
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,28),r_1280_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,540),r_1280_1152)
