@@ -32,6 +32,7 @@ export class ArchipelagoState {
 	#goalVerified;
 	#id;
 	#saveKey;
+	#forcePopup;
 	#itemCrystals = 0;
 	#gameCrystals = 0;
 	#crystalsToSend = 0;
@@ -209,7 +210,7 @@ export class ArchipelagoState {
 
 		const player = NNM.getPlayer();
 		
-		if (!NNM.game.menu && player?.playerControl && !NNM.game.scene.bossKillEffect) {
+		if (!NNM.game.menu && ((player?.playerControl && !NNM.game.scene.bossKillEffect) || (this.#forcePopup && !--this.#forcePopup && this.pendingPopUp))) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
@@ -466,6 +467,7 @@ export class ArchipelagoState {
 			break;
 
 			case 11:
+				this.popupFlag = true;
 				this.bufferedHearts++;
 			break;
 
@@ -589,10 +591,18 @@ export class ArchipelagoState {
 
 	achieve(id) {
 		const loc = {
+			'1': 42,
+			'2': 34,
+			'3': 36,
+			'14': 43,
 			'16': 53,
 			'20': 54,
+			'21': 39,
+			'22': 44,
+			'25': 46,
 		}[id];
 		if (loc) this.check(loc);
+		if (id == 2) this.#forcePopup = 2;
 	}
 
 	scout(loc) {

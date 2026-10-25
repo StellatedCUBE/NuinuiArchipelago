@@ -1,3 +1,5 @@
+from rule_builder.rules import Has
+
 enemies = []
 
 def create_locations(world, item, location, data):
@@ -8,8 +10,10 @@ def create_locations(world, item, location, data):
 	regions = []
 	for arena in data.MYTH:
 		region = world.create_region('nnq_hq_' + arena)
-		level_region.connect(region, rule = lambda state, key = arena + ' key': state.has(key, p))
+		level_region.connect(region, rule=Has(arena + ' key'))
 		regions.append(region)
+		if arena == 'Gura' and world.options.nnq_other_achievement_checks:
+			world.add_location('Water in the Fire Why', region, Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name) & Has(data.SHOTS[0]))
 	
 	def number_of_floors(state):
 		return sum(state.can_reach(region) for region in regions)
@@ -18,4 +22,6 @@ def create_locations(world, item, location, data):
 		for i in range(len(data.MYTH)):
 			world.add_location((location.LocationCategory.HQ_LEVEL, i + 1), level_region, lambda state, floor=i: number_of_floors(state) > floor)
 	
-	world.add_location((location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS, 5), level_region, lambda state: number_of_floors(state) == 5)
+	end_region = world.create_region('nnq_hq_roof')
+	level_region.connect(end_region, rule = lambda state: number_of_floors(state) == 5)
+	world.add_location((location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS, 5), end_region)

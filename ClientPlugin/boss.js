@@ -100,6 +100,7 @@ const arenas = [
 				event.side = NNM.getPlayer().pos.x > 16 * 94;
 				NNM.game.cpuKeys.right = !(NNM.game.cpuKeys.left = event.side);
 				archipelagoState.bossSpawnX = (event.side ? 85 : 94) * 16;
+				NNM.game.scene.achievement1 = true;
 			}
 
 			else if ((event.side && NNM.getPlayer().pos.x < 16 * 94) || (!event.side && NNM.getPlayer().pos.x > 16 * 85)) {
@@ -133,7 +134,14 @@ const arenas = [
 				NNM.game.scene.actors.push(event.boss);
 				event.next = true;
 			}
-		}
+		},
+		outroPre: [
+			(game, event) => {
+				event.next = true;
+				if (game.scene.achievement1)
+					archipelagoState.achieve(1);
+			}
+		]
 	},
 	{
 		quest: 'nnq',
@@ -155,8 +163,15 @@ const arenas = [
 			(game, event) => {
 				for (let y = 5; y < 8; y++)
 					game.scene.foreground['139_1' + y] = "6";
-				event.next = game.scene.shakeBuffer = 4;
+				game.scene.shakeBuffer = 4;
+				event.next = game.scene.achievement3 = true;
 				game.playSound("rumble");
+			}
+		],
+		outroPre: [
+			(game, event) => {
+				event.next = true;
+				if (game.scene.achievement3) archipelagoState.achieve(3);
 			}
 		]
 	},
@@ -230,7 +245,20 @@ const arenas = [
 			(game, event) => event.next = game.canvas1.style.filter = 'brightness(0%)'
 		],
 		introPost: [
-			(game, event) => event.next = game.scene.actors.push(new Darkness(event))
+			(game, event) => {
+				game.scene.actors.push(new Darkness(event));
+				event.next = event.achievementEliteWin = 35;
+				const oldTakeHit = event.bossActor?.takeHit;
+				if (oldTakeHit) {
+					event.bossActor.takeHit = (game, other) => {
+						if (other.type && (other.type !== 'mace' || other.charged)) event.achievementEliteWin = 0;
+						return oldTakeHit(game, other);
+					}
+				}
+			}
+		],
+		outroPre: [
+			(game, event) => event.next = !archipelagoState.check(event.achievementEliteWin)
 		]
 	},
 	{
@@ -546,7 +574,6 @@ const arenas = [
 	{
 		quest: 'nnq',
 		event: NUINUI_HOLO_HQ_EVENTS['0_1'][0],
-		skip: 'Gura',
 		bounds: { x: 48, y: 192, w: 224, h: 160, t: 'section' },
 		collision: true,
 		bossSpawnX: (20 - 5.5 - 1) * 16,
@@ -576,12 +603,16 @@ const arenas = [
 		walkTo: -(8 * 20 + 16.5) * 16,
 		floorData: [{ pos: { x: 2688, y: 144 }, size: 64 }, { pos: { x: 2560, y: 160 }, size: 64 }, { pos: { x: 2816, y: 160 }, size: 64 }],
 		collision: true,
+		introPost: [
+			(game, event) => event.next = game.scene.archipelago38 = 38
+		],
 		outroPre: [
 			(game, event) => (
 				(NNM.getPlayer().playerControl = event.end = game.scene.kanataBossCleared = event.timelineFrame === 180) &&
-				game.scene.actors.push(new BossDrop(new Vector2(8.5 * 20 * 16 - 10, 3 * 16))) &&
-				(game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => !event.collisions.includes(collision))) &&
-				(game.bgm || game.playBGM('kiseki'))
+				(game.scene.actors.push(new BossDrop(new Vector2(8.5 * 20 * 16 - 10, 3 * 16))),
+				(archipelagoState.check(game.scene.archipelago38)),
+				(game.scene.currentSection.collisions = game.scene.currentSection.collisions.filter(collision => !event.collisions.includes(collision))),
+				(game.bgm || game.playBGM('kiseki')))
 			)
 		]
 	},
@@ -1047,6 +1078,10 @@ function fight(clear, setDefeatedPhase, allowTravelBelowSection) {
 				game.scene.bossKillEffect = 60;
 				game.playSound('cling');
 			}
+
+			if ((game.scene.isFocus || game.scene.isAmeFocus) && event.bossActor instanceof Ame && game.currentQuest === 'nuinui') {
+				archipelagoState.achieve(22);
+			}
 			
 			game.scene.isFocus = 0;
 			
@@ -1416,6 +1451,7 @@ const bosses = {
 			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
 			event.bossActor.setAnimation('idle');
 			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+			archipelagoState.scout(45);
 		},
 		timeline: [
 			warn('nakiri_ayame', 6, 'idle', 'elite_moonlight_scuffle'),
@@ -1838,6 +1874,7 @@ const bosses = {
 			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
 			event.bossActor.lookAt(NNM.getPlayer().pos);
 			event.bossActor.dir ^= 1;
+			archipelagoState.scout(44);
 		},
 		timeline: [
 			warn('watson_amelia', 1, 'idle', null, 120, 0, {

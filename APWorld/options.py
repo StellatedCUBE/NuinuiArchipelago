@@ -97,6 +97,10 @@ class NNQSpeedrunChecks(Toggle):
 	"""Makes the “Quick Clear” achievements locations.\n\nWarning: The logic for these can be rough."""
 	display_name = "Quick Clear Checks"
 
+class NNQAchievementChecks(Toggle):
+	"""Makes the achievements not covered by other settings locations."""
+	display_name = "Other Achievement Checks"
+
 class NNQEnemySanity(Toggle):
 	"""Makes killing each enemy a location. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
@@ -195,6 +199,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_boss_all_drop: NNQBossDrops
 	nnq_heart_checks: NNQHeartChecks
 	nnq_quick_clear_checks: NNQSpeedrunChecks
+	nnq_other_achievement_checks: NNQAchievementChecks
 	nnq_enemysanity: NNQEnemySanity
 
 	# PRQ
@@ -238,6 +243,7 @@ fnnq_option_groups = [
 		NNQBossDrops,
 		NNQHeartChecks,
 		NNQSpeedrunChecks,
+		NNQAchievementChecks,
 		NNQEnemySanity,
 	]),
 	OptionGroup("PEKORA RANDOM QUEST", [

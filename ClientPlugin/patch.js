@@ -32,7 +32,7 @@ NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'if (star
 NNM.code.insertAtEndOfScope('MarineStageSelect.constructor', 'self.archipelagoState?.checkCoins(this.stageResult);');
 NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'bonusDesc.draw', 'value && this.frameCount - 90 > i * 60 && self.archipelagoState?.drawCoinMessage(cx, this.stageResult, i);');
 NNM.code.insertAtStartOfScope('SaveData.unlockAchievement', 'self.archipelagoState?.achieve(id);');
-NNM.code.insertAtStartOfScope('Game.playBGM', 'if (self.archipelagoState) id = self.archipelagoState.getBgm(id);');
+NNM.code.insertAtStartOfScope('Game.playBGM', 'id = self.archipelagoState?.getBgm(id)??id;');
 NNM.code.insertAtEndOfScope('Game.setQuest', function() {
 	if (self.archipelagoState) {
 		this.saveData.data = {};
@@ -248,13 +248,13 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 		} else {
 			if (this.currentQuest === 'nuinui') {
 				for (const l of [
-					[10, 50, 657536],
-					[11, 31, 51, 1, 658473, 655489],
-					[12, 32, 52, 5, 658450, 658962, 659474, 658546, 659058, 659570],
+					[10, 50, 34, 36, 42, 657536],
+					[11, 31, 51, 1, 35, 45, 658473, 655489],
+					[12, 32, 52, 5, 37, 658450, 658962, 659474, 658546, 659058, 659570],
 					[13, 33, 53, 2, 6],
 					[14, 54, 657940, 655428, 655940, 656452],
-					[327681, 327682, 327683, 327684, 327685],
-					[7, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
+					[39, 40, 41, 327681, 327682, 327683, 327684, 327685],
+					[7, 38, 46, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
 				][stageIndex])
 					self.archipelagoState.scout(l);
 				if (self.archipelagoState.onlyNoel)
@@ -616,7 +616,7 @@ NNM.code.insertAfterFirstMatchingLine('MarineGhost.phases.tp', 'actor.tpPos = ',
 		const box = { pos: new Vector2(self.archipelagoState.arenaL + ((random() * (self.archipelagoState.arenaR - self.archipelagoState.arenaL - 16)) & ~15), y), size: actor.size }, col = scene.collisions;
 		while (true) {
 			box.pos.y = Math.min(scenePos.y + scene.currentSection.size.y - 32, Math.max(scenePos.y, y));
-			if (!CollisionBox.intersectCollisions(box, col).length && CollisionBox.intersectCollisions({ pos: { x: box.pos.x, y: scenePos.y }, size: { x: box.size.x, y: box.pos.y - scenePos.y } }, col).length) {
+			if (!CollisionBox.intersectCollisions(box, col).length && CollisionBox.intersectCollisions({ pos: { x: box.pos.x, y: scenePos.y - 1 }, size: { x: box.size.x, y: box.pos.y - scenePos.y } }, col).length) {
 				box.pos.y++;
 				if (CollisionBox.intersectCollisions(box, col).length) {
 					box.pos.y--;

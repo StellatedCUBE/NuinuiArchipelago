@@ -57,7 +57,7 @@ class LocationType:
 			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
 			case LocationCategory.SHOP: built.item_rule = lambda item: ItemClassification.trap not in item.classification and (item.game != GAME or get_item(item.name).type not in (ItemCategory.CRYSTALS, ItemCategory.HEART, ItemCategory.NOUSAGI))
 			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
-		if self.id in (3, 4, 53, 54): built.item_rule = lambda item: item.player != player or item.name != 'heart'
+		if self.id in (3, 4, 37, 40, 41, 45, 50, 51, 52, 53, 54): built.item_rule = lambda item: item.player != player or item.name != 'heart'
 		region.locations.append(built)
 		if rule is not None:
 			world.set_rule(built, rule)
@@ -87,6 +87,19 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end"),
 	LocationType(LocationCategory.MANUAL, 32, "Hidden treasure room"),
 	LocationType(LocationCategory.MANUAL, 33, "Poyoyo's room"),
+	LocationType(LocationCategory.MANUAL, 34, 'She Did Nothing Wrong'),
+	LocationType(LocationCategory.MANUAL, 35, 'Elite Win'),
+	LocationType(LocationCategory.MANUAL, 36, 'Unfazed'),
+	LocationType(LocationCategory.MANUAL, 37, 'No Scratches'),
+	LocationType(LocationCategory.MANUAL, 38, "Out of the Angel's Grasp"),
+	LocationType(LocationCategory.MANUAL, 39, 'Water in the Fire Why', CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 40, 'Only Flare!', CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 41, 'Only Noel!', CharactersNeeded.NOEL),
+	LocationType(LocationCategory.MANUAL, 42, 'Perfect Debut'),
+	LocationType(LocationCategory.MANUAL, 43, "Introvert's Weakness", CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 44, 'Frozen in Time'),
+	LocationType(LocationCategory.MANUAL, 45, 'Scythe No More'),
+	LocationType(LocationCategory.MANUAL, 46, 'Uber Sheep'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' quick clear')
 		for i, level in enumerate(LEVELS[:5], start=50)

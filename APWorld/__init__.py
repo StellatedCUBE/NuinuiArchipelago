@@ -1,5 +1,5 @@
 from worlds.AutoWorld import WebWorld, World
-from BaseClasses import Tutorial, Region, ItemClassification
+from BaseClasses import Tutorial, Region, ItemClassification, PlandoOptions
 from Options import OptionError
 
 from .data import GAME
@@ -179,7 +179,7 @@ class FNNQWorld(World):
 		)
 	
 	def prevent_boss_plando(self):
-		if not getattr(self.multiworld, "generation_is_fake", False) and not (PlandoOptions.bosses & plando_options):
+		if not getattr(self.multiworld, "generation_is_fake", False) and not(PlandoOptions.bosses & self.multiworld.plando_options):
 			if not self.warned_about_plando:
 				logging.warning(f"The plando bosses module is turned off, so {self.multiworld.player_names[self.player]}'s boss plando will be ignored.")
 				self.warned_about_plando = True

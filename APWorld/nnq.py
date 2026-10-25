@@ -6,7 +6,7 @@ from .nnq_levels import level_modules
 from .arenas import nnq_arenas
 
 from BaseClasses import ItemClassification
-from rule_builder.rules import CanReachLocation, Has
+from rule_builder.rules import CanReachLocation, Has, HasAny
 
 def nnq(world):
 	if world.options.nnq_starting_character.value:
@@ -92,12 +92,71 @@ def nnq(world):
 
 	if world.options.nnq_quick_clear_checks:
 		qc_region = world.create_region('Quick Clear')
-		world.base_region.connect(qc_region, rule=(Has("Angel's boots") & (Has("progressive Noel") | Has("Elfriend's feathers"))) | Has(world.glitches_item_name))
+		world.base_region.connect(qc_region, rule=(Has("Angel's boots") & HasAny("progressive Noel", "Elfriend's feathers")) | Has(world.glitches_item_name))
 		for i, stage in enumerate([*level_names[:4], 'Bad end' if world.characters & 1 else 'Good end']):
 			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good end' or any(
 				(arena.boss.tags & boss.T_LONG) and data.LEVELS[i] in arena.name and arena.name not in ('Crystal Falls midboss', 'Demon Lord Castle lift', 'Demon Lord Castle turret')
 				for arena in arenas
 			))
+	
+	if world.options.nnq_other_achievement_checks:
+		only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
+		exclude_only_noel = False
+		iv_region = fit_region = None
+
+		for arena in arenas:
+			if arena.name.endswith("'s office"):
+				exclude_only_noel |= arena.boss.noel_difficulty > 2
+				only_flare_rule &= HasAny(*arena.boss.flare_requirements)
+
+			match arena.name:
+				case 'Crystal Falls midboss':
+					world.add_location('Perfect Debut', world.get_region(arena.region), None, arena.boss.tags & boss.T_BAD_DEBUT)
+				case 'Crystal Falls final boss':
+					world.add_location(
+						'Unfazed',
+						world.get_region(arena.region),
+						(Has(data.SHOTS[3]) & Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)) | Has(world.glitches_item_name) if arena.boss.tags & boss.T_NEEDS_JUMP_OR_CUTLASS and world.characters & 1 else None,
+						arena.boss.tags & boss.T_NEEDS_JUMP or (arena.boss.tags & boss.T_NEEDS_JUMP_OR_CUTLASS and world.characters == 2)
+					)
+				case 'Underworld Casino final boss':
+					p_rules = [Has(item.get_item(item.ItemCategory.DUAL_PISTOLS).name) & Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name), Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name)]
+					rules = []
+					if item.get_item(item.ItemCategory.DUAL_PISTOLS).name in arena.boss.flare_requirements:
+						rules.append(p_rules[0])
+					if not arena.boss.noel_difficulty:
+						rules.append(p_rules[1])
+					match rules:
+						case []: rule = Has(world.glitches_item_name) & (p_rules[0] | p_rules[1]) if getattr(world.multiworld, 'generation_is_fake', False) else None
+						case [x]: rule = x
+						case [x, y]: rule = x | y
+					world.add_location('Elite Win', world.get_region(arena.region), rule, not rules)
+				case 'Pirate Harbor boss':
+					world.add_location('No Scratches', world.get_region(arena.region), None, arena.boss.name == 'Demon Lord Miko')
+
+			match arena.boss.name:
+				case 'Ayame':
+					if iv_region is None:
+						iv_region = world.create_region("Introvert's Weakness")
+						world.add_location("Introvert's Weakness", iv_region, Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name) & HasAny(item.get_item(item.ItemCategory.DUAL_PISTOLS).name, data.SHOTS[0]))
+					world.get_region(arena.region).connect(iv_region)
+				case 'Ame':
+					if fit_region is None:
+						fit_region = world.create_region('Frozen in Time')
+						world.add_location('Frozen in Time', fit_region)
+					world.get_region(arena.region).connect(fit_region)
+		
+		if levels > 5:
+			world.add_location('Only Flare!', world.get_region('nnq_hq_roof'), only_flare_rule)
+			world.add_location(
+				'Only Noel!',
+				world.get_region('nnq_hq_roof'),
+				Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name) & (
+					Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name, 2) |
+					HasAny(item.get_item((item.ItemCategory.CHARACTER, 3)).name, world.glitches_item_name)
+				),
+				exclude_only_noel
+			)
 
 	if world.options.nnq_goal.value != 4:
 		for i in range(5):

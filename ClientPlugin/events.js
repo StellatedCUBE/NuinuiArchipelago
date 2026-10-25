@@ -11,6 +11,8 @@ function wrap(inner) {
 				self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
 				self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
 				if (game.scene.finalTime <= 300000 && game.currentQuest === 'nuinui') self.archipelagoState.check(50 + (7 & self.archipelagoState.levelEndCheckA));
+				if (game.scene.achievement11) self.archipelagoState.check(37);
+				if (game.scene.achievement5) self.archipelagoState.check(45);
 			} else if (event.timelineFrame === 180) {
 				game.stopBGM();
 				self.archipelagoState.popup(new StageSelect(game, null, game.currentQuest === 'nuinui' && archipelagoState.transitionLevelNNQ));
@@ -153,6 +155,8 @@ export function patchEvents() {
 		if (!event.timelineFrame) {
 			self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
 			self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
+			if (game.scene.achievement23) self.archipelagoState.check(40);
+			if (game.scene.achievement24) self.archipelagoState.check(41);
 		} else if (event.timelineFrame === 179) {
 			game.stopBGM();
 			self.archipelagoState.popup(new StageSelect(game, null, archipelagoState.transitionLevelNNQ));
@@ -171,7 +175,7 @@ export function patchEvents() {
 			if (player.pos.y > 159) {
 				player.pos = event.pos.value();
 				player.takeHit(game, player);
-				player.vel.x = 0;
+				player.vel.x = game.scene.archipelago38 = 0;
 			} else if (!event.pos) {
 				event.pos = player.pos.value();
 			} else if (game.scene.currentSection.collisions.some(cb => cb.pos.x <= player.pos.x + 8 && cb.pos.x + cb.size.x >= player.pos.x + 8 && cb.pos.y === player.pos.y + player.size.y)) {

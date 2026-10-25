@@ -245,6 +245,9 @@ A_NO_CHLOE = {
 A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA | A_MMQ | A_PRQ
 
 T_LONG = 1
+T_NEEDS_JUMP = 2
+T_NEEDS_JUMP_OR_CUTLASS = 4
+T_BAD_DEBUT = 8
 
 class Drop(Enum):
 	ALWAYS = 0
@@ -293,26 +296,26 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL),
 	Boss('Noel', Q_NNQ, {SHOTS[5]}, 2, A_MMQ & A_ROUGH_FLOORED - A_BRIDGE),
-	Boss('Suisei', Q_NNQ|Q_PRQ, NOT_CUTLASS, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE),
-	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}),
-	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}),
+	Boss('Suisei', Q_NNQ|Q_PRQ, NOT_CUTLASS, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE, T_BAD_DEBUT),
+	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}, T_BAD_DEBUT),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG),
-	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}),
-	Boss('Mori', Q_NNQ|Q_PRQ, {'dual pistols', SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}),
-	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN),
+	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
+	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Mori', Q_NNQ|Q_PRQ, {'dual pistols', SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA, T_LONG),
 	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
-	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN),
-	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ, T_LONG),
+	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
+	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ, T_LONG | T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, 2, A_CAN_BE_ROOFED & A_FLOORED),
 	Boss('Robot', Q_PRQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE, T_LONG),
+	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE, T_LONG | T_BAD_DEBUT),
 	Boss('Lui', Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, (A_FLOORED & A_WALLED) | {'Pirate Harbor boss'}),
-	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, T_LONG),
-	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN, T_LONG),
-	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN),
+	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, T_LONG | T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
+	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN, T_LONG | T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN, T_BAD_DEBUT),
 	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
 ]}
 
@@ -352,11 +355,11 @@ def allocate_bosses(world, option, arenas, source_quests):
 
 	for command in plando.lower().split(';'):
 		match [sc.strip() for sc in command.split('-')]:
-			case ["none"] | ["default"]:
+			case ["none"] | ["default"] | ["false"]:
 				for arena in arenas:
 					if not arena.boss:
 						arena.boss = arena.default
-			case ["no_duplicates"]:
+			case ["no_duplicates"] | ["true"]:
 				if duplicates is not None:
 					raise OptionError('Shuffle mode cannot be set multiple times')
 				duplicates = False
