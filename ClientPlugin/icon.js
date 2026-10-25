@@ -47,10 +47,23 @@ export function getBackedHoloX() {
 	return backedHoloX;
 }
 
+let transparentStages;
+function getTransparentStages() {
+	if (!transparentStages) {
+		transparentStages = document.createElement('canvas');
+		transparentStages.width = 7 * 32;
+		transparentStages.height = 32;
+		const cx = transparentStages.getContext('2d');
+		cx.drawImage(NNM.game.assets.images.ui_level_icon, 0, 1, 7 * 32, 30, 0, 1, 7 * 32, 30);
+		for (let i = 1; i < 7 * 32; i += 32) cx.drawImage(NNM.game.assets.images.ui_level_icon, i, 0, 30, 32, i, 0, 30, 32);
+	}
+	return transparentStages;
+}
+
 export function getIcon(item, anim) {
 	switch (item >> 8) {
 		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
-		case 1: return [NNM.game.assets.images.ui_level_icon, [Math.min(item & 7, 6) << 5, 0, 32, 32]];
+		case 1: return [getTransparentStages(), [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
 		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? [(item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare] : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
