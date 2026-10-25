@@ -23,5 +23,7 @@ def create_locations(world, item, location, data):
 			world.add_location((location.LocationCategory.HQ_LEVEL, i + 1), level_region, lambda state, floor=i: number_of_floors(state) > floor)
 	
 	end_region = world.create_region('nnq_hq_roof')
-	level_region.connect(end_region, rule = lambda state: number_of_floors(state) == 5)
+	entrance = level_region.connect(end_region, rule = lambda state: number_of_floors(state) == 5)
+	for region in regions:
+		world.multiworld.register_indirect_condition(region, entrance)
 	world.add_location((location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS, 5), end_region)
