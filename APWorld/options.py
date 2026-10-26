@@ -101,6 +101,10 @@ class NNQAchievementChecks(Toggle):
 	"""Makes the achievements not covered by other settings locations."""
 	display_name = "Other Achievement Checks"
 
+class NNQCheckpointSanity(Toggle):
+	"""Makes reaching each checkpoint a location. Checkpoints with an unclaimed item inside will emit Archipelago-coloured particles."""
+	display_name = "Checkpointsanity"
+
 class NNQEnemySanity(Toggle):
 	"""Makes killing each enemy a location. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
@@ -132,6 +136,9 @@ class PRQCrossBoss(NNQCrossBoss):
 class PRQBossDrops(Toggle):
 	"""Makes midbosses drop items upon defeat."""
 	display_name = "Midboss Drops"
+
+class PRQCheckpointSanity(NNQCheckpointSanity):
+	__doc__ = NNQCheckpointSanity.__doc__
 
 class PRQEnemySanity(NNQEnemySanity):
 	__doc__ = NNQEnemySanity.__doc__
@@ -200,6 +207,7 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_heart_checks: NNQHeartChecks
 	nnq_quick_clear_checks: NNQSpeedrunChecks
 	nnq_other_achievement_checks: NNQAchievementChecks
+	nnq_checkpointsanity: NNQCheckpointSanity
 	nnq_enemysanity: NNQEnemySanity
 
 	# PRQ
@@ -210,6 +218,7 @@ class FNNQOptions(PerGameCommonOptions):
 	prq_boss_shuffle: PRQBossPlando
 	prq_boss_cross: PRQCrossBoss
 	prq_boss_all_drop: PRQBossDrops
+	prq_checkpointsanity: PRQCheckpointSanity
 	prq_enemysanity: PRQEnemySanity
 	prq_crystalsanity: PRQCrystalSanity
 	prq_cratesanity: PRQCrateSanity
@@ -244,6 +253,7 @@ fnnq_option_groups = [
 		NNQHeartChecks,
 		NNQSpeedrunChecks,
 		NNQAchievementChecks,
+		NNQCheckpointSanity,
 		NNQEnemySanity,
 	]),
 	OptionGroup("PEKORA RANDOM QUEST", [
@@ -255,6 +265,7 @@ fnnq_option_groups = [
 		PRQCrossBoss,
 		PRQBossDrops,
 		PRQEnemySanity,
+		PRQCheckpointSanity,
 		PRQCrystalSanity,
 		PRQCrateSanity,
 		PRQOoB,

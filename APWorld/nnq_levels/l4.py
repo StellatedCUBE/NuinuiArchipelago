@@ -79,9 +79,16 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,10428),r_4160_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,10940),r_4160_0)
 		for i in range(len(pre_miko_enemies)):w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE,i),r_960_576)
+	if w.options.nnq_checkpointsanity:
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,52),r_640_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1604),r_2240_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2156),r_1920_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2668),r_1920_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,116),r_960_576)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,132),r_0_384)
 	if w.options.nnq_heart_checks:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2580),r_640_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,68),h_2240_768)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,580),h_2240_768)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1092),h_2240_768)
-enemies=[(2580,"Heart",60,81),(28,"Axe robot",90,92),(540,"Axe robot",90,80),(1052,"Nousabot",85,74),(36,"Nousakumo",7,80),(548,"Nousakumo",10,80),(1060,"Nousakumo",9,76),(1572,"Nousabot",15,66),(68,"Heart",156,57),(580,"Heart",156.5,57),(1092,"Heart",157,57),(588,"Cannon",126,79),(1100,"Cannon",130,87),(84,"Cannon",143,86),(596,"Cannon",156,86),(5716,"Cannon",190,90),(3164,"Nousakumo",170,71),(3676,"Nousakumo",175,71),(4188,"Nousakumo",180,71),(4700,"Nousakumo",185,71),(100,"Nousabot",170,39),(612,"Nousabot",180,38),(1124,"Cannon",165,38),(1636,"Cannon",196,38),(10428,"Nousakumo",269,32),(10940,"Nousakumo",270,32)]
+enemies=[(2580,"Heart",60,81),(28,"Axe robot",90,92),(540,"Axe robot",90,80),(1052,"Nousabot",85,74),(36,"Nousakumo",7,80),(548,"Nousakumo",10,80),(1060,"Nousakumo",9,76),(1572,"Nousabot",15,66),(52,"Checkpoint",115,56),(68,"Heart",156,57),(580,"Heart",156.5,57),(1092,"Heart",157,57),(1604,"Checkpoint",149.5,80),(588,"Cannon",126,79),(1100,"Cannon",130,87),(84,"Cannon",143,86),(596,"Cannon",156,86),(5716,"Cannon",190,90),(3164,"Nousakumo",170,71),(3676,"Nousakumo",175,71),(4188,"Nousakumo",180,71),(4700,"Nousakumo",185,71),(100,"Nousabot",170,39),(612,"Nousabot",180,38),(1124,"Cannon",165,38),(1636,"Cannon",196,38),(2156,"Checkpoint",155,44),(2668,"Checkpoint",124,44),(116,"Checkpoint",65.5,44),(132,"Checkpoint",9.5,36),(10428,"Nousakumo",269,32),(10940,"Nousakumo",270,32)]

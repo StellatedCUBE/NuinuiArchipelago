@@ -74,7 +74,7 @@ def prq(world):
 				world.add_location((location.LocationCategory.NOUSAGI, i * 4 + j), region2 if i == 1 and j == 3 else region, (lambda state: state.has(bomb, p)) if (i, j) in ((1, 3), (3, 3)) else None)
 
 			for l, type_, _, y in prq_enemy_data[i]:
-				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else world.options.prq_enemysanity):
+				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else (world.options.prq_checkpointsanity if type_ == 'Checkpoint' else world.options.prq_enemysanity)):
 					world.add_location((location.LocationCategory.SANITY_RANDOM, l), region2 if i == 1 and y > 36 else region)
 			
 			world.add_location((level_location_type, i), region2 if i == 1 else region)

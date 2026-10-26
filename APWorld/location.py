@@ -144,7 +144,7 @@ location_types = [
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' or i in (126,638,1150) else CharactersNeeded.NONE)
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' or i in (126,638,1150) else (CharactersNeeded.NOEL if i == 132 else CharactersNeeded.NONE))
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),

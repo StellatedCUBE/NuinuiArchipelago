@@ -64,7 +64,11 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,593),r_3520_384)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1105),r_3520_384)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1617),r_3520_384)
+	if w.options.nnq_checkpointsanity:
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,49),r_2240_0)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,65),r_3200_0)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,89),r_4160_384)
 	if w.options.nnq_heart_checks:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,3113),r_1920_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,129),r_4160_0)
-enemies=[(17,"Mikobell",68,55),(529,"Mikobell",70.5,55),(1049,"Robot",84,50),(1561,"Casino chip",92,50),(2073,"Casino chip",86,45),(2585,"Casino chip",82,41),(3097,"Casino chip",85,28),(2089,"Casino chip",132,24),(2601,"Casino chip",121,20),(3113,"Heart",137,21),(577,"Robot",217,16),(1089,"Robot",213,32),(1601,"Nousabot",216.5,19),(73,"Casino chip",176,16),(585,"Mikobell",189,15),(1097,"Casino chip",163,16),(1609,"Robot",183,31),(81,"Mikobell",231,31),(593,"Mikobell",239,27),(1105,"Nousabot",245,24),(1617,"Nousabot",241.5,30),(129,"Heart",270,8)]
+enemies=[(17,"Mikobell",68,55),(529,"Mikobell",70.5,55),(1049,"Robot",84,50),(1561,"Casino chip",92,50),(2073,"Casino chip",86,45),(2585,"Casino chip",82,41),(3097,"Casino chip",85,28),(2089,"Casino chip",132,24),(2601,"Casino chip",121,20),(3113,"Heart",137,21),(49,"Checkpoint",146.5,4),(65,"Checkpoint",209,8),(577,"Robot",217,16),(1089,"Robot",213,32),(1601,"Nousabot",216.5,19),(73,"Casino chip",176,16),(585,"Mikobell",189,15),(1097,"Casino chip",163,16),(1609,"Robot",183,31),(81,"Mikobell",231,31),(593,"Mikobell",239,27),(1105,"Nousabot",245,24),(1617,"Nousabot",241.5,30),(89,"Checkpoint",269.5,31),(129,"Heart",270,8)]

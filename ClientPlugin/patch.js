@@ -204,6 +204,11 @@ export function enemySanity(a, loc) {
 			const oldUpdate = a.update;
 			a.update = game => {
 				oldUpdate(game);
+				if (a.archipelagoChecked) return;
+				if (a === game.checkpoint) {
+					archipelagoState.check(loc, a.archipelagoChecked = true);
+					itemTextParticle(a, loc);
+				}
 				if (~-a.frameCount & 15) return;
 				const clr = (random() * 6) << 3;
 				const t = random() * 6.28;

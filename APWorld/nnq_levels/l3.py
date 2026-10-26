@@ -73,4 +73,10 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,619),r_3200_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1131),r_3200_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,1643),r_3200_0)
-enemies=[(11,"Spirit",33,108),(523,"Miteiru",36,101),(1051,"Spirit",57,98),(2075,"Spirit",78,97),(35,"Cannon",91,98),(547,"Cannon",83,78),(51,"Miteiru",6,62),(563,"Miteiru",2,50),(1075,"Miteiru",15,42),(1587,"Miteiru",11,26),(67,"Flying oni",45,25),(83,"Miteiru",135,24),(603,"Spirit",155,24),(1627,"Spirit",171,24),(99,"Cannon",197,29),(611,"Cannon",198,21),(1123,"Cannon",196,17),(1635,"Cannon",181,10),(2147,"Cannon",194,8),(107,"Flying oni",225,0),(619,"Spirit",220,0),(1131,"Spirit",230,0),(1643,"Spirit",240,0)]
+	if w.options.nnq_checkpointsanity:
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,43),r_320_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,555),r_320_768)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,75),r_1280_192)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,587),r_1280_192)
+		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,115),r_4160_0)
+enemies=[(11,"Spirit",33,108),(523,"Miteiru",36,101),(1051,"Spirit",57,98),(2075,"Spirit",78,97),(35,"Cannon",91,98),(547,"Cannon",83,78),(43,"Checkpoint",62,66),(555,"Checkpoint",28,66),(51,"Miteiru",6,62),(563,"Miteiru",2,50),(1075,"Miteiru",15,42),(1587,"Miteiru",11,26),(67,"Flying oni",45,25),(75,"Checkpoint",90,32),(587,"Checkpoint",109,32),(83,"Miteiru",135,24),(603,"Spirit",155,24),(1627,"Spirit",171,24),(99,"Cannon",197,29),(611,"Cannon",198,21),(1123,"Cannon",196,17),(1635,"Cannon",181,10),(2147,"Cannon",194,8),(107,"Flying oni",225,0),(619,"Spirit",220,0),(1131,"Spirit",230,0),(1643,"Spirit",240,0),(115,"Checkpoint",270,8)]
