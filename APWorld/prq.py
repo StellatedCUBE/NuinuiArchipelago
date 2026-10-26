@@ -53,15 +53,15 @@ def prq(world):
 				region.connect(shop)
 			else:
 				source_region = shop
-			source_region.connect(region, rule = lambda state, item = world.items[-1].name: state.has(item, p))
+			source_region.connect(region, rule = Has(world.items[-1].name))
 
 			if i == 1:
 				region2 = world.create_region('prq_casino2')
-				region.connect(region2, rule = lambda state: state.has('casino key', p))
+				region.connect(region2, rule = Has(item.get_item(item.ItemCategory.CASINO_KEY).name))
 				if world.options.prq_casino_access:
-					world.add_item('casino key')
+					world.add_item(item.ItemCategory.CASINO_KEY)
 				else:
-					world.place_item((location.LocationCategory.BOSS_DROP, 23), 'casino key')
+					world.place_item((location.LocationCategory.BOSS_DROP, 23), item.ItemCategory.CASINO_KEY)
 
 				if world.options.prq_casino_checks:
 					world.filler.append((1, 2))

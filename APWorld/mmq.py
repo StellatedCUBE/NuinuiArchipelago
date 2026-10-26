@@ -4,18 +4,22 @@ from .data import ESSENCE, FEAT_MMQ_COIN
 from .boss import allocate_bosses, Q_MMQ, Q_ALL
 from .arenas import mmq_arenas
 
+from rule_builder.rules import Has
+
 def mmq(world):
 	p = world.player
 
 	#excluded = {*world.options.excluded_locations.value}
 	#for group in 
 
+	PROG_STAGE_NAME = item.get_item((item.ItemCategory.LEVEL_PROGRESSIVE, 1)).name
+
 	for i in range(1, 29):
 		region = world.create_region('mmq_%d' % i)
-		world.base_region.connect(region, rule = 
-			(lambda state, j=i: state.has(f'Stage {j:0>2}', p) or state.has('progressive Maiden Quest stage', p, j))
-			if i < 28 else
-			(lambda state: state.has('Stage 28', p) or state.has('progressive Maiden Quest stage', p, 28) or state.has('idol essence', p, ESSENCE)))
+		rule = Has(item.get_item((item.ItemCategory.LEVEL_MARINE, i)).name) | Has(PROG_STAGE_NAME, i)
+		if i == 28:
+			rule |= Has(item.get_item(item.ItemCategory.IDOL_ESSENCE).name, ESSENCE)
+		world.base_region.connect(region, rule=rule)
 		world.add_location((location.LocationCategory.COIN, i * 8), region)
 		world.add_location((location.LocationCategory.COIN, i * 8 + 1 + 2 * world.options.mmq_coin_behaviour.value), region)
 		world.add_location((location.LocationCategory.COIN, i * 8 + 2 + 2 * world.options.mmq_coin_behaviour.value), region)

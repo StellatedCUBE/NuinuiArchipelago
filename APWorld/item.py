@@ -61,8 +61,8 @@ item_types = [
 	),
 
 	ItemType(ItemCategory.CHARACTER, 0, 'Flare', ItemClassification.progression),
-	ItemType(ItemCategory.CHARACTER, 1, 'progressive Noel', ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.CHARACTER, 3, 'charged mace', ItemClassification.progression),
+	ItemType(ItemCategory.CHARACTER, 1, 'Progressive Noel', ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.CHARACTER, 3, 'Charged Mace', ItemClassification.progression),
 	
 	*(
 		ItemType(ItemCategory.FLARE_SHOT, i, name, ItemClassification.progression)
@@ -70,49 +70,49 @@ item_types = [
 	),
 
 	*(
-		ItemType(ItemCategory.KEY, i, name + ' key', lambda world: ItemClassification.progression if world.options.nnq_goal.value > 1 or world.options.nnq_all_stages.value else ItemClassification.filler)
+		ItemType(ItemCategory.KEY, i, name + ' Key', lambda world: ItemClassification.progression if world.options.nnq_goal.value > 1 or world.options.nnq_all_stages.value else ItemClassification.filler)
 		for i, name in enumerate(MYTH)
 	),
 
 	ItemType(ItemCategory.FLARE_ITEM, 1, 'Time Zone Clock', ItemClassification.progression),
-	ItemType(ItemCategory.FLARE_ITEM, 2, "Elfriend's feathers", ItemClassification.progression),
-	ItemType(ItemCategory.FLARE_ITEM, 4, "Angel's boots", ItemClassification.progression),
+	ItemType(ItemCategory.FLARE_ITEM, 2, "Elfriend's Feathers", ItemClassification.progression),
+	ItemType(ItemCategory.FLARE_ITEM, 4, "Angel's Boots", ItemClassification.progression),
 
 	*(
-		ItemType(ItemCategory.HOLOX, i, name + "'s emblem", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
+		ItemType(ItemCategory.HOLOX, i, name + "'s Emblem", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
 		for i, name in enumerate(('Iroha', 'Koyori', 'Chloe', 'Lui'))
 	),
-	ItemType(ItemCategory.HOLOX, 4, "La+'s emblem", ItemClassification.filler),
+	ItemType(ItemCategory.HOLOX, 4, "La+'s Emblem", ItemClassification.filler),
 
-	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'big reaper crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'big anchor crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 3, 'big magatama crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
-	ItemType(ItemCategory.BIG_CRYSTAL, 4, 'big sword crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 1, 'Big Reaper Crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 2, 'Big Anchor Crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 3, 'Big Magatama Crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
+	ItemType(ItemCategory.BIG_CRYSTAL, 4, 'Big Sword Crystal', lambda world: ItemClassification.filler if world.options.prq_goal.value else ItemClassification.progression_skip_balancing),
 
-	ItemType(ItemCategory.IDOL_ESSENCE, 0, 'idol essence', ItemClassification.progression_deprioritized_skip_balancing),
+	ItemType(ItemCategory.IDOL_ESSENCE, 0, 'Idol Essence', ItemClassification.progression_deprioritized_skip_balancing),
 	
-	ItemType(ItemCategory.COIN, 0, 'gold coin', ItemClassification.filler),
+	ItemType(ItemCategory.COIN, 0, 'Gold Coin', ItemClassification.filler),
 	
-	ItemType(ItemCategory.HEART, 0, 'heart', ItemClassification.filler),
+	ItemType(ItemCategory.HEART, 0, 'Heart', ItemClassification.filler),
 	
-	ItemType(ItemCategory.HELP, 0, 'help', ItemClassification.filler),
+	ItemType(ItemCategory.HELP, 0, 'Help', ItemClassification.filler),
 	
 	ItemType(ItemCategory.NOUSAGI, 0, 'Nousagi', ItemClassification.filler),
 
-	ItemType(ItemCategory.ALT_PALETTE, 0, 'colour palette swap', ItemClassification.trap),
+	ItemType(ItemCategory.ALT_PALETTE, 0, 'Colour Palette Swap', ItemClassification.trap),
 	
-	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'progressive Nuinui Quest stage', ItemClassification.progression),
-	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 1, 'progressive Maiden Quest stage', ItemClassification.progression),
+	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'Progressive Nuinui Quest Stage', ItemClassification.progression),
+	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 1, 'Progressive Maiden Quest Stage', ItemClassification.progression),
 
-	ItemType(ItemCategory.CASINO_KEY, 0, 'casino key', ItemClassification.progression),
+	ItemType(ItemCategory.CASINO_KEY, 0, 'Casino Key', ItemClassification.progression),
 
-	ItemType(ItemCategory.BOMB, 0, 'bomb', lambda world: ItemClassification.filler if world.logical_bomb and not getattr(world.multiworld, 'generation_is_fake', False) else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized),
+	ItemType(ItemCategory.BOMB, 0, 'Bomb', lambda world: ItemClassification.filler if world.logical_bomb and not getattr(world.multiworld, 'generation_is_fake', False) else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized),
 
-	ItemType(ItemCategory.DUAL_PISTOLS, 0, 'dual pistols', ItemClassification.progression | ItemClassification.useful),
+	ItemType(ItemCategory.DUAL_PISTOLS, 0, 'Dual Pistols', ItemClassification.progression | ItemClassification.useful),
 
-	ItemType(ItemCategory.CRYSTALS, 1, 'crystal', ItemClassification.filler),
+	ItemType(ItemCategory.CRYSTALS, 1, 'Crystal', ItemClassification.filler),
 	*(
-		ItemType(ItemCategory.CRYSTALS, i, '%d crystals' % i, ItemClassification.progression_deprioritized if i == 200 else ItemClassification.filler)
+		ItemType(ItemCategory.CRYSTALS, i, '%d Crystals' % i, ItemClassification.progression_deprioritized if i == 200 else ItemClassification.filler)
 		for i in (2, 4, 8, 10, 200)
 	)
 ]

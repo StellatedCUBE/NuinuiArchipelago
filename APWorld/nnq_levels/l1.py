@@ -2,7 +2,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_768=w.create_region('nnq_casino_0_768')
-	w.base_region.connect(r_0_768,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,65)).name,j=I.get_item((I.ItemCategory.LEVEL,193)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,2))
+	w.base_region.connect(r_0_768,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,65)).name,I.get_item((I.ItemCategory.LEVEL,193)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,2))
 	r_960_768=w.create_region('nnq_casino_960_768')
 	r_1280_384=w.create_region('nnq_casino_1280_384')
 	r_1600_384=w.create_region('nnq_casino_1600_384')
@@ -36,7 +36,7 @@ def create_locations(w,I,L,D):
 	r_3520_384.connect(r_4160_384)
 	r_4160_384.connect(r_4480_384)
 	r_4480_384.connect(r_4800_384)
-	r_1920_0.connect(r_1600_0,rule=lambda s:(s.has("Angel's boots",p))or(s.has("Flare",p)and s.has("Elfriend's feathers",p)))
+	r_1920_0.connect(r_1600_0,rule=lambda s:(s.has("Angel's Boots",p))or(s.has("Flare",p)and s.has("Elfriend's Feathers",p)))
 	r_3200_0.connect(r_3520_0)
 	r_3520_0.connect(r_4160_0)
 	r_3200_0.connect(r_2560_192)

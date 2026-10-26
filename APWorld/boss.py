@@ -4,6 +4,7 @@ from enum import Enum
 from Options import OptionError
 
 from .data import SHOTS
+from .item import get_item, ItemCategory
 
 A_PRQ = {
 	'Random Quest Crystal Falls midboss',
@@ -255,8 +256,12 @@ class Drop(Enum):
 	NOEL = 2
 	NEVER = 3
 
-ANY_FLARE_WEAPON = {'dual pistols', *SHOTS[:4], SHOTS[5]}
+PISTOLS = get_item(ItemCategory.DUAL_PISTOLS).name
+CLOCK = get_item((ItemCategory.FLARE_ITEM, 1)).name
+FEATHERS = get_item((ItemCategory.FLARE_ITEM, 2)).name
+ANY_FLARE_WEAPON = {PISTOLS, *SHOTS[:4], SHOTS[5]}
 NOT_CUTLASS = ANY_FLARE_WEAPON - {SHOTS[3]}
+FLARE, NOEL, MACE = [get_item((ItemCategory.CHARACTER, i)).name for i in (0, 1, 3)]
 
 @dataclass
 class Boss:
@@ -273,11 +278,11 @@ class Boss:
 
 	def rule(self, player):
 		return lambda state: (
-			(state.has('Flare', player) and any(state.has(item, player) for item in self.flare_requirements)) or
-			(not self.noel_difficulty and state.has('progressive Noel', player)) or
-			(self.noel_difficulty == 1 and state.has('progressive Noel', player, 2)) or
-			(self.noel_difficulty == 1 and state.has('charged mace', player) and state.has('progressive Noel', player)) or
-			(self.noel_difficulty == 2 and state.has('charged mace', player) and state.has('NOEL NUINUI QUEST', player))
+			(state.has(FLARE, player) and any(state.has(item, player) for item in self.flare_requirements)) or
+			(not self.noel_difficulty and state.has(NOEL, player)) or
+			(self.noel_difficulty == 1 and state.has(NOEL, player, 2)) or
+			(self.noel_difficulty == 1 and state.has(MACE, player) and state.has(NOEL, player)) or
+			(self.noel_difficulty == 2 and state.has(MACE, player) and state.has('NOEL NUINUI QUEST', player))
 		)
 
 Q_NNQ = 1
@@ -300,12 +305,12 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}, T_BAD_DEBUT),
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, {'dual pistols'}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
+	Boss('Demon', Q_NNQ, {PISTOLS}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
-	Boss('Mori', Q_NNQ|Q_PRQ, {'dual pistols', SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Mori', Q_NNQ|Q_PRQ, {PISTOLS, SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA, T_LONG),
-	Boss('Ame', Q_NNQ, {'Time Zone Clock', SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
+	Boss('Ame', Q_NNQ, {CLOCK, SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
 	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
 	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ, T_LONG | T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, 2, A_CAN_BE_ROOFED & A_FLOORED),
@@ -339,7 +344,7 @@ class Arena:
 class HarborArena(Arena):
 	def rule(self, player):
 		if self.boss.name not in BOSSES_PH_WITHOUT_FEATHERS:
-			return lambda state: state.has("Elfriend's feathers", player)
+			return lambda state: state.has(FEATHERS, player)
 	
 	def easy_with(self, _):
 		return self.boss.name in BOSSES_PH_WITHOUT_FEATHERS

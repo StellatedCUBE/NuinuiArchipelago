@@ -11,10 +11,10 @@ from rule_builder.rules import CanReachLocation, Has, HasAny
 def nnq(world):
 	if world.options.nnq_starting_character.value:
 		world.push_precollected(world.create_item('progressive Noel'))
-		world.add_item('charged mace')
+		world.add_item(boss.MACE)
 		weapon = 'mace'
 		if world.options.nnq_other_character.value:
-			world.add_item('Flare')
+			world.add_item(boss.FLARE)
 			world.add_item(item.ItemCategory.DUAL_PISTOLS)
 			for i in data.SHOTS:
 				world.add_item(i)
@@ -25,7 +25,7 @@ def nnq(world):
 				world.add_item((item.ItemCategory.KEY, i))
 				world.add_item((item.ItemCategory.HOLOX, i))
 	else:
-		world.push_precollected(world.create_item('Flare'))
+		world.push_precollected(world.create_item(boss.FLARE))
 		if world.options.nnq_flare_starting_weapon.value:
 			world.add_item(item.ItemCategory.DUAL_PISTOLS)
 			for i, shot in enumerate(data.SHOTS):
@@ -35,13 +35,13 @@ def nnq(world):
 				else:
 					world.add_item(shot)
 		else:
-			weapon = 'dual pistols'
+			weapon = boss.PISTOLS
 			world.push_precollected(world.create_item(item.ItemCategory.DUAL_PISTOLS))
 			for i in data.SHOTS:
 				world.add_item(i)
 		if world.options.nnq_other_character.value:
-			world.add_item('progressive Noel')
-			world.add_item('progressive Noel')
+			world.add_item(boss.NOEL)
+			world.add_item(boss.NOEL)
 		elif world.options.nnq_goal.value == 1:
 			world.options.nnq_goal.value = 0
 	
@@ -64,14 +64,14 @@ def nnq(world):
 		if world.options.nnq_enemysanity:
 			heart_entries += sum(name != 'Heart' for _, name, x, y in level_modules[i].enemies)
 	
-	world.filler.append(('heart', heart_entries))
-	world.filler.append(('help', 4))
+	world.filler.append((item.ItemCategory.HEART, heart_entries))
+	world.filler.append((item.ItemCategory.HELP, 4))
 
 	for i in range(8):
-		world.add_item('help')
+		world.add_item(item.ItemCategory.HELP)
 
 	clear_category = location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
-	level_names = [location.get_location((clear_category, i) if i != 4 else 'Good end').name for i in range(7)]
+	level_names = [location.get_location((clear_category, i) if i != 4 else 'Good End').name for i in range(7)]
 	
 	arenas = [a for a in nnq_arenas() if a.region in world.multiworld.regions.region_cache[world.player]]
 	for i, arena in enumerate(arenas):
@@ -92,9 +92,9 @@ def nnq(world):
 
 	if world.options.nnq_quick_clear_checks:
 		qc_region = world.create_region('Quick Clear')
-		world.base_region.connect(qc_region, rule=(Has("Angel's boots") & HasAny("progressive Noel", "Elfriend's feathers")) | Has(world.glitches_item_name))
-		for i, stage in enumerate([*level_names[:4], 'Bad end' if world.characters & 1 else 'Good end']):
-			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good end' or any(
+		world.base_region.connect(qc_region, rule=(Has(item.get_item((item.ItemCategory.FLARE_ITEM, 4)).name) & HasAny(boss.NOEL, boss.FEATHERS)) | Has(world.glitches_item_name))
+		for i, stage in enumerate([*level_names[:4], 'Bad End' if world.characters & 1 else 'Good End']):
+			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good End' or any(
 				(arena.boss.tags & boss.T_LONG) and data.LEVELS[i] in arena.name and arena.name not in ('Crystal Falls midboss', 'Demon Lord Castle lift', 'Demon Lord Castle turret')
 				for arena in arenas
 			))
@@ -102,11 +102,13 @@ def nnq(world):
 	if world.options.nnq_other_achievement_checks:
 		only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
 		exclude_only_noel = False
+		only_noel_hard = False
 		iv_region = fit_region = None
 
 		for arena in arenas:
 			if arena.name.endswith("'s office"):
 				exclude_only_noel |= arena.boss.noel_difficulty > 2
+				only_noel_hard |= arena.boss.noel_difficulty
 				only_flare_rule &= HasAny(*arena.boss.flare_requirements)
 
 			match arena.name:
@@ -138,7 +140,7 @@ def nnq(world):
 				case 'Ayame':
 					if iv_region is None:
 						iv_region = world.create_region("Introvert's Weakness")
-						world.add_location("Introvert's Weakness", iv_region, Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name) & HasAny(item.get_item(item.ItemCategory.DUAL_PISTOLS).name, data.SHOTS[0]))
+						world.add_location("Introvert's Weakness", iv_region, Has(boss.FLARE) & HasAny(boss.PISTOLS, data.SHOTS[0]))
 					world.get_region(arena.region).connect(iv_region)
 				case 'Ame':
 					if fit_region is None:
@@ -151,10 +153,7 @@ def nnq(world):
 			world.add_location(
 				'Only Noel!',
 				world.get_region('nnq_hq_roof'),
-				Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name) & (
-					Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name, 2) |
-					HasAny(item.get_item((item.ItemCategory.CHARACTER, 3)).name, world.glitches_item_name)
-				),
+				Has(boss.NOEL) & (Has(boss.NOEL, 2) | HasAny(boss.MACE, world.glitches_item_name)) if only_noel_hard else Has(boss.NOEL),
 				exclude_only_noel
 			)
 
@@ -165,13 +164,13 @@ def nnq(world):
 	match world.options.nnq_goal.value:
 		case 0:
 			world.add_goal_location(*level_names[:4])
-			world.add_goal_location('Bad end')
+			world.add_goal_location('Bad End')
 		case 1:
 			world.add_goal_location(*level_names[:5])
 			world.add_goal_feat(data.FEAT_NNQ_GOOD_END)
 		case 2:
 			world.add_goal_location(*level_names[:4])
-			world.add_goal_location('Good end' if world.options.nnq_starting_character.value else 'Bad end')
+			world.add_goal_location('Good End' if world.options.nnq_starting_character.value else 'Bad End')
 			world.add_goal_location(*level_names[5:])
 			world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + 5)
 			world.add_goal_feat(data.FEAT_NNQ_LEVEL_CLEAR + 6)
@@ -214,7 +213,7 @@ def nnq(world):
 			for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 				placed = None
 				if i < levels - 1: placed = (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1])
-				world.place_item(('Bad end' if world.characters == 1 else 'Good end') if level_ordering[i] == 4 else level_names[level_ordering[i]], placed)
+				world.place_item(('Bad End' if world.characters == 1 else 'Good End') if level_ordering[i] == 4 else level_names[level_ordering[i]], placed)
 	elif world.options.nnq_stage_items:
 		for i in range(levels):
 			world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 0))
@@ -225,5 +224,5 @@ def nnq(world):
 		for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 			placed = (item.ItemCategory.LEVEL_PROGRESSIVE, 0)
 			if i == levels - 1: placed = None
-			world.place_item(('Bad end' if world.characters == 1 else 'Good end') if i == 4 else level_names[i], placed)
+			world.place_item(('Bad End' if world.characters == 1 else 'Good End') if i == 4 else level_names[i], placed)
 

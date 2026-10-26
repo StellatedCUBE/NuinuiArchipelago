@@ -71,8 +71,8 @@ class LocationType:
 location_types = [
 	LocationType(LocationCategory.MANUAL, 1, "Elfriends' gift (Underworld Casino)"),
 	LocationType(LocationCategory.MANUAL, 2, "Elfriends' gift (Yamato)"),
-	LocationType(LocationCategory.MANUAL, 3, 'Bad end', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 4, 'Good end', CharactersNeeded.NOEL),
+	LocationType(LocationCategory.MANUAL, 3, 'Bad End', CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 4, 'Good End', CharactersNeeded.NOEL),
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', CharactersNeeded.FLARE),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', CharactersNeeded.FLARE),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),

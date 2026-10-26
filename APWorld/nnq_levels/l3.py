@@ -2,7 +2,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1920=w.create_region('nnq_yamato_0_1920')
-	w.base_region.connect(r_0_1920,rule=lambda s,i=I.get_item((I.ItemCategory.LEVEL,67)).name,j=I.get_item((I.ItemCategory.LEVEL,195)).name:s.has(i,p)or s.has(j,p)or s.has("progressive Nuinui Quest stage",p,4))
+	w.base_region.connect(r_0_1920,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,67)).name,I.get_item((I.ItemCategory.LEVEL,195)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,4))
 	r_320_1152=w.create_region('nnq_yamato_320_1152')
 	r_640_1728=w.create_region('nnq_yamato_640_1728')
 	w.add_location(2,r_640_1728)
@@ -30,7 +30,7 @@ def create_locations(w,I,L,D):
 	w.add_location(23,r_960_1152)
 	r_0_1920.connect(r_320_1152)
 	r_320_1152.connect(r_640_1728)
-	r_320_1152.connect(r_640_1152,rule=lambda s:(s.has("Flare",p)and s.has("progressive Noel",p)and s.has("Elfriend's feathers",p)and s.has("Angel's boots",p)))
+	r_320_1152.connect(r_640_1152,rule=lambda s:(s.has("Flare",p)and s.has("Progressive Noel",p)and s.has("Elfriend's Feathers",p)and s.has("Angel's Boots",p)))
 	r_640_1152.connect(r_960_1152)
 	r_320_1152.connect(r_640_1536)
 	r_640_1536.connect(r_1280_960)
@@ -44,7 +44,7 @@ def create_locations(w,I,L,D):
 	r_2880_0.connect(r_3200_0)
 	r_3200_0.connect(r_4160_0)
 	r_4160_0.connect(r_4480_0)
-	r_4480_0.connect(r_4800_0,rule=lambda s:(s.has("Flare",p))or(s.has("charged mace",p)))
+	r_4480_0.connect(r_4800_0,rule=lambda s:(s.has("Flare",p))or(s.has("Charged Mace",p)))
 	r_4800_0.connect(r_5120_0,rule=lambda s:(s.has(D.SHOTS[5],p)))
 	r_0_384.connect(r_320_576)
 	r_3200_0.connect(r_3520_192)

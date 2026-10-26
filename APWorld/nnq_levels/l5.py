@@ -5,12 +5,12 @@ enemies = []
 def create_locations(world, item, location, data):
 	p = world.player
 	level_region = world.create_region('nnq_hq')
-	world.base_region.connect(level_region,rule=lambda s,i=item.get_item((item.ItemCategory.LEVEL,5|64)).name,j=item.get_item((item.ItemCategory.LEVEL,5|64|128)).name:s.has(i,p)or s.has(j,p)or s.has('progressive Nuinui Quest stage',p,6))
+	world.base_region.connect(level_region,rule = Has(item.get_item((item.ItemCategory.LEVEL,5|64)).name) | Has(item.get_item((item.ItemCategory.LEVEL,5|64|128)).name) | Has(item.get_item((item.ItemCategory.LEVEL_PROGRESSIVE,0)).name, 6))
 
 	regions = []
 	for arena in data.MYTH:
 		region = world.create_region('nnq_hq_' + arena)
-		level_region.connect(region, rule=Has(arena + ' key'))
+		level_region.connect(region, rule=Has(arena + ' Key'))
 		regions.append(region)
 		if arena == 'Gura' and world.options.nnq_other_achievement_checks:
 			world.add_location('Water in the Fire Why', region, Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name) & Has(data.SHOTS[0]))
