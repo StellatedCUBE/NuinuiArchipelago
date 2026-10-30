@@ -85,6 +85,8 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_ONI),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop', LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 8, 'Win 3 times at Tsunomaki Janken'),
+	LocationType(LocationCategory.MANUAL, 9, 'Survive 1 minute in the Noel fight'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' key', LocationFlags.NO_LOCAL_ONI)
 		for i, level in enumerate(LEVELS[:5], start=10)
@@ -109,6 +111,7 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 44, 'Frozen in Time'),
 	LocationType(LocationCategory.MANUAL, 45, 'Scythe No More', LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 46, 'Uber Sheep'),
+	LocationType(LocationCategory.MANUAL, 47, 'Bounce on Watamelons twice without landing'),
 	*(
 		LocationType(LocationCategory.MANUAL, i, level + ' quick clear', LocationFlags.NO_LOCAL_IMMEDIATE)
 		for i, level in enumerate(LEVELS[:5], start=50)

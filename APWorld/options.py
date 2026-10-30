@@ -6,7 +6,7 @@ class CustomDeathLink(DeathLink):
 	__doc__ = DeathLink.__doc__ + '\n\nThis can be changed during play using the /deathlink command in the in-game text console in the pause menu.'
 
 class MusicRando(Toggle):
-	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.)"""
+	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.) Music from other mods and music packs is included in the pool."""
 	display_name = "Randomise Music"
 
 class EnemyTrapIntensity(Range):
@@ -77,10 +77,6 @@ class NNQAllStages(Toggle):
 	"""Include all seven stages even if the goal only requires five."""
 	display_name = "Always Include All Stages"
 
-class NNQHiddenAreas(DefaultOnToggle):
-	"""Add checks to the hidden achievement-granting areas in Casino, Harbor, and Yamato."""
-	display_name = "Hidden Area Checks"
-
 class NNQBossPlando(TextChoice):
 	"""Shuffles bosses around to different locations. Supports plando placement."""
 	display_name = "Boss Shuffle"
@@ -100,13 +96,24 @@ class NNQHeartChecks(Toggle):
 	"""Makes hearts found on the ground items."""
 	display_name = "Heart Checks"
 
-class NNQSpeedrunChecks(Toggle):
-	"""Makes the “Quick Clear” achievements locations.\n\nWarning: The logic for these can be rough."""
-	display_name = "Quick Clear Checks"
-
-class NNQAchievementChecks(Toggle):
-	"""Makes the achievements not covered by other settings locations. Achievements that require killing a boss with certain restrictions are tied to the arena, not the boss, with the exception of “Introvert's Weakness” and “Frozen in Time”."""
-	display_name = "Other Achievement Checks"
+class NNQAchievements(OptionSet):
+	"""What achievement categories to make into locations. “Boss Fight Conditions” achievements are tied to the arena, not the boss, with the exception of “Introvert's Weakness” and “Frozen in Time”."""
+	display_name = "Achievement Checks"
+	rooms = 'Hidden Areas'
+	quick = 'Quick Clears'
+	boss = 'Boss Fight Conditions'
+	hq = 'Only Flare / Only Noel!'
+	misc = 'Miscellaneous'
+	old = 'Old Version Exclusive'
+	default = set()
+	valid_keys = [
+		rooms,
+		quick,
+		boss,
+		hq,
+		misc,
+		old
+	]
 
 class NNQCheckpointSanity(Toggle):
 	"""Makes reaching each checkpoint a location. Checkpoints with an unclaimed item inside will emit Archipelago-coloured particles."""
@@ -208,13 +215,11 @@ class FNNQOptions(PerGameCommonOptions):
 	nnq_starting_character: NNQStartingCharacter
 	nnq_other_character: NNQOtherCharacter
 	nnq_flare_starting_weapon: NNQStartingWeapon
-	nnq_hidden_area_checks: NNQHiddenAreas
 	nnq_boss_shuffle: NNQBossPlando
 	nnq_boss_cross: NNQCrossBoss
 	nnq_boss_all_drop: NNQBossDrops
 	nnq_heart_checks: NNQHeartChecks
-	nnq_quick_clear_checks: NNQSpeedrunChecks
-	nnq_other_achievement_checks: NNQAchievementChecks
+	nnq_achievement_checks: NNQAchievements
 	nnq_checkpointsanity: NNQCheckpointSanity
 	nnq_enemysanity: NNQEnemySanity
 
@@ -254,13 +259,11 @@ fnnq_option_groups = [
 		NNQStartingCharacter,
 		NNQOtherCharacter,
 		NNQStartingWeapon,
-		NNQHiddenAreas,
 		NNQBossPlando,
 		NNQCrossBoss,
 		NNQBossDrops,
 		NNQHeartChecks,
-		NNQSpeedrunChecks,
-		NNQAchievementChecks,
+		NNQAchievements,
 		NNQCheckpointSanity,
 		NNQEnemySanity,
 	]),

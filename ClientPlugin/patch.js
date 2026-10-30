@@ -255,13 +255,13 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 		} else {
 			if (this.currentQuest === 'nuinui') {
 				for (const l of [
-					[10, 50, 34, 36, 42, 657536],
+					[10, 50, 8, 34, 36, 42, 657536],
 					[11, 31, 51, 1, 35, 45, 658473, 655489],
 					[12, 32, 52, 5, 37, 658450, 658962, 659474, 658546, 659058, 659570],
-					[13, 33, 53, 2, 6],
+					[13, 33, 53, 2, 6, 8],
 					[14, 54, 657940, 655428, 655940, 656452],
 					[39, 40, 41, 327681, 327682, 327683, 327684, 327685],
-					[7, 38, 46, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
+					[7, 38, 46, 47, 655486, 655998, 656510, 655494, 656006, 656518, 655526, 656038, 656550]
 				][stageIndex])
 					self.archipelagoState.scout(l);
 				if (self.archipelagoState.onlyNoel)
@@ -611,6 +611,7 @@ NNM.code.insertBeforeFirstMatchingLine('NUINUI_HOLO_HQ_EVENTS', 'bg_kiara', _ =>
 		}
 	}
 });
+NNM.code.insertBeforeFirstMatchingLine('Watamelon.update', 'achievement25', 'if (self.archipelagoState?.watamelon) self.archipelagoState.check(47,"text"); else if (self.archipelagoState) self.archipelagoState.watamelon = true;');
 NNM.code.findReplaceAllLines('RobotBoss', 'PekoraPlayer', 'Flare');
 NNM.code.findReplaceAllLines('RobotBoss.phases.move', 'possibleTargets = [', 'possibleTargets = (this.__archipelagoTargets||[');
 NNM.code.findReplaceAllLines('RobotBoss.phases.move', '].filter', ']).filter');

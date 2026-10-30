@@ -12,7 +12,7 @@ def create_locations(world, item, location, data):
 		region = world.create_region('nnq_hq_' + arena)
 		level_region.connect(region, rule=Has(arena + ' Key'))
 		regions.append(region)
-		if arena == 'Gura' and world.options.nnq_other_achievement_checks:
+		if arena == 'Gura' and world.options.nnq_achievement_checks.misc in world.options.nnq_achievement_checks:
 			world.add_location('Water in the Fire Why', region, Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name) & Has(data.SHOTS[0]))
 	
 	def number_of_floors(state):

@@ -11,7 +11,7 @@ def create_locations(w,I,L,D):
 	r_1920_960=w.create_region('nnq_port_1920_960')
 	r_2240_960=w.create_region('nnq_port_2240_960')
 	r_2560_768=w.create_region('nnq_port_2560_768')
-	if w.options.nnq_hidden_area_checks:w.add_location(32,r_2560_768)
+	if w.options.nnq_achievement_checks.rooms in w.options.nnq_achievement_checks:w.add_location(32,r_2560_768)
 	r_2880_576=w.create_region('nnq_port_2880_576')
 	r_1920_384=w.create_region('nnq_port_1920_384')
 	r_2240_384=w.create_region('nnq_port_2240_384')

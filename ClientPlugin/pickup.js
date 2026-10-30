@@ -1,5 +1,5 @@
 import { getIcon, marginBottom } from './icon.js';
-import { itemTextParticle, enemySanity } from './patch.js';
+import { enemySanity } from './patch.js';
 
 export class APPickup extends Actor {
 	#testedForTrap;
@@ -19,7 +19,7 @@ export class APPickup extends Actor {
 		return CollisionBox.intersects(this, NNM.getPlayer()) && !NNM.game.scene.bossKillEffect;
 	}
 
-	collect(game) {
+	collect(game, noPopup) {
 		const scout = archipelagoState.getScout(this.apLocation);
 		if (scout?.local && scout.id === (11 << 8)) {
 			new Heart(NNM.getPlayer().pos).update(game);
@@ -29,8 +29,8 @@ export class APPickup extends Actor {
 			game.scene.particles.sparkle_white(CollisionBox.center(this));
 			const jingle = !scout || !scout.local || scout.id > 255;
 			if (jingle) game.playSound(scout?.local && scout.id === (10 << 8) ? 'cling2' : this.sound);
-			else if (scout?.local && scout.id < 256) archipelagoState.dueCrystalPopup += scout.id;
-			archipelagoState.check(this.apLocation, this.noPopup || !jingle || (scout.local && scout.id === (10 << 8)));
+			else if (scout?.local && scout.id < 256) noPopup = 'text';
+			archipelagoState.check(this.apLocation, noPopup || !jingle || (scout.local && scout.id === (10 << 8)));
 		}
 	}
 	
@@ -69,7 +69,7 @@ export class APPickup extends Actor {
 		while (CollisionBox.intersectCollisions(enemy, col).length)
 			enemy.pos.y -= (flag = 8);
 		game.scene.actors.push(enemy);
-		if (flag || (CollisionBox.intersectCollisions({ pos: enemy.pos, size: { x: enemy.size.x, y: 64 } }, col).length && !CollisionBox.intersectCollisions({ pos: enemy.pos.plus({ x: 0, y: -48 }), size: { x: enemy.size.x, y: 48 } }).length))
+		if (flag || (CollisionBox.intersectCollisions({ pos: enemy.pos, size: { x: enemy.size.x, y: 64 } }, col).length && !CollisionBox.intersectCollisions({ pos: enemy.pos.plus({ x: 0, y: -48 }), size: { x: enemy.size.x, y: 48 } }, col).length))
 			enemy.archipelagoPointUp();
 		enemySanity(enemy, this.apLocation, true);
 		this.draw = _ => {};
@@ -208,7 +208,6 @@ export class SmallPickup extends APPickup {
 	#moved;
 	#sparkleOffset = new Vector2(4, 4);
 	sound = 'heal';
-	noPopup = true;
 
 	constructor(pos, apLocation) {
 		super(pos, apLocation, true);
@@ -229,10 +228,8 @@ export class SmallPickup extends APPickup {
 	}
 
 	collect(game) {
-		super.collect(game);
 		const scout = archipelagoState.getScout(this.apLocation);
-		if (scout && !archipelagoState.pendingPopUp && !(scout.local && [0, 10, 11, 14].includes(scout.id >> 8)))
-			itemTextParticle(NNM.getPlayer(), this.apLocation);
+		super.collect(game, (scout?.local && scout.id === (10 << 8)) || 'text');
 	}
 	
 	draw = (game, cx) => {

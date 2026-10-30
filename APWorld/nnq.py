@@ -67,7 +67,7 @@ def nnq(world):
 	world.filler.append((item.ItemCategory.HEART, heart_entries))
 	world.filler.append((item.ItemCategory.HELP, 4))
 
-	for i in range(8):
+	for i in range(4):
 		world.add_item(item.ItemCategory.HELP)
 
 	clear_category = location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
@@ -90,7 +90,7 @@ def nnq(world):
 			world.add_location((location.LocationCategory.BOSS_DROP, i), world.get_region('nnq_castle_0_384') if arena.drop == boss.Drop.NOEL else region)
 	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
 
-	if world.options.nnq_quick_clear_checks:
+	if world.options.nnq_achievement_checks.quick in world.options.nnq_achievement_checks:
 		qc_region = world.create_region('Quick Clear')
 		world.base_region.connect(qc_region, rule=(Has(item.get_item((item.ItemCategory.FLARE_ITEM, 4)).name) & HasAny(boss.NOEL, boss.FEATHERS)) | Has(world.glitches_item_name))
 		for i, stage in enumerate([*level_names[:4], 'Bad End' if world.characters & 1 else 'Good End']):
@@ -99,18 +99,18 @@ def nnq(world):
 				for arena in arenas
 			))
 	
-	if world.options.nnq_other_achievement_checks:
-		only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
-		exclude_only_noel = False
-		only_noel_hard = False
-		iv_region = fit_region = None
+	only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
+	exclude_only_noel = False
+	only_noel_hard = False
+	iv_region = fit_region = None
 
-		for arena in arenas:
-			if arena.name.endswith("'s office"):
-				exclude_only_noel |= arena.boss.noel_difficulty > 2
-				only_noel_hard |= arena.boss.noel_difficulty
-				only_flare_rule &= HasAny(*arena.boss.flare_requirements)
+	for arena in arenas:
+		if arena.name.endswith("'s office"):
+			exclude_only_noel |= arena.boss.noel_difficulty > 2
+			only_noel_hard |= arena.boss.noel_difficulty
+			only_flare_rule &= HasAny(*arena.boss.flare_requirements)
 
+		if world.options.nnq_achievement_checks.boss in world.options.nnq_achievement_checks:
 			match arena.name:
 				case 'Crystal Falls midboss':
 					world.add_location('Perfect Debut', world.get_region(arena.region), None, arena.boss.tags & boss.T_BAD_DEBUT)
@@ -147,15 +147,15 @@ def nnq(world):
 						fit_region = world.create_region('Frozen in Time')
 						world.add_location('Frozen in Time', fit_region)
 					world.get_region(arena.region).connect(fit_region)
-		
-		if levels > 5:
-			world.add_location('Only Flare!', world.get_region('nnq_hq_roof'), only_flare_rule)
-			world.add_location(
-				'Only Noel!',
-				world.get_region('nnq_hq_roof'),
-				Has(boss.NOEL) & (Has(boss.NOEL, 2) | HasAny(boss.MACE, world.glitches_item_name)) if only_noel_hard else Has(boss.NOEL),
-				exclude_only_noel
-			)
+	
+	if levels > 5 and world.options.nnq_achievement_checks.hq in world.options.nnq_achievement_checks:
+		world.add_location('Only Flare!', world.get_region('nnq_hq_roof'), only_flare_rule)
+		world.add_location(
+			'Only Noel!',
+			world.get_region('nnq_hq_roof'),
+			Has(boss.NOEL) & (Has(boss.NOEL, 2) | HasAny(boss.MACE, world.glitches_item_name)) if only_noel_hard else Has(boss.NOEL),
+			exclude_only_noel
+		)
 
 	if world.options.nnq_goal.value != 4:
 		for i in range(5):

@@ -1,3 +1,4 @@
+import { itemTextParticle } from './patch.js';
 import { APQuestMenu } from "./questMenu.js";
 import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
@@ -86,7 +87,7 @@ export class ArchipelagoState {
 		this.reconnect = reconnect;
 		patchEvents();
 		if (slotData.mr) {
-			const musicA = NNM.game.assets.bgmData.map(bgm => bgm.id).filter(id => id !== 'waterfall'), rng = createLCG(slotData.mr);
+			const musicA = NNM.game.assets.bgmData.map(bgm => bgm.id).filter(id => id !== 'waterfall' && !NNM.customMusicData[id]?.excludeFromRandomizerPool), rng = createLCG(slotData.mr);
 			musicA.sort();
 			const musicB = [...musicA];
 			for (let i = musicB.length - 1; i > 0; i--) {
@@ -276,6 +277,8 @@ export class ArchipelagoState {
 		}
 		
 		if (!player) return;
+
+		if (player.isGrounded) this.watamelon = false;
 
 		if (this.incomingDeath && NNM.game.scene.events.some(e => e.hilo))
 			player.playerControl = true;
@@ -672,6 +675,15 @@ export class ArchipelagoState {
 
 			if (this.reconnecting) this.save();
 
+			if (noPopup === 'text' && scout && !this.pendingPopUp) {
+				if (!(scout.local && [0, 10, 11, 14, 19].includes(scout.id >> 8)))
+					itemTextParticle(NNM.getPlayer(), loc);
+				else if (scout.local && scout.id < 256)
+					this.dueCrystalPopup += scout.id;
+				else if (scout.local && scout.id === (10 << 8))
+					this.#dueCoinPopup++;
+			}
+
 			try {
 				this.client.check(loc);
 			} catch {}
@@ -692,7 +704,7 @@ export class ArchipelagoState {
 			'22': 44,
 			'25': 46,
 		}[id];
-		if (loc) this.check(loc);
+		if (loc) this.check(loc, loc === 39 && 'text');
 		if (id == 2) this.#forcePopup = 2;
 	}
 
