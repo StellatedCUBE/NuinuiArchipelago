@@ -588,6 +588,19 @@ NNM.code.findReplaceAllLines('Towa.bibiPhase', '(2 + i * 5) * 16', '(self.archip
 NNM.code.insertAfterFirstMatchingLine('Towa.update', 'this.isCeilling = false', 'if (self.archipelagoState && this.isUpsideDown && this.health && this.vel.y === 0) this.vel.y = -16;');
 NNM.code.insertBeforeFirstMatchingLine('Bibi.checkHit', 'return', 'if (self.archipelagoState && collision && collisionBox instanceof Aircon) this.phase = "idle";');
 NNM.code.insertAtStartOfScope('Bibi.idlePhase', 'if (self.archipelagoState) { if (!this.isGrounded) return; this.vel.x = 0; }');
+NNM.code.insertBeforeFirstMatchingLine('NUINUI_CASTLE_EVENTS', 'sp_throne', _ => {
+	if (self.archipelagoState && game.scene.boss instanceof Towa) {
+		const ys = game.scene.boss.mirrorAnim ? (game.scene.boss.mirrorAnim / 10 - 1) * (game.scene.boss.mirror ? 1 : -1) : game.scene.boss.mirror ? -1 : 1, cx = game.ctx0;
+		if (ys !== 1) {
+			cx.restore();
+			cx.save();
+			cx.translate(592 - game.scene.view.pos.x, game.height / 2);
+			cx.scale(1, ys);
+			cx.drawImage(game.assets.images.sp_throne, 0, game.height / -2);
+			return cx.restore();
+		}
+	}
+});
 NNM.code.insertBeforeFirstMatchingLine('NUINUI_HOLO_HQ_EVENTS', 'bg_kiara', _ => {
 	if (self.archipelagoState && game.scene.boss instanceof Towa) {
 		const ys = game.scene.boss.mirrorAnim ? (game.scene.boss.mirrorAnim / 10 - 1) * (game.scene.boss.mirror ? 1 : -1) : game.scene.boss.mirror ? -1 : 1;
