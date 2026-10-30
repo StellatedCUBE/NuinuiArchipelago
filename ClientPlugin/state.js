@@ -457,8 +457,11 @@ export class ArchipelagoState {
 				this.setSaveField('nuinui', 'item-' + ['fire', 'rocket', 'petal', 'sword', 'shield', 'dual'][sub_id]);
 				this.#flareWeapons++;
 				if (!this.firstWeapon) this.firstWeapon = item;
-				if (NNM.game.mode === 'flare' && player)
-					player.chargeTypeList = Object.keys(player.chargeTypeData).filter(shot => this.saves.nuinui['item-' + shot])
+				if (NNM.game.mode === 'flare' && player) {
+					const shot = player.chargeTypeList[player.chargeType];
+					player.chargeTypeList = Object.keys(player.chargeTypeData).filter(shot => this.saves.nuinui['item-' + shot]);
+					if (shot) player.chargeType = player.chargeTypeList.indexOf(shot);
+				}
 				this.#checkGun();
 				msg = [sub_id === 1 ? 'falls_10' : 'archipelago_shot_' + sub_id];
 				if (!local)
