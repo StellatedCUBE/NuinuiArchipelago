@@ -368,3 +368,5 @@ function createClient(forState) {
 		}
 	});
 }
+
+addEventListener('load', _ => NNM.game.config.getItem('archipelagoTracker') ?? NNM.game.config.setItem('archipelagoTracker', true));

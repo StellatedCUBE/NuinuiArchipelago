@@ -1042,6 +1042,7 @@ export class ArchipelagoState {
 	}
 
 	drawItemAvailability(game, cx, quest, stages, sky_palace) {
+		if (!game.config.getItem('archipelagoTracker')) return;
 		if (quest === 'maiden') {
 			if (!(this.#goal & (1n << BigInt(Feat.MMQ_COIN)))) {
 				cx.save();

@@ -22,6 +22,9 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMen
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
+NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super', 'this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
+	{f: g => g.config.setItem('archipelagoTracker', !g.config.getItem('archipelagoTracker'))});
+NNM.code.insertAtStartOfScope('Game.start', "this.config.getItem('archipelagoTracker')??this.config.setItem('archipelagoTracker',!0);");
 NNM.code.insertAfterFirstMatchingLine('StageSelect.drawOptions', 'vfx_smoke_spirit', 'if (self.archipelagoState?.isStageComplete(game.currentQuest, this.stages[i].index)) cx.drawImage(game.assets.images.NNM_Archipelago_check, pos.x + 1, pos.y - 7);');
 NNM.code.insertAtEndOfScope('MarineStageSelect.drawOptions', 'this.endTransitionBuffer || self.archipelagoState?.drawItemAvailability(game, cx, "maiden");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.update', 'this.endTransitionBuffer = 30',
