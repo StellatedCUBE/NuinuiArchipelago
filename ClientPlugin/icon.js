@@ -60,6 +60,22 @@ function getTransparentStages() {
 	return transparentStages;
 }
 
+let fairies;
+function getFairies() {
+	if (!fairies) {
+		fairies = document.createElement('canvas');
+		fairies.width = 80;
+		fairies.height = 30;
+		const cx = fairies.getContext('2d'), fairy = new Fairy(new Vector2(3/4, 9/16));
+		fairy.randomBuffer = -3/4;
+		fairy.frameCount = 10 * Math.PI;
+		fairy.draw(NNM.game, cx);
+		fairy.pos.x += fairy.type = 40;
+		fairy.draw(NNM.game, cx);
+	}
+	return fairies;
+}
+
 export function getIcon(item, anim) {
 	switch (item >> 8) {
 		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
@@ -81,8 +97,22 @@ export function getIcon(item, anim) {
 		case 16: return [NNM.game.assets.images.NNM_Archipelago_key];
 		case 17: return [NNM.game.assets.images.sp_bomb, [0, 0, 12, 12]];
 		case 18: return [NNM.game.assets.images.ui_items, [1, 1, 18, 18]];
+		case 19: return anim ? [NNM.game.assets.images.NNM_Archipelago_logo] : [
+			[NNM.game.assets.images.sp_nousabot, [0, 0, 24, 24]],
+			[NNM.game.assets.images.sp_dokuro, [0, 0, 16, 16]],
+			[NNM.game.assets.images.sp_spirit, [0, 0, 16, 16]],
+			[NNM.game.assets.images.sp_nousakumo, [0, 8, 32, 24]],
+			[NNM.game.assets.images.sp_mikobell, [3, 10, 24, 38]],
+			[NNM.game.assets.images.sp_oni, [44, 2, 35, 40]],
+			[getFairies(), [40, 0, 40, 30]],
+			[getFairies(), [0, 0, 40, 30]],
+			[NNM.game.assets.images.sp_gawr, [37, 6, 22, 28]],
+			[NNM.game.assets.images.sp_bibi, [2, 4, 20, 12]]
+		][item & 15];
 	}
 }
+
+self.III=getIcon;
 
 export const marginBottom = {
 	[4 << 8 | 1]: 5,

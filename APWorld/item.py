@@ -29,6 +29,7 @@ class ItemCategory(Enum):
 	CASINO_KEY = 16
 	BOMB = 17
 	DUAL_PISTOLS = 18
+	ENEMY = 19
 
 @dataclass
 class ItemType:
@@ -36,6 +37,7 @@ class ItemType:
 	sub_id: int
 	name: str
 	class_: ItemClassification | Callable
+	immediate: bool = False
 	
 	id: int = 0
 
@@ -93,13 +95,13 @@ item_types = [
 	
 	ItemType(ItemCategory.COIN, 0, 'Gold Coin', ItemClassification.filler),
 	
-	ItemType(ItemCategory.HEART, 0, 'Heart', ItemClassification.filler),
+	ItemType(ItemCategory.HEART, 0, 'Heart', ItemClassification.filler, True),
 	
 	ItemType(ItemCategory.HELP, 0, 'Help', ItemClassification.filler),
 	
 	ItemType(ItemCategory.NOUSAGI, 0, 'Nousagi', ItemClassification.filler),
 
-	ItemType(ItemCategory.ALT_PALETTE, 0, 'Colour Palette Swap', ItemClassification.trap),
+	ItemType(ItemCategory.ALT_PALETTE, 0, 'Colour Palette Swap', ItemClassification.trap, True),
 	
 	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'Progressive Nuinui Quest Stage', ItemClassification.progression),
 	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 1, 'Progressive Maiden Quest Stage', ItemClassification.progression),
@@ -109,6 +111,11 @@ item_types = [
 	ItemType(ItemCategory.BOMB, 0, 'Bomb', lambda world: ItemClassification.filler if world.logical_bomb and not getattr(world.multiworld, 'generation_is_fake', False) else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized),
 
 	ItemType(ItemCategory.DUAL_PISTOLS, 0, 'Dual Pistols', ItemClassification.progression | ItemClassification.useful),
+
+	*(
+		ItemType(ItemCategory.ENEMY, i, name, ItemClassification.trap, True)
+		for i, name in enumerate(ENEMY_TRAPS)
+	),
 
 	ItemType(ItemCategory.CRYSTALS, 1, 'Crystal', ItemClassification.filler),
 	*(

@@ -125,9 +125,9 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", funct
 	if (this.type === 'archipelago') {
 		const [i, r] = this.typeId;
 		if (r)
-			cx.drawImage(i, r[0], r[1], r[2], r[3], 0|(r[2] * -0.5), 0|(24 - r[3] * 0.5), r[2], r[3]);
+			cx.drawImage(i, r[0], r[1], r[2], r[3], 0|(r[2] / -2), 0|(24 - r[3] / 2), r[2], r[3]);
 		else
-			cx.drawImage(i, 0|(i.width * -0.5), 0|(24 - i.height * 0.5));
+			cx.drawImage(i, 0|(i.width / -2), 0|(24 - i.height / 2));
 	}
 });
 
@@ -142,7 +142,7 @@ export function itemTextParticle(a, loc, side) {
 				a.pos.y + a.size.y / 2,
 				text,
 				side === 'left' ? 'right' : 'left',
-				-0.12
+				-.12
 			);
 		} else {
 			archipelagoState.textParticle(
@@ -150,13 +150,13 @@ export function itemTextParticle(a, loc, side) {
 				side === 'top' ? a.pos.y - 8 : a.pos.y + a.size.y + 8,
 				text,
 				'center',
-				side === 'top' ? -0.12 : 0.12
+				side === 'top' ? -.12 : .12
 			);
 		}
 	}
 }
 
-export function enemySanity(a, loc) {
+export function enemySanity(a, loc, nv) {
 	if (archipelagoState.checkAvailable(loc)) {
 		if (a instanceof Heart) {
 			a.toFilter = true;
@@ -167,6 +167,7 @@ export function enemySanity(a, loc) {
 			const extant = game.scene.actors.includes(a);
 			oldTakeHit(game, x);
 			if (extant && !game.scene.actors.includes(a)) {
+				archipelagoState.causeActor = a;
 				archipelagoState.check(loc, true);
 				if (a instanceof CrystalSource) {
 					itemTextParticle(a, loc, a.dir && 'bottom');
@@ -175,7 +176,7 @@ export function enemySanity(a, loc) {
 							a2.toFilter = true;
 				} else if (a instanceof Cannon) {
 					itemTextParticle(a, loc, a.dir ? 'right' : 'left');
-				} else if (!(a instanceof Box && a.type === 'cage')) {
+				} else if (!(a instanceof Box && a.type === 'cage') && !nv) {
 					itemTextParticle(a, loc);
 				}
 			}
@@ -200,7 +201,7 @@ export function enemySanity(a, loc) {
 					cx.globalAlpha = 1;
 				};
 			}
-		} else {
+		} else if (!nv) {
 			const oldUpdate = a.update;
 			a.update = game => {
 				oldUpdate(game);
@@ -210,14 +211,12 @@ export function enemySanity(a, loc) {
 					itemTextParticle(a, loc);
 				}
 				if (~-a.frameCount & 15) return;
-				const clr = (random() * 6) << 3;
-				const t = random() * 6.28;
-				const s = random() * 0.4 + 0.8;
+				const clr = (random() * 6) << 3, t = random() * 6.28, s = random() * .4 + .8;
 				game.scene.particles.pool.push(new Particle({
 					zIndex: 0,
 					lifespan: 40 + (0|(random() * 16)),
-					pos: new Vector2(a.pos.x + (1 + s * Math.sin(t)) * a.size.x * 0.5, a.pos.y + (1 + s * Math.cos(t)) * a.size.y * 0.5),
-					vel: new Vector2(Math.sin(t) * 0.2, random() * 0.15 - 0.3),
+					pos: new Vector2(a.pos.x + (1 + s * Math.sin(t)) * a.size.x / 2, a.pos.y + (1 + s * Math.cos(t)) * a.size.y / 2),
+					vel: new Vector2(Math.sin(t) * .2, random() * .15 - .3),
 					draw: function(cx, assets) {
 						cx.drawImage(assets.images.NNM_Archipelago_circles, (this.life * 4 / this.lifespan) << 3, clr, 8, 8, Math.round(this.pos.x) - 4, Math.round(this.pos.y) - 4, 8, 8);
 					}
@@ -319,7 +318,7 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.13_0', 'flare.pos.y 
 NNM.code.insertAtStartOfScope('Flare.die', 'self.archipelagoState?.death();');
 for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
 	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other;');
-	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel] : []),');
+	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel, Gawr, Bibi] : []),');
 	if (character !== 'MarinePlayer') {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}
@@ -379,7 +378,7 @@ NNM.code.insertAtStartOfScope('Marine.movePhase', 'if (self.archipelagoState) th
 NNM.code.insertAtStartOfScope('Marine.dashPhase', 'if (self.archipelagoState) this.__archipelago_t += this.moveDir/26;')
 NNM.code.insertBeforeFirstMatchingLine('Marine.update', 'this.pos.x = ', 'if (this.__archipelago_xl && this.phase !== "defeated") this.pos.x = lerp(this.__archipelago_xl, this.__archipelago_xr, this.__archipelago_t); else');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_YAMATO_EVENTS.1_4', '!event.fubuzilla.health', 'if (event.fubuzilla.canDie < 2 && self.archipelagoState) self.archipelagoState.item(new Vector2(718, 1050), "boss");');
-NNM.code.insertAfterFirstMatchingLine('Ayame.focusPhase', 'this.vel = ', 'if (self.archipelagoState?.arenaId === 1) this.vel.y *= 0.73;');
+NNM.code.insertAfterFirstMatchingLine('Ayame.focusPhase', 'this.vel = ', 'if (self.archipelagoState?.arenaId === 1) this.vel.y *= .73;');
 NNM.code.insertAfterFirstMatchingLine('Ayame.update', 'const newCollisionBox', 'if (self.archipelagoState) newCollisionBox.pos.y = Math.round(this.pos.y);');
 NNM.code.insertBeforeFirstMatchingLine('Ayame.update', 'this.isGrounded = false;', 'else if (self.archipelagoState) this.pos.x += this.vel.x;');
 NNM.code.insertBeforeFirstMatchingLine('Ayame.update', '(this.pos.x + this.vel.x) * 100', 'if (!self.archipelagoState)');
@@ -449,7 +448,7 @@ NNM.code.insertAfterFirstMatchingLine('EvilMiko.attack3Phase', 'const bullet =',
 NNM.code.insertAfterFirstMatchingLine('Bullet.update', 'currentSection.collisions', function() {
 	const spawnX = 354;
 	if (this.__archipelagoLava && !game.scene.actors.some(a => a instanceof Rock && a.pos.x < spawnX + 44 && a.pos.x > spawnX - 44)) {
-		game.scene.events.find(e => e.addEnemy).addEnemy(Rock, new Vector2(spawnX / 16, 9.75 + random() / 2), 2, 0, 0, random() > 0.5);
+		game.scene.events.find(e => e.addEnemy).addEnemy(Rock, new Vector2(spawnX / 16, 9.75 + random() / 2), 2, 0, 0, random() > .5);
 		game.playSound('NNM_Archipelago_cobblestone');
 	}
 });

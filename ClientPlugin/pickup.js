@@ -1,7 +1,8 @@
 import { getIcon, marginBottom } from './icon.js';
-import { itemTextParticle } from './patch.js';
+import { itemTextParticle, enemySanity } from './patch.js';
 
 export class APPickup extends Actor {
+	#testedForTrap;
 	yos = 0;
 	sound = 'jingle';
 
@@ -38,6 +39,16 @@ export class APPickup extends Actor {
 	}
 
 	update = game => {
+		if (!this.#testedForTrap && CollisionBox.intersects(game.scene.currentSection, this)) {
+			const scout = archipelagoState.getScout(this.apLocation);
+			if (scout) {
+				this.#testedForTrap = true;
+				if (scout?.local && (scout.id >> 8) === 19) {
+					archipelagoState.localIgnoreLocations.push(this.apLocation);
+					this.popTrap(game, scout);
+				}
+			}
+		}
 		this.yos += Math.cos(this.frameCount * 3 * (Math.PI / 180)) / 4;
 		this.frameCount++;
 		this.sparkle(game);
@@ -51,6 +62,21 @@ export class APPickup extends Actor {
 	}
 
 	move() {}
+
+	popTrap(game, scout) {
+		let enemy = archipelagoState.createTrapEnemy(scout.id & 15), col = game.scene.collisions, flag;
+		enemy.pos = CollisionBox.center(this).plus(enemy.size.times(-.5));
+		while (CollisionBox.intersectCollisions(enemy, col).length)
+			enemy.pos.y -= (flag = 8);
+		game.scene.actors.push(enemy);
+		if (flag || (CollisionBox.intersectCollisions({ pos: enemy.pos, size: { x: enemy.size.x, y: 64 } }, col).length && !CollisionBox.intersectCollisions({ pos: enemy.pos.plus({ x: 0, y: -48 }), size: { x: enemy.size.x, y: 48 } }).length))
+			enemy.archipelagoPointUp();
+		enemySanity(enemy, this.apLocation, true);
+		this.draw = _ => {};
+		this.update = game => {
+			if (CollisionBox.intersects(game.scene.currentSection, this) && !(this.toFilter = !enemy.health) && !game.scene.actors.includes(enemy)) this.popTrap(game, scout);
+		};
+	}
 
 	getScout() {
 		return archipelagoState.scouts[this.apLocation];
@@ -139,7 +165,7 @@ export class NousagiItem extends APPickup {
 	}
 
 	shouldPickUp() {
-		return this.#canPickUp || super.shouldPickUp();
+		return this.#canPickUp && super.shouldPickUp();
 	}
 
 	move() {

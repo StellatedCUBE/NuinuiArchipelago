@@ -569,7 +569,11 @@ export class Bridge extends Actor {
 					actor instanceof Koyodrill ||
 					actor instanceof KoyodrillBody ||
 					actor instanceof Gashadokuro ||
-					actor instanceof DokuroHand
+					actor instanceof DokuroHand ||
+					actor instanceof DokuroEnemy ||
+					actor instanceof Spirit ||
+					actor instanceof Nousabot ||
+					actor instanceof Oni ||
 				)) {
 					actor.pos.x--;
 					if (!(actor instanceof BibiFire) && CollisionBox.intersectCollisions(actor, game.scene.currentSection.collisions).length)

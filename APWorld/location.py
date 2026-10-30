@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, IntFlag
 
 from BaseClasses import ItemClassification, Location, LocationProgressType
 
@@ -31,18 +31,23 @@ class LocationCategory(Enum):
 	ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE = 12
 	SANITY_RANDOM = 13
 
-class CharactersNeeded(Enum):
+class LocationFlags(IntFlag):
 	NONE = 0
-	FLARE = 1
-	NOEL = 2
-	BOTH = 3
+	CN_FLARE = 1
+	CN_NOEL = 2
+	CN_BOTH = 3
+	NO_LOCAL_IMMEDIATE = 4
+	NO_LOCAL_TRAP = 8
+	NO_LOCAL_ONI = 16
+	NO_LOCAL_KEY = 32
+	SHOP = 64
 
 @dataclass
 class LocationType:
 	type: LocationCategory
 	sub_id: int
 	name: str
-	characters_needed: CharactersNeeded = CharactersNeeded.NONE
+	flags: LocationFlags = LocationFlags.NONE
 
 	id: int = 0
 	
@@ -52,12 +57,16 @@ class LocationType:
 	def build(self, world, region, rule=None, excluded=False):
 		player = world.player
 		built = FNNQLocation(player, self.name, self.id, region)
-		match self.type:
-			case LocationCategory.LEVEL_CLEAR_NUINUI | LocationCategory.LEVEL_CLEAR_RANDOM | LocationCategory.LEVEL_CLEAR_NAMELESS | LocationCategory.COIN: built.item_rule = lambda item: item.player != player or item.name != 'heart'
-			case LocationCategory.HQ_LEVEL: built.item_rule = lambda item: item.player != player or 'key' not in item.name
-			case LocationCategory.SHOP: built.item_rule = lambda item: ItemClassification.trap not in item.classification and (item.game != GAME or get_item(item.name).type not in (ItemCategory.CRYSTALS, ItemCategory.HEART, ItemCategory.NOUSAGI))
-			case LocationCategory.PACHINKO if self.sub_id == 5: built.progress_type = LocationProgressType.EXCLUDED
-		if self.id in (3, 4, 37, 40, 41, 45, 50, 51, 52, 53, 54): built.item_rule = lambda item: item.player != player or item.name != 'heart'
+		if LocationFlags.NO_LOCAL_IMMEDIATE in self.flags:
+			built.item_rule = lambda item: item.player != player or not get_item(item.code).immediate
+		elif LocationFlags.NO_LOCAL_TRAP in self.flags:
+			built.item_rule = lambda item: item.player != player or item.classification != ItemClassification.trap
+		elif LocationFlags.NO_LOCAL_ONI in self.flags:
+			built.item_rule = lambda item: item.player != player or item.name != 'Oni'
+		elif LocationFlags.NO_LOCAL_KEY in self.flags:
+			built.item_rule = lambda item: item.player != player or (item.name != 'Oni' and get_item(item.code).type != ItemCategory.KEY)
+		elif LocationFlags.SHOP in self.flags:
+			built.item_rule = lambda item: item.game != GAME or get_item(item.code).type not in (ItemCategory.HEART, ItemCategory.CRYSTALS, ItemCategory.NOUSAGI, ItemCategory.ALT_PALETTE, ItemCategory.ENEMY)
 		region.locations.append(built)
 		if rule is not None:
 			world.set_rule(built, rule)
@@ -69,67 +78,67 @@ class LocationType:
 		return self.name
 
 location_types = [
-	LocationType(LocationCategory.MANUAL, 1, "Elfriends' gift (Underworld Casino)"),
-	LocationType(LocationCategory.MANUAL, 2, "Elfriends' gift (Yamato)"),
-	LocationType(LocationCategory.MANUAL, 3, 'Bad End', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 4, 'Good End', CharactersNeeded.NOEL),
-	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop'),
+	LocationType(LocationCategory.MANUAL, 1, "Elfriends' gift (Underworld Casino)", LocationFlags.NO_LOCAL_TRAP),
+	LocationType(LocationCategory.MANUAL, 2, "Elfriends' gift (Yamato)", LocationFlags.NO_LOCAL_TRAP),
+	LocationType(LocationCategory.MANUAL, 3, 'Bad End', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_IMMEDIATE),
+	LocationType(LocationCategory.MANUAL, 4, 'Good End', LocationFlags.CN_NOEL | LocationFlags.NO_LOCAL_IMMEDIATE),
+	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_IMMEDIATE),
+	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop', LocationFlags.NO_LOCAL_ONI),
 	*(
-		LocationType(LocationCategory.MANUAL, i, level + ' key')
+		LocationType(LocationCategory.MANUAL, i, level + ' key', LocationFlags.NO_LOCAL_ONI)
 		for i, level in enumerate(LEVELS[:5], start=10)
 	),
 	*(
-		LocationType(LocationCategory.MANUAL, i, name + "'s challenge", characters)
-		for i, (name, characters) in enumerate((('Koyori', CharactersNeeded.NONE), ('Chloe', CharactersNeeded.NONE), ('Lui', CharactersNeeded.BOTH), ('Iroha', CharactersNeeded.BOTH), ('La+', CharactersNeeded.FLARE)), start=20)
+		LocationType(LocationCategory.MANUAL, i, name + "'s challenge", characters, LocationFlags.NO_LOCAL_ONI)
+		for i, (name, characters) in enumerate((('Koyori', LocationFlags.NONE), ('Chloe', LocationFlags.NONE), ('Lui', LocationFlags.CN_BOTH), ('Iroha', LocationFlags.CN_BOTH), ('La+', LocationFlags.CN_FLARE)), start=20)
 	),
-	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end"),
-	LocationType(LocationCategory.MANUAL, 32, "Hidden treasure room"),
-	LocationType(LocationCategory.MANUAL, 33, "Poyoyo's room"),
-	LocationType(LocationCategory.MANUAL, 34, 'She Did Nothing Wrong'),
+	LocationType(LocationCategory.MANUAL, 31, "Shion's dead end", LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 32, "Hidden treasure room", LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 33, "Poyoyo's room", LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 34, 'She Did Nothing Wrong', LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 35, 'Elite Win'),
 	LocationType(LocationCategory.MANUAL, 36, 'Unfazed'),
-	LocationType(LocationCategory.MANUAL, 37, 'No Scratches'),
+	LocationType(LocationCategory.MANUAL, 37, 'No Scratches', LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 38, "Out of the Angel's Grasp"),
-	LocationType(LocationCategory.MANUAL, 39, 'Water in the Fire Why', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 40, 'Only Flare!', CharactersNeeded.FLARE),
-	LocationType(LocationCategory.MANUAL, 41, 'Only Noel!', CharactersNeeded.NOEL),
+	LocationType(LocationCategory.MANUAL, 39, 'Water in the Fire Why', LocationFlags.CN_FLARE),
+	LocationType(LocationCategory.MANUAL, 40, 'Only Flare!', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_IMMEDIATE),
+	LocationType(LocationCategory.MANUAL, 41, 'Only Noel!', LocationFlags.CN_NOEL | LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 42, 'Perfect Debut'),
-	LocationType(LocationCategory.MANUAL, 43, "Introvert's Weakness", CharactersNeeded.FLARE),
+	LocationType(LocationCategory.MANUAL, 43, "Introvert's Weakness", LocationFlags.CN_FLARE),
 	LocationType(LocationCategory.MANUAL, 44, 'Frozen in Time'),
-	LocationType(LocationCategory.MANUAL, 45, 'Scythe No More'),
+	LocationType(LocationCategory.MANUAL, 45, 'Scythe No More', LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 46, 'Uber Sheep'),
 	*(
-		LocationType(LocationCategory.MANUAL, i, level + ' quick clear')
+		LocationType(LocationCategory.MANUAL, i, level + ' quick clear', LocationFlags.NO_LOCAL_IMMEDIATE)
 		for i, level in enumerate(LEVELS[:5], start=50)
 	),
 	*(
-		LocationType(category, i, prefix + 'Clear ' + level)
+		LocationType(category, i, prefix + 'Clear ' + level, LocationFlags.NO_LOCAL_IMMEDIATE)
 		for i, level in enumerate(LEVELS)
 		for category, prefix in ((LocationCategory.LEVEL_CLEAR_NUINUI, '(Nuinui Quest) '), (LocationCategory.LEVEL_CLEAR_RANDOM, '(Random Quest) '), (LocationCategory.LEVEL_CLEAR_NAMELESS, ''))
 		if (i != 4 or category != LocationCategory.LEVEL_CLEAR_NUINUI) and (i != 6 or category != LocationCategory.LEVEL_CLEAR_RANDOM)
 	),
 	*(
 		LocationType(LocationCategory.BOSS_DROP, i, arena.fqname + ' drop' if 'boss' in arena.name else arena.fqname + ' boss drop', {
-			'Demon Lord Castle lift': CharactersNeeded.NOEL,
-			'Demon Lord Castle turret': CharactersNeeded.NOEL,
-			'Sky Palace secret boss': CharactersNeeded.FLARE
-		}.get(arena.fqname, CharactersNeeded.NONE))
+			'Demon Lord Castle lift': LocationFlags.CN_NOEL,
+			'Demon Lord Castle turret': LocationFlags.CN_NOEL,
+			'Sky Palace secret boss': LocationFlags.CN_FLARE
+		}.get(arena.fqname, LocationFlags.NONE) | LocationFlags.NO_LOCAL_ONI)
 		for i, arena in enumerate(nnq_arenas() + prq_arenas())
 		if arena.drop != Drop.NEVER
 	),
 	*(
-		LocationType(LocationCategory.HQ_LEVEL, i, f'Holo Office floor {i} clear')
+		LocationType(LocationCategory.HQ_LEVEL, i, f'Holo Office floor {i} clear', LocationFlags.NO_LOCAL_KEY)
 		for i in range(1, 6)
 	),
 	*(
-		LocationType(LocationCategory.NOUSAGI, i * 4 + j, f'{level} Nousagi {j}')
+		LocationType(LocationCategory.NOUSAGI, i * 4 + j, f'{level} Nousagi {j}', LocationFlags.NO_LOCAL_TRAP)
 		for i, level in enumerate(LEVELS[:5])
 		for j in range(1, 4)
 	),
 	*(
-		LocationType(LocationCategory.SHOP, i, f'Pekoshop item {i + 1}')
+		LocationType(LocationCategory.SHOP, i, f'Pekoshop item {i + 1}', LocationFlags.SHOP)
 		for i in range(3)
 	),
 	LocationType(LocationCategory.PACHINKO, 0, 'Pachinko moving target'),
@@ -139,12 +148,14 @@ location_types = [
 	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target'),
 	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
-		LocationType(LocationCategory.COIN, level * 8 + i, f'Maiden Quest stage {level:0>2} {challenge}')
+		LocationType(LocationCategory.COIN, level * 8 + i, f'Maiden Quest stage {level:0>2} {challenge}', LocationFlags.NO_LOCAL_IMMEDIATE)
 		for level in range(1, 29)
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}', CharactersNeeded.FLARE if name == 'Ghost' or i in (126,638,1150) else (CharactersNeeded.NOEL if i == 132 else CharactersNeeded.NONE))
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}',
+			(LocationFlags.CN_FLARE if name == 'Ghost' or i in (126,638,1150) else (LocationFlags.CN_NOEL if i == 132 else LocationFlags.NONE)) | (LocationFlags.NO_LOCAL_ONI if name == 'Heart' else LocationFlags.NONE)
+		)
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),

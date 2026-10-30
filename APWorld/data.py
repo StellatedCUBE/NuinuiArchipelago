@@ -3,6 +3,7 @@ LEVELS = ('Crystal Falls', 'Underworld Casino', 'Pirate Harbor', 'Yamato', 'Demo
 SHOTS = ('fire shot', 'Peko rockets', 'sakura shot', "Marine's cutlass", 'ice shield', "dual swords")
 MYTH = ('Kiara', 'Mori', 'Gura', 'Ina', 'Ame')
 ESSENCE = 13
+ENEMY_TRAPS = ('Nousabot', 'Dokuro-kun', 'Spirit', 'Nousakumo', 'Mikobell', 'Oni', 'Smol Towa', 'Smol Kanata', 'Gawr', 'Bibi')
 
 FEAT_NNQ_LEVEL_CLEAR = 0
 FEAT_NNQ_GOOD_END = 7

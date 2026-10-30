@@ -9,6 +9,13 @@ class MusicRando(Toggle):
 	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.)"""
 	display_name = "Randomise Music"
 
+class EnemyTrapIntensity(Range):
+	"""How frequent enemy-spawning traps should be"""
+	display_name = "Enemy Trap Intensity"
+	default = 0
+	range_start = 0
+	range_end = 10
+
 class NNQ(DefaultOnToggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
@@ -98,7 +105,7 @@ class NNQSpeedrunChecks(Toggle):
 	display_name = "Quick Clear Checks"
 
 class NNQAchievementChecks(Toggle):
-	"""Makes the achievements not covered by other settings locations."""
+	"""Makes the achievements not covered by other settings locations. Achievements that require killing a boss with certain restrictions are tied to the arena, not the boss, with the exception of “Introvert's Weakness” and “Frozen in Time”."""
 	display_name = "Other Achievement Checks"
 
 class NNQCheckpointSanity(Toggle):
@@ -190,6 +197,7 @@ class FNNQOptions(PerGameCommonOptions):
 	# General
 	death_link: CustomDeathLink
 	randomise_music: MusicRando
+	enemy_trap_intensity: EnemyTrapIntensity
 
 	# NNQ
 	nnq: NNQ

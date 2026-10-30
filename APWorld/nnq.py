@@ -76,7 +76,7 @@ def nnq(world):
 	arenas = [a for a in nnq_arenas() if a.region in world.multiworld.regions.region_cache[world.player]]
 	for i, arena in enumerate(arenas):
 		cn = location.get_location((location.LocationCategory.BOSS_DROP, i), False)
-		cn = cn.characters_needed.value if cn else 0
+		cn = (cn.flags.value & 3) if cn else 0
 		if (cn & world.characters) != cn:
 			arena.boss = boss.by_name['none']
 	boss.allocate_bosses(world, world.options.nnq_boss_shuffle, arenas, boss.Q_ALL if world.options.nnq_boss_cross else boss.Q_NNQ)

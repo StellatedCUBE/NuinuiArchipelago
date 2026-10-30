@@ -3,7 +3,7 @@ from BaseClasses import Tutorial, Region, ItemClassification, PlandoOptions
 from Options import OptionError
 from rule_builder.rules import CanReachRegion, True_
 
-from .data import GAME
+from .data import GAME, ENEMY_TRAPS
 from .options import FNNQOptions, fnnq_option_groups
 from .item import item_name_to_id, get_item, ItemCategory, FNNQItem
 from .location import location_name_to_id, get_location, LocationCategory
@@ -41,12 +41,11 @@ class FNNQWorld(World):
 
 	def add_location(self, location, *a):
 		lo = get_location(location)
-		if (lo.characters_needed.value & (3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value)) == lo.characters_needed.value:
+		cn = lo.flags.value & 3;
+		if (cn & self.characters) == cn:
 			self.locations.append((lo, a))
 
 	def add_goal_location(self, *locations):
-		#has = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value
-		#self.goal_locations.extend(lo.id for lo in (get_location(location) for location in locations) if (lo.characters_needed.value & has) == lo.characters_needed.value)
 		self.goal_locations.extend(get_location(location).id for location in locations)
 	
 	def add_goal_feat(self, feat):
@@ -61,13 +60,15 @@ class FNNQWorld(World):
 		return region
 
 	def get_filler_item_name(self):
+		if self.random.random() * 20 < self.options.enemy_trap_intensity.value:
+			return self.random.choice(ENEMY_TRAPS)
 		filler_total_weight = sum(w for _, w in self.filler)
 		i = self.random.randrange(filler_total_weight)
 		for item, weight in self.filler:
 			i -= weight
 			if i < 0:
-				return str(item)
-		return 'heart'
+				return item.name
+		return 'Heart'
 
 	def create_item(self, name):
 		return FNNQItem(name, ItemClassification.progression, None, self.player) if name == self.glitches_item_name else get_item(name).build(self)
@@ -105,6 +106,7 @@ class FNNQWorld(World):
 			self.push_precollected(starting_level.build(self))
 
 		self.filler = [(get_item(i), j) for i, j in self.filler]
+		self.filler_non_immediate = [f for f in self.filler if not f[0].immediate]
 
 		location_count = sum(location.id not in self.locked_items for location, _ in self.locations) - self.safety_nousagi
 
@@ -125,30 +127,40 @@ class FNNQWorld(World):
 			if not any(item.type == ItemCategory.NOUSAGI for item in self.items):
 				self.add_item(ItemCategory.NOUSAGI)
 
-		filler_total_weight = sum(w for _, w in self.filler)
 		while len(self.items) < location_count:
-			i = self.random.randrange(filler_total_weight)
-			for item, weight in self.filler:
-				i -= weight
-				if i < 0:
-					self.items.append(item)
-					break
+			self.add_item(self.get_filler_item_name())
 
-		self.random.shuffle(self.items)
-		for item in self.items:
-			built = item.build(self)
-			if item.type == ItemCategory.BIG_CRYSTAL and self.options.prq_goal.value:
-				built.classification = ItemClassification.filler
-			self.multiworld.itempool.append(built)
-
+		unrestricted_locations = 0
 		for location, args in self.locations:
 			placed = self.locked_items.get(location.id)
 			if placed is None and location.id in self.locked_items:
 				continue
-
 			built = location.build(self, *args)
 			if placed:
 				built.place_locked_item(self.create_item(placed))
+			else:
+				unrestricted_locations += not(location.flags.value & 12)
+
+		restricted_items = sum(item.immediate for item in self.items)
+
+		if len(self.multiworld.worlds) == 1 and restricted_items > unrestricted_locations * 0.8:
+			self.random.shuffle(self.items)
+			filler_total_weight = sum(w for _, w in self.filler_non_immediate)
+			for i in range(len(self.items)):
+				if self.items[i].immediate:
+					j = self.random.randrange(filler_total_weight)
+					for item, weight in self.filler_non_immediate:
+						j -= weight
+						if j < 0:
+							self.items[i] = item
+							restricted_items -= 1
+							break
+					if restricted_items < unrestricted_locations * 0.8:
+						break
+
+		for item in self.items:
+			built = item.build(self)
+			self.multiworld.itempool.append(built)
 
 		goal_rule = True_()
 		for location, args in self.locations:
@@ -176,12 +188,13 @@ class FNNQWorld(World):
 			nnq_li = self.options.nnq_stage_items.value,
 			mr = self.options.randomise_music.value * self.random.randrange(1 << 31),
 			oob = self.options.prq_allow_oob.value,
-			help = int(any(item == help_item for item in self.items)),
+			help = +any(item == help_item for item in self.items),
 			c = self.characters,
+			et = self.options.enemy_trap_intensity.value,
 		)
 	
 	def prevent_boss_plando(self):
-		if not getattr(self.multiworld, "generation_is_fake", False) and not(PlandoOptions.bosses & self.multiworld.plando_options):
+		if not(getattr(self.multiworld, "generation_is_fake", False) or PlandoOptions.bosses & self.multiworld.plando_options):
 			if not self.warned_about_plando:
 				logging.warning(f"The plando bosses module is turned off, so {self.multiworld.player_names[self.player]}'s boss plando will be ignored.")
 				self.warned_about_plando = True

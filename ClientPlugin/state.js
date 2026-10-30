@@ -52,6 +52,8 @@ export class ArchipelagoState {
 	coinsSpent = 0;
 	#dueCoinPopup = 0;
 	#coinsByQuantity;
+	#pendingEnemies = [];
+	#pendingCausedEnemies = [];
 	#musicMap = {};
 	bufferedHearts = 0;
 	casinoKey = Infinity;
@@ -85,6 +87,7 @@ export class ArchipelagoState {
 		patchEvents();
 		if (slotData.mr) {
 			const musicA = NNM.game.assets.bgmData.map(bgm => bgm.id).filter(id => id !== 'waterfall'), rng = createLCG(slotData.mr);
+			musicA.sort();
 			const musicB = [...musicA];
 			for (let i = musicB.length - 1; i > 0; i--) {
 				const j = 0|(rng() * (i + 1));
@@ -208,6 +211,27 @@ export class ArchipelagoState {
 			}
 		}
 
+		if (this.#pendingCausedEnemies.length) {
+			for (const enemy of this.#pendingCausedEnemies) {
+				enemy.pos = CollisionBox.center(enemy.archipelagoCause).plus(enemy.size.times(-.5));
+				let xc = enemy.pos.x, xl = enemy.archipelagoCause.pos.x + enemy.archipelagoCause.size.x - enemy.size.x, col = NNM.game.scene.collisions, flag;
+				while (1) {
+					for (const x of [xc, enemy.archipelagoCause.pos.x, xl]) {
+						enemy.pos.x = x;
+						if (!CollisionBox.intersectCollisions(enemy, col).length) {
+							NNM.game.scene.actors.push(enemy);
+							this.#particleBurst(enemy);
+							flag = true;
+							break;
+						}
+					}
+					if (flag) break;
+					enemy.pos.y += enemy.archipelagoCause.dir ? 8 : -8;
+				}
+			} 
+			this.#pendingCausedEnemies = [];
+		}
+
 		const player = NNM.getPlayer();
 		
 		if (!NNM.game.menu && ((player?.playerControl && !NNM.game.scene.bossKillEffect) || (this.#forcePopup && !--this.#forcePopup && this.pendingPopUp))) {
@@ -262,6 +286,19 @@ export class ArchipelagoState {
 			NNM.game.scene.actors.push(heart);
 			if (CollisionBox.intersectCollisions(heart, NNM.game.scene.collisions).length)
 				heart.pos = CollisionBox.center(player);
+		}
+
+		if (!NNM.game.menu && player.playerControl && this.#pendingEnemies.length) {
+			const enemy = this.#pendingEnemies.at(-1), d = player.dir ^ (random() < .8), col = NNM.game.scene.collisions;
+			enemy.pos = player.pos.plus({ x: (random() * 72 + 16) * (d ? -1 : 1) + (d ? -enemy.size.x : 16), y: -enemy.size.y });
+			if (CollisionBox.intersects(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length) {
+				NNM.game.scene.actors.push(enemy);
+				this.#pendingEnemies.pop();
+				do enemy.pos.y -= 8;
+				while (CollisionBox.intersects(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length && (enemy.pos.y > player.pos.y - 64 || enemy instanceof Nousakumo || enemy instanceof Mikobell));
+				enemy.pos.y += 8;
+				this.#particleBurst(enemy);
+			}
 		}
 
 		if (this.#newFeats) {
@@ -324,6 +361,22 @@ export class ArchipelagoState {
 		}
 	}
 
+	#particleBurst(a) {
+		if (a.pos.y > NNM.game.scene.view.pos.y)
+		for (let i = 0; i < 8; i++) {
+			const clr = (random() * 6) << 3, t = random() * 6.28, v = random() / 3 + 0.4, s = random() * 0.4 + 0.8;
+			NNM.game.scene.particles.pool.push(new Particle({
+				zIndex: 0,
+				lifespan: 30 + (0|(random() * 16)),
+				pos: new Vector2(a.pos.x + (1 + s * Math.sin(t)) * a.size.x / 2, a.pos.y + (1 + s * Math.cos(t)) * a.size.y / 2),
+				vel: new Vector2(Math.sin(t) * v, Math.cos(t) * v),
+				draw: function(cx, assets) {
+					cx.drawImage(assets.images.NNM_Archipelago_circles, (this.life * 4 / this.lifespan) << 3, clr, 8, 8, Math.round(this.pos.x) - 4, Math.round(this.pos.y) - 4, 8, 8);
+				}
+			}));
+		}
+	}
+
 	setSaveField(quest, field, value=true) {
 		this.saves[quest][field] = value;
 		if (NNM.game.currentQuest === quest) NNM.game.saveData.data[field] = value;
@@ -335,9 +388,7 @@ export class ArchipelagoState {
 	}
 
 	handleItem(item) {
-		let msg;
-		let sub_id = item.id & 255;
-		let local = item.sender.slot === item.receiver.slot;
+		let msg, sub_id = item.id & 255, local = item.sender.slot === item.receiver.slot, player = NNM.getPlayer();
 		if (local && this.localIgnoreLocations.includes(item.locationId))
 			return;
 		local |= !item.sender.slot;
@@ -381,7 +432,7 @@ export class ArchipelagoState {
 			case 3:
 				if (sub_id > 1) {
 					this.noelCanCharge = true;
-					if (NNM.getPlayer()) NNM.getPlayer().chargeShot = true;
+					if (player) player.chargeShot = true;
 					msg = ['archipelago_noel_charge'];
 					if (!local)
 						msg.push('raw:received from ' + item.sender.name);
@@ -406,8 +457,8 @@ export class ArchipelagoState {
 				this.setSaveField('nuinui', 'item-' + ['fire', 'rocket', 'petal', 'sword', 'shield', 'dual'][sub_id]);
 				this.#flareWeapons++;
 				if (!this.firstWeapon) this.firstWeapon = item;
-				if (NNM.game.currentQuest === 'nuinui' && NNM.getPlayer())
-					NNM.getPlayer().chargeTypeList = Object.keys(NNM.getPlayer().chargeTypeData).filter(shot => this.saves.nuinui['item-' + shot])
+				if (NNM.game.mode === 'flare' && player)
+					player.chargeTypeList = Object.keys(player.chargeTypeData).filter(shot => this.saves.nuinui['item-' + shot])
 				this.#checkGun();
 				msg = [sub_id === 1 ? 'falls_10' : 'archipelago_shot_' + sub_id];
 				if (!local)
@@ -427,8 +478,8 @@ export class ArchipelagoState {
 
 			case 6:
 				this.setSaveField('nuinui', 'item-' + ['clock', 'jump', '', 'boots'][sub_id - 1]);
-				if (NNM.game.currentQuest === 'nuinui' && NNM.getPlayer() && (sub_id === 4 || NNM.game.playerClass === Flare))
-					NNM.getPlayer()[['item', 'doubleJump', '', 'canWallJump'][sub_id - 1]] = true;
+				if (NNM.game.currentQuest === 'nuinui' && player && (sub_id === 4 || NNM.game.mode === 'flare'))
+					player[['item', 'doubleJump', '', 'canWallJump'][sub_id - 1]] = true;
 				this.popup(new PopUpMenu(NNM.game, null, [['casino_7', 'yamato_8', '', 'heaven_0'][sub_id - 1], local ? ['casino_70', 'yamato_9', '', 'heaven_1'][sub_id - 1] : 'raw:received from ' + item.sender.name], 'item', sub_id));
 			break;
 
@@ -516,7 +567,42 @@ export class ArchipelagoState {
 				this.#checkGun();
 				this.popup(new PopUpMenu(NNM.game, null, ['falls_5', local ? 'falls_50' : 'raw:received from ' + item.sender.name], 'item', 0));
 			break;
+
+			case 19:
+				this.popupFlag = true;
+				if (player) {
+					const enemy = this.createTrapEnemy(sub_id);
+					if (sub_id === 5) {
+						enemy.pos = new Vector2(NNM.game.scene.view.pos.x + 360, Math.min(player.pos.y - 32, NNM.game.scene.view.pos.y + random() * 48));
+						enemy.isPersistent = true;
+						const oldUpdate = enemy.update;
+						enemy.update = game => oldUpdate(game, enemy.pos.y += enemy.pos.y < NNM.game.scene.view.pos.y - 8 ? 1 : enemy.pos.y > NNM.game.scene.view.pos.y + 64 ? -1 : 0);
+						NNM.game.scene.actors.push(enemy);
+					} else if (this.causeActor instanceof CrystalSource || this.causeActor instanceof Box) {
+						enemy.archipelagoCause = this.causeActor;
+						if (!this.causeActor.dir) enemy.archipelagoPointUp();
+						this.#pendingCausedEnemies.push(enemy);
+					} else this.#pendingEnemies.push(enemy);
+				}
+			break;
 		}
+	}
+
+	createTrapEnemy(sub_id) {
+		const enemy = new([Nousabot, DokuroEnemy, Spirit, Nousakumo, Mikobell, Oni, Fairy, Fairy, Gawr, Bibi][sub_id])(Vector2.zero, sub_id < 7);
+		if (!sub_id) {
+			const oldUpdate = enemy.update;
+			enemy.update = game => {
+				const mode = game.mode;
+				game.mode = '';
+				oldUpdate(game);
+				game.mode = mode;
+			};
+		} else if (sub_id === 9) {
+			enemy._health = enemy.maxHealth = enemy.canDie = 4;
+		}
+		enemy.archipelagoPointUp = _ => enemy.frameCount = 780 * ([1, 1, 2][sub_id] || 0);
+		return enemy;
 	}
 
 	get availableLevelCount() {
@@ -587,6 +673,8 @@ export class ArchipelagoState {
 				this.client.check(loc);
 			} catch {}
 		}
+		
+		this.causeActor = null;
 	}
 
 	achieve(id) {
@@ -915,6 +1003,7 @@ export class ArchipelagoState {
 	resetPopups() {
 		this.pendingPopUp = null;
 		this.bufferedHearts = this.dueCrystalPopup = this.#dueCoinPopup = 0;
+		this.#pendingEnemies = [];
 	}
 
 	singleCachedEnText(text) {

@@ -67,6 +67,7 @@ def prq(world):
 					world.filler.append((1, 2))
 					world.filler.append((2, 2))
 					world.filler.append((10, 1))
+					world.safety_nousagi = True
 					for j in range(6):
 						world.add_location((location.LocationCategory.PACHINKO, j), region)
 
@@ -86,7 +87,7 @@ def prq(world):
 	
 	world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + 5)
 	
-	world.filler.append(('Nousagi', 15))
+	world.filler.append((item.ItemCategory.NOUSAGI, 15))
 
 	if world.options.prq_crystalsanity:
 		world.filler.append((8, sum(sum(type_ == 'Crystal' for _, type_, _, _ in level) for level in prq_enemy_data)))
