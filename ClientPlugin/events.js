@@ -224,6 +224,52 @@ export function patchEvents() {
 		}
 	});
 
+	prefix(MAIDEN_BOAT_3_EVENTS['0_0'][2], -3, (game, event) => {
+		if (!event.timelineFrame) {
+			const scout = archipelagoState.getScout((9 << 16) | 24);
+			if (scout && game.lang === 'en' && !(scout.local && (scout.id === 9 << 8 || scout.id === (15 << 8) + 1 || scout.id >> 8 === 2))) {
+				event.archipelagoItem = new APPickup(Vector2.zero, (9 << 16) | 24);
+				event.archipelagoDialogue = (options, dokuroPos, marinePos) => {
+					const dialogue = [{ type: 'wait', waitForNext: true, duration: 60 }];
+					if (scout.local) {
+						if (scout.id < 256) {
+							dialogue.push({type: 'createBubble', waitForNext: true, text: scout.id > 1 ? 'just some crystals...?' : 'a single crystal...?', pos: marinePos, options});
+							dialogue.push({type: 'createBubble', waitForNext: true, text: 'looks like it.', pos: dokuroPos, options});
+							dialogue.push({type: 'createBubble', waitForNext: true, text: scout.id > 1 ? 'i guess pekora might like them.' : 'i guess pekora might like it.', pos: marinePos, options});
+						} else {
+							let i = 0, id = self.I||scout.id;
+							if (id === 769 && (archipelagoState.nuinuiPlayers & 2)) id += 2;
+							else if (id === 15 << 8) id = archipelagoState.progressiveLevels[0] | (64 | 256);
+							while (true) {
+								const line = game.assets.locales[game.lang][`archipelago_chest_${i}_${id}`] || game.assets.locales[game.lang][`archipelago_chest_${i}_${id >> 8}`];
+								if (!line) break;
+								i++;
+								dialogue.push({type: 'createBubble', waitForNext: true, text: line.substr(1), pos: line[0] === 'm' ? marinePos : dokuroPos, options});
+							}
+							if (!i)
+								dialogue.push({type: 'createBubble', waitForNext: true, text: '?', pos: marinePos, options});
+						}
+					} else {
+						if (/\d/.test(scout.name))
+							dialogue.push({type: 'createBubble', waitForNext: true, text: scout.name + '...?', pos: marinePos, options});
+						else if (/^[AEIOUaeiou]/.test(scout.name))
+							dialogue.push({type: 'createBubble', waitForNext: true, text: `an ${scout.name}...?`, pos: marinePos, options});
+						else
+							dialogue.push({type: 'createBubble', waitForNext: true, text: `a ${scout.name}...?`, pos: marinePos, options});
+
+						dialogue.push({type: 'createBubble', waitForNext: true, text: `looks like it's for ${scout.target}.`, pos: dokuroPos, options});
+
+						if (scout.inner.trap)
+							dialogue.push({type: 'createBubble', waitForNext: true, text: 'that sounds bad...', pos: marinePos, options});
+						else
+							dialogue.push({type: 'createBubble', waitForNext: true, text: 'we should send it to them, then.', pos: marinePos, options});
+					}
+					dialogue.push({ type: 'wait', waitForNext: true, duration: 60 });
+					return new DialogueEvent(event, dialogue);
+				};
+			}
+		}
+	});
 	prefix(MAIDEN_HOLO_1_HQ_EVENTS['0_0'][2], -2, (game, event) => event.end = game.menu = new MarineStageSelect(game));
 
 	patchBosses();

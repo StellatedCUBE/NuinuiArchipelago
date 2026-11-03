@@ -789,6 +789,7 @@ NNM.code.insertAfterFirstMatchingLine('RANDOM_CASINO_EVENTS.3_2', 'slot.collisio
 }});
 NNM.code.insertAfterFirstMatchingLine('RANDOM_CASTLE_EVENTS.17_1', 'player.pos.y > scene.view.pos.y + scene.view.size.y', 'if (self.archipelagoState) self.archipelagoState.deathCause = " didn\'t climb fast enough";');
 NNM.code.findReplaceAllLines('RANDOM_HOLO_HQ_EVENTS.0_0', 'player.die(game);', '{if (self.archipelagoState) self.archipelagoState.deathCause = " fell off"; player.die(game);}');
-
+NNM.code.insertBeforeAllMatchingLines('MAIDEN_BOAT_3_EVENTS', 'sp_cup', 'if (event.archipelagoItem) {event.archipelagoItem.pos = event.cupPos.sub({x:1,y:1}); event.archipelagoItem.draw(game,cx)} else');
+NNM.code.findReplaceAllLines('MAIDEN_BOAT_3_EVENTS', 'new DialogueEvent', 'event.archipelagoDialogue ? event.archipelagoDialogue(bubbleOptions, dokuroBubblePos, marineBubblePos) : new DialogueEvent');
 
 //NNM.code.findReplaceAllLines('Scene', 'a.displayCollisionBox', 'a.displayCollisionBox&&a.displayCollisionBox');
