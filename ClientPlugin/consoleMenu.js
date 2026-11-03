@@ -1,3 +1,7 @@
+export function xmlEsc(text) {
+	return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export class ConsoleMenu extends Menu {
 	wasB = false;
 
@@ -43,28 +47,36 @@ export class ConsoleMenu extends Menu {
 				const m = this.input.value.trim();
 				this.input.value = '';
 				if (m[0] === '/') {
-					archipelagoState.chat.push(`${archipelagoState.client.players.self.name}: ${m}`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-					const [cmd, a1, a2] = m.toLowerCase().split(' ');
-					if (cmd === '/help')
-						archipelagoState.chat.push(a1 ? '<span style="color:red">/help takes 0 arguments</span>' : '/help:\n    Display this text\n/deathlink [on|off]:\n    Enable or disable DeathLink')
-					else if (cmd === '/deathlink') {
-						if (!a1 || a2)
-							archipelagoState.chat.push('<span style="color:red">/deathlink takes 1 argument</span>');
-						else {
-							const on = ['on', 'yes', 'true', 'y', '1', 't'].includes(a1);
-							if (!on && !['off', 'no', 'false', 'n', '0', 'f'].includes(a1))
-								archipelagoState.chat.push('<span style="color:red">/deathlink argument must be "on" or "off"</span>');
-							else {
-								archipelagoState.chat.push('DeathLink turned ' + (on ? 'on' : 'off'));
-								archipelagoState.deathLink = on;
-								archipelagoState.incomingDeath &= on;
-								archipelagoState.client.storage.prepare(archipelagoState.keyPrefix + 'd', +on).replace(+on).commit();
+					archipelagoState.chat.push(xmlEsc(`${archipelagoState.client.players.self.name}: ${m}`));
+					const [cmd, a1, a2] = m.replace(/\s+/g, ' ').toLowerCase().split(' ');
+					if (cmd === '/help') {
+						archipelagoState.chat.push(a1 ? '<span style="color:red">/help takes 0 arguments</span>' : '/help:\n    Display this text' +
+							(archipelagoState.notRace ? Object.values(archipelagoState.link).map(l => `\n${l.cmd} [on|off|group [group]|ungroup]:\n    Enable, disable, or change the group of ` + l.name).join('') : ''));
+					} else {
+						if (archipelagoState.notRace)
+						for (const link of Object.values(archipelagoState.link)) {
+							if (link.cmd === cmd) {
+								let r;
+								if (!a1 || (a2 && a1 !== 'group')) r = `<span style="color:red">${cmd} takes 1 argument</span>`;
+								else if (['on', 'yes', 'true', 'y', '1', 't'].includes(a1)) r = link.be(1);
+								else if (['off', 'no', 'false', 'n', '0', 'f'].includes(a1)) r = link.be(0);
+								else if (a1 === 'ungroup' || (a1 === 'group' && !a2)) r = link.be('');
+								else if (a1 === 'group') {
+									let g = m.match(/^\s*[a-zA-Z\/]+\s+\w+\s+(.*?)\s*$/)[1];
+									try {
+										const j = JSON.parse(g);
+										if ('string' === typeof j) g = j;
+									} catch {}
+									r = link.be(g);
+								} else r = `<span style="color:red">${cmd} argument must be "on", "off", "group", or "ungroup"</span>`;
+								return archipelagoState.chat.push(r);
 							}
 						}
-					} else
 						archipelagoState.chat.push(`<span style="color:red">Unknown command ${cmd}. Use /help to see a list of commands.</span>`);
-				} else if (m)
+					}
+				} else if (m) {
 					archipelagoState.client.messages.say(m);
+				}
 			}
 		})
 	}

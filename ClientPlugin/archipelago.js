@@ -77,7 +77,7 @@ var l = {
 	},
 	c = "2.0.4";
 
-function q() {
+export function q() {
 	const G = [];
 	for (let Q = 0; Q < 36; Q++) G.push(Math.floor(Math.random() * 16));
 	return G[14] = 4, G[19] = G[19] &= -5, G[19] = G[19] |= 8, G[8] = G[13] = G[18] = G[23] = "-", G.map((Q) => Q.toString(16)).join("")

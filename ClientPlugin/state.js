@@ -4,7 +4,8 @@ import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
 import { APPickup, BossDrop, HoloXDrop, FallsWeapon, SmallPickup } from "./pickup.js";
 import { getIcon, getBackedHoloX } from './icon.js';
-import { ConsoleMenu } from "./consoleMenu.js";
+import { ConsoleMenu, xmlEsc } from "./consoleMenu.js";
+import { Link } from './link.js';
 import * as Feat from "./feat.js";
 
 function style(node, state) {
@@ -26,12 +27,17 @@ function css(style) {
 
 export class ArchipelagoState {
 	#lastDeath = 0;
+	#setInitialTags;
 	feats = 0n;
 	#newFeats = 0n;
 	#lastFeat = 0;
 	#goal;
 	#goalVerified;
 	#id;
+	#receivedDamageLinkPoints;
+	#damageLinkOutputBuffer = 0;
+	#preAirconVelocity = Vector2.zero;
+	#inAircon;
 	#saveKey;
 	#forcePopup;
 	#itemCrystals = 0;
@@ -83,7 +89,6 @@ export class ArchipelagoState {
 
 	constructor(slotData, reconnect) {
 		this.slotData = slotData;
-		this.deathLink = slotData.deathLink;
 		this.reconnect = reconnect;
 		patchEvents();
 		if (slotData.mr) {
@@ -102,9 +107,18 @@ export class ArchipelagoState {
 		}
 	}
 
+	get tags() {
+		return Object.values(this.link).map(l => l.tag).filter(t => t);
+	}
+
+	updateTags() {
+		try { this.client.updateTags(this.tags); }
+		catch {}
+	}
+
 	async use(client) {
 		this.keyPrefix = `t${client.players.self.team}s${client.players.self.slot}\t`;
-		client.messages.on('message', (_, nodes) => this.chat.push(nodes.map(node => `<span style="${css(style(node, this))}">${node.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')));
+		client.messages.on('message', (_, nodes) => this.chat.push(nodes.map(node => `<span style="${css(style(node, this))}">${xmlEsc(node.text)}</span>`).join('')));
 
 		const slotId = 0|await client.storage.prepare(this.keyPrefix, -~(2e9*Math.random())).commit(true);
 		if (!slotId || (this.#id && this.#id !== slotId))
@@ -123,11 +137,65 @@ export class ArchipelagoState {
 					this.toScout.push((2 << 16) | i, (3 << 16) | i, (7 << 16) | i);
 				}
 			}
+
+			client.storage.fetch('_read_race_mode').then(race => this.notRace = !race);
+
+			this.client = client;
+			this.link = {
+				death: new Link(this.keyPrefix, 'death', 'DeathLink', _ => this.incomingDeath = true),
+				dmg: new Link(this.keyPrefix, 'damage', 'SharedDamage', ({damage_points}) => {
+					const player = NNM.getPlayer();
+					if (player && !isNaN(damage_points)) {
+						this.#receivedDamageLinkPoints += Math.min(damage_points, 120);
+						let d = 0;
+						while (this.#receivedDamageLinkPoints >= 160 / player.maxHealth) {
+							this.#receivedDamageLinkPoints -= 160 / player.maxHealth;
+							d++;
+						}
+						if (d) {
+							const oldDamage = player.damage, oldSliding = player.isSliding, vel = this.link.kb.tag ? player.vel.value() : player.vel;
+							player.damage = d;
+							player.isSliding = false;
+							this.incomingDamage = true;
+							player.takeHit(NNM.game, player);
+							player.damage = oldDamage;
+							player.vel = vel;
+							player.isSliding = oldSliding;
+							this.incomingDamage = false;
+						}
+					}
+				}),
+				kb: new Link(this.keyPrefix, 'knockback', 'KnockbackLink', ({value}) => {
+					const player = NNM.getPlayer();
+					if (player?.playerControl && value && !isNaN(value.x) && !isNaN(value.y)) {
+						player.vel.x = Math.min(15, Math.max(-15, player.vel.x + value.x / 3));
+						player.vel.y = Math.min(31, Math.max(-31, player.vel.y + value.y / 3));
+					}
+				}),
+				trap: new Link(this.keyPrefix, 'trap', 'TrapLink', ({trap_name, fnnq_enemy}) => {
+					if (+fnnq_enemy && fnnq_enemy >= 0 && fnnq_enemy < 10) this.handleItem((19 << 8) | fnnq_enemy);
+					else if (trap_name === 'Summon Trap') this.handleItem((19 << 8) | (random() * 10));
+					else if (trap_name === 'Ghost') this.handleItem((19 << 8) | 2);
+					else if (trap_name === 'Tarr Trap') this.handleItem((19 << 8) | 9);
+					else if (trap_name === "Fishin' Boo Trap") this.handleItem((19 << 8) | 5);
+					else if (trap_name === 'Invert Colors Trap') this.handleItem(14 << 8);
+				}),
+				tag: new Link(this.keyPrefix, 'tag', 'TagLink', ({character}) =>
+					NNM.game.currentQuest !== 'nuinui' ||
+					this.nuinuiPlayers !== 3 ||
+					(NNM.game.mode === 'flare' && character === 'Shiranui Flare') ||
+					(NNM.game.mode === 'noel' && character === 'Shirogane Noel') ||
+						NNM.game.swapPlayer(this))
+			};
+
+			this.link.dmg.name = 'DamageLink';
 		}
 
 		this.client = client;
 		this.#reconnectTime = 1;
 		this.reconnecting = false;
+
+		client.socket.on('bounced', packet => Object.values(this.link).forEach(l => l.take(packet)));
 
 		this.#goal = BigInt('0x' + this.slotData.goal);
 		if ((this.#goal & this.feats) === this.#goal) {
@@ -136,9 +204,6 @@ export class ArchipelagoState {
 
 		this.#coinsByQuantity = client.room.allLocations.includes((9 << 16) + 8 + 3);
 
-		client.deathLink.on('deathReceived', _ => this.incomingDeath = this.deathLink);
-
-		client.storage.fetch(this.keyPrefix + 'd').then(deathLink => 'number' === typeof deathLink && (this.deathLink = deathLink));
 		client.storage.prepare(this.keyPrefix + 'h', 0).max(this.helpsSpent).commit(true).then(spent => 'number' === typeof spent && (this.helpsSpent = spent));
 		client.storage.prepare(this.keyPrefix + 'g', 0).max(this.coinsSpent).commit(true).then(spent => 'number' === typeof spent && (this.coinsSpent = spent));
 		
@@ -212,6 +277,11 @@ export class ArchipelagoState {
 			}
 		}
 
+		if (!this.#setInitialTags && !Object.values(this.link).some(l => !l.ready)) {
+			this.#setInitialTags = true;
+			this.updateTags();
+		}
+
 		if (this.#pendingCausedEnemies.length) {
 			for (const enemy of this.#pendingCausedEnemies) {
 				enemy.pos = CollisionBox.center(enemy.archipelagoCause).plus(enemy.size.times(-.5));
@@ -239,8 +309,12 @@ export class ArchipelagoState {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
-			} else if (this.incomingDeath)
-				player.die(NNM.game);
+			} else if (this.incomingDeath) {
+				if (NNM.game.scene.dieTransition)
+					this.incomingDeath = false;
+				else
+					player.die(NNM.game);
+			}
 		} else if (this.pendingPopUp instanceof PopUpMenu && (((NNM.game.menu instanceof QuestMenu || NNM.game.menu instanceof StageSelect || NNM.game.menu instanceof MarineStageSelect) && NNM.game.menu.frameCount > 250) || NNM.game.menu instanceof Item)) {
 			let pm = this.pendingPopUp;
 			while (pm.previousMenu instanceof PopUpMenu) pm = pm.previousMenu;
@@ -278,7 +352,19 @@ export class ArchipelagoState {
 		
 		if (!player) return;
 
-		if (player.isGrounded) this.watamelon = false;
+		if (player.isGrounded) this.watamelon = this.#preAirconVelocity.y = 0;
+		
+		if (!NNM.game.scene.actors.some(a => a.constructor === Aircon && player.checkHit(NNM.game, a) && (this.#inAircon = a.dir ? 'y' : 'x'))) {
+			if (this.#inAircon) {
+				this.deathCause = ' was blown';
+				const dv = player.vel.sub(this.#preAirconVelocity);
+				dv[this.#inAircon] = 0;
+				this.knockback(dv);
+			}
+			this.#inAircon = false;
+			this.#preAirconVelocity.x = player.vel.x;
+			this.#preAirconVelocity.y = player.vel.y;
+		}
 
 		if (this.incomingDeath && NNM.game.scene.events.some(e => e.hilo))
 			player.playerControl = true;
@@ -391,7 +477,8 @@ export class ArchipelagoState {
 	}
 
 	handleItem(item) {
-		let msg, sub_id = item.id & 255, local = item.sender.slot === item.receiver.slot, player = NNM.getPlayer();
+		if ('number' === typeof item) item = {sender: {}, receiver: {}, id: item, xt: true};
+		let msg, sub_id = item.id & 255, local = item.sender.slot === item.receiver.slot, player = NNM.getPlayer(), inGame = NNM.game.menu?.constructor.name !== 'ArchipelagoConnectMenu';
 		if (local && this.localIgnoreLocations.includes(item.locationId))
 			return;
 		local |= !item.sender.slot;
@@ -536,11 +623,14 @@ export class ArchipelagoState {
 
 			case 14:
 				this.popupFlag = true;
-				if (!NNM.game.scene.altColorLocked && NNM.game.menu?.constructor.name !== 'ArchipelagoConnectMenu') {
-					NNM.game.config.setItem('altColor', !NNM.game.config.getItem('altColor'));
-					if (!NNM.game.menu) {
-						NNM.game.playSound('no_damage');
-						NNM.game.scene.shakeBuffer = 12;
+				if (inGame) {
+					if (!item.xt) this.link.trap.send({trap_name: 'Invert Colors Trap'});
+					if (!NNM.game.scene.altColorLocked) {
+						NNM.game.config.setItem('altColor', !NNM.game.config.getItem('altColor'));
+						if (!NNM.game.menu) {
+							NNM.game.playSound('no_damage');
+							NNM.game.scene.shakeBuffer = 12;
+						}
 					}
 				}
 			break;
@@ -576,19 +666,22 @@ export class ArchipelagoState {
 
 			case 19:
 				this.popupFlag = true;
-				if (player) {
-					const enemy = this.createTrapEnemy(sub_id);
-					if (sub_id === 5) {
-						enemy.pos = new Vector2(NNM.game.scene.view.pos.x + 360, Math.min(player.pos.y - 32, NNM.game.scene.view.pos.y + random() * 48));
-						enemy.isPersistent = true;
-						const oldUpdate = enemy.update;
-						enemy.update = game => oldUpdate(game, enemy.pos.y += enemy.pos.y < NNM.game.scene.view.pos.y - 8 ? 1 : enemy.pos.y > NNM.game.scene.view.pos.y + 64 ? -1 : 0);
-						NNM.game.scene.actors.push(enemy);
-					} else if (this.causeActor instanceof CrystalSource || this.causeActor instanceof Box) {
-						enemy.archipelagoCause = this.causeActor;
-						if (!this.causeActor.dir) enemy.archipelagoPointUp();
-						this.#pendingCausedEnemies.push(enemy);
-					} else this.#pendingEnemies.push(enemy);
+				if (inGame) {
+					if (!item.xt) this.link.trap.send({trap_name: sub_id === 2 ? 'Ghost' : 'Summon Trap', fnnq_enemy: sub_id});
+					if (player) {
+						const enemy = this.createTrapEnemy(sub_id);
+						if (sub_id === 5) {
+							enemy.pos = new Vector2(NNM.game.scene.view.pos.x + 360, Math.min(player.pos.y - 32, NNM.game.scene.view.pos.y + random() * 48));
+							enemy.isPersistent = true;
+							const oldUpdate = enemy.update;
+							enemy.update = game => oldUpdate(game, enemy.pos.y += enemy.pos.y < NNM.game.scene.view.pos.y - 8 ? 1 : enemy.pos.y > NNM.game.scene.view.pos.y + 64 ? -1 : 0);
+							NNM.game.scene.actors.push(enemy);
+						} else if (this.causeActor instanceof CrystalSource || this.causeActor instanceof Box) {
+							enemy.archipelagoCause = this.causeActor;
+							if (!this.causeActor.dir) enemy.archipelagoPointUp();
+							this.#pendingCausedEnemies.push(enemy);
+						} else this.#pendingEnemies.push(enemy);
+					}
 				}
 			break;
 		}
@@ -802,7 +895,7 @@ export class ArchipelagoState {
 
 	onSceneStart(scene) {
 		this.latestNNQLevel = null;
-		this.bufferedHearts = 0;
+		this.#receivedDamageLinkPoints = this.bufferedHearts = 0;
 		this.#overheadTextPopupDelay = 60;
 		if (NNM.game.currentQuest === 'nuinui') {
 			this.#checkGun();
@@ -838,79 +931,93 @@ export class ArchipelagoState {
 	}
 
 	death() {
-		if (this.incomingDeath)
+		if (this.incomingDeath || this.incomingDamage)
 			this.incomingDeath = false;
-		else if (this.deathLink && this.#lastDeath < NNM.game.frameCount) {
+		else if (this.#lastDeath < NNM.game.frameCount) {
 			this.#lastDeath = NNM.game.frameCount;
-			const name = this.client.players.self.name;
-			let type, cause, message;
-			if (this.hitBy instanceof Rock) {
-				message = name + ' crashed into a rock';
-			} else if (this.hitBy instanceof Spike) {
-				message = name + ' was impaled on a spike';
-			} else if (this.hitBy instanceof Bullet && (this.hitBy.pekoArrow || this.hitBy.originActor instanceof PekoraBoss)) {
-				type = 'laughed at';
-				cause = 'Pekora';
-			} else if (this.hitBy instanceof Watamelon || (this.hitBy === NNM.getPlayer() && NNM.game.scene.events.some(e => 'wHand' in e))) {
-				message = 'Watame did nothing wrong';
-			} else if (this.hitBy && this.hitBy !== NNM.getPlayer()) {
-				const causeActor = this.hitBy.originActor || this.hitBy;
-				type = this.hitBy instanceof Projectile ? 'shot' : causeActor instanceof Casinochip ? 'run over' : causeActor instanceof Comet ? 'hit' : causeActor instanceof Tentacle ? 'tentacled' : 'killed';
-				cause = {
-					Nousabot: 'a Nousabot',
-					Nousakumo: 'a Nousakumo',
-					Robot: NNM.game.currentStage === 'yamato' ? 'a spirit piloting a mech' : 'a robot',
-					RobotBoss: 'a robot',
-					Casinochip: 'a casino chip',
-					Mikobell: 'a Mikobell',
-					Cannon: 'a cannon',
-					DokuroEnemy: 'a Dokuro-kun',
-					Neko: 'a ghost',
-					Pirate: 'a robot',
-					RobotBoss: 'a robot',
-					Spirit: 'a spirit',
-					Miteiru: 'a Miteiru',
-					Oni: 'an oni',
-					Fairy: 'a smol ' + (causeActor.type ? 'Towa' : 'Kanata'),
-					Fubuzilla: 'Fubura Tower',
-					Dragon: 'Coco',
-					DragonHand: 'Coco',
-					Card: 'Polka',
-					Tentacle: 'Ina',
-					Demon: 'the demon lord',
-					PekoMiniBoss: "Pekora's drill",
-					Comet: 'a comet',
-				}[causeActor.constructor.name] || (!(causeActor instanceof Projectile) && causeActor.constructor.name.replace(/Boss|Evil/, ''));
-				if (cause === 'Object') {
-					cause = null;
-					type = causeActor.__archipelagoVapor && 'steamed';
-				} else if (causeActor === this.hitBy && causeActor instanceof PekoMiniBoss) {
-					typed = 'drilled';
-					cause = 'Pekora';
-				}
-			} else if (this.deathCause) {
-				message = name + this.deathCause;
-			} else if (this.hitBy === NNM.getPlayer()) {
-				if (NNM.game.scene.events.some(e => e.hilo)) {
-					message = name + ' lost to Chloe';
-				} else if (NNM.game.currentStage === 'holo_hq') {
-					if (this.arenaId === 16) message = name + ' fell off';
-					else if (this.arenaId === 15) type = 'burnt';
-					else if (this.arenaId === 13) message = name + ' stepped on spikes';
-				} else if (NNM.game.scene.boss instanceof Kiara) {
-					type = 'burnt';
-					cause = 'Kiara';
-				} else {
-					message = name + ' fell off';
-				}
-			} else if (CollisionBox.intersectCollisions(NNM.getPlayer(), NNM.game.scene.currentSection.collisions).length) {
-				message = name + (this.arenaId === 30 && NNM.game.scene.boss ? ' fell off' : ' tried to put something too solid inside of ' + NNM.getPlayer().constructor.name.replace('Player', ''));
-			}
-			if (type) message = name + ' was ' + type + (cause ? ' by ' + cause : '');
-			console.log(message);
-			try { this.client.deathLink.sendDeathLink(name, message); }
-			catch {}
+			this.link.death.send({cause: this.#getDamageCause(true)});
 		}
+	}
+
+	damage(qty, player) {
+		if (qty && !this.incomingDamage) {
+			const send = ((this.#damageLinkOutputBuffer += qty * 480 / player.maxHealth) / 3) | 0;
+			this.link.dmg.send({damage_points: send});
+			this.#damageLinkOutputBuffer -= send * 3;
+		}
+	}
+
+	#getDamageCause(death) {
+		let type, cause, message, name = this.client.players.self.name;
+		if (this.hitBy instanceof Rock) {
+			message = name + ' crashed into a rock';
+		} else if (this.hitBy instanceof Spike) {
+			message = name + ' was impaled on a spike';
+		} else if (this.hitBy instanceof Bullet && (this.hitBy.pekoArrow || this.hitBy.originActor instanceof PekoraBoss)) {
+			type = 'laughed at';
+			cause = 'Pekora';
+		} else if (this.hitBy instanceof Watamelon || (this.hitBy === NNM.getPlayer() && NNM.game.scene.events.some(e => 'wHand' in e))) {
+			message = 'Watame did nothing wrong';
+		} else if (this.hitBy && this.hitBy !== NNM.getPlayer()) {
+			const causeActor = this.hitBy.originActor || this.hitBy;
+			type = this.hitBy instanceof Projectile ? 'shot' : causeActor instanceof Casinochip ? 'run over' : causeActor instanceof Comet ? 'hit' : causeActor instanceof Tentacle ? 'tentacled' : death ? 'killed' : 'hit';
+			cause = {
+				Nousabot: 'a Nousabot',
+				Nousakumo: 'a Nousakumo',
+				Robot: NNM.game.currentStage === 'yamato' ? 'a spirit piloting a mech' : 'a robot',
+				RobotBoss: 'a robot',
+				Casinochip: 'a casino chip',
+				Mikobell: 'a Mikobell',
+				Cannon: 'a cannon',
+				DokuroEnemy: 'a Dokuro-kun',
+				Neko: 'a ghost',
+				Pirate: 'a robot',
+				RobotBoss: 'a robot',
+				Spirit: 'a spirit',
+				Miteiru: 'a Miteiru',
+				Oni: 'an oni',
+				Fairy: 'a smol ' + (causeActor.type ? 'Towa' : 'Kanata'),
+				Fubuzilla: 'Fubura Tower',
+				Dragon: 'Coco',
+				DragonHand: 'Coco',
+				Card: 'Polka',
+				Tentacle: 'Ina',
+				Demon: 'the demon lord',
+				PekoMiniBoss: "Pekora's drill",
+				Comet: 'a comet',
+			}[causeActor.constructor.name] || (!(causeActor instanceof Projectile) && causeActor.constructor.name.replace(/Boss|Evil/, ''));
+			if (cause === 'Object') {
+				cause = null;
+				type = causeActor.__archipelagoVapor && 'steamed';
+			} else if (causeActor === this.hitBy && causeActor instanceof PekoMiniBoss) {
+				typed = 'drilled';
+				cause = 'Pekora';
+			}
+		} else if (this.deathCause) {
+			message = name + this.deathCause;
+		} else if (this.hitBy === NNM.getPlayer()) {
+			if (NNM.game.scene.events.some(e => e.hilo)) {
+				message = name + (death ? ' lost to Chloe' : ' guessed wrong');
+			} else if (NNM.game.currentStage === 'holo_hq') {
+				if (this.arenaId === 16) message = name + ' fell off';
+				else if (this.arenaId === 15) type = 'burnt';
+				else if (this.arenaId === 13) message = name + ' stepped on spikes';
+			} else if (NNM.game.scene.boss instanceof Kiara) {
+				type = 'burnt';
+				cause = 'Kiara';
+			} else {
+				message = name + ' fell off';
+			}
+		} else if (death && CollisionBox.intersectCollisions(NNM.getPlayer(), NNM.game.scene.currentSection.collisions).length) {
+			message = name + (this.arenaId === 30 && NNM.game.scene.boss ? ' fell off' : ' tried to put something too solid inside of ' + NNM.getPlayer().constructor.name.replace('Player', ''));
+		}
+		if (type) message = name + ' was ' + type + (cause ? ' by ' + cause : '');
+		return message;
+	}
+
+	knockback(amount) {
+		amount.x *= !NNM.game.scene.events.some(e => e.hilo);
+		if (!this.incomingDamage && (amount.x || amount.y)) this.link.kb.send({ value: { x: Math.round(amount.x * 300) / 100, y: Math.round(amount.y * -300) / 100, z: 0 }, cause: this.#getDamageCause() || this.client.players.self.name });
 	}
 
 	diedToNoel() {
@@ -1018,7 +1125,6 @@ export class ArchipelagoState {
 	resetPopups() {
 		this.pendingPopUp = null;
 		this.bufferedHearts = this.dueCrystalPopup = this.#dueCoinPopup = 0;
-		this.#pendingEnemies = [];
 	}
 
 	singleCachedEnText(text) {

@@ -1,3 +1,5 @@
+import {q} from "./archipelago.js";
+
 export const NAME = 'Archipelago';
 
 NNM.code.insertAtStartOfScope('SaveData.setItem', 'if (self.archipelagoState) return;');
@@ -24,7 +26,8 @@ NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = '
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
 NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super', 'this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
 	{f: g => g.config.setItem('archipelagoTracker', !g.config.getItem('archipelagoTracker'))});
-NNM.code.insertAtStartOfScope('Game.start', "this.config.getItem('archipelagoTracker')??this.config.setItem('archipelagoTracker',!0);");
+NNM.code.insertAtStartOfScope('Game.start', "d(this,'archipelagoTracker',!0);d(this,'archipelagoId')",
+	{d: (g, f, d) => g.config.getItem(f) ?? g.config.setItem(f, d ?? q())});
 NNM.code.insertAfterFirstMatchingLine('StageSelect.drawOptions', 'vfx_smoke_spirit', 'if (self.archipelagoState?.isStageComplete(game.currentQuest, this.stages[i].index)) cx.drawImage(game.assets.images.NNM_Archipelago_check, pos.x + 1, pos.y - 7);');
 NNM.code.insertAtEndOfScope('MarineStageSelect.drawOptions', 'this.endTransitionBuffer || self.archipelagoState?.drawItemAvailability(game, cx, "maiden");');
 NNM.code.insertBeforeFirstMatchingLine('MarineStageSelect.update', 'this.endTransitionBuffer = 30',
@@ -320,13 +323,18 @@ NNM.code.insertBeforeFirstMatchingLine('NUINUI_YAMATO_EVENTS.3_6', 'flare.die', 
 NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.13_0', 'flare.pos.y > scene.lockedViewPos.y + game.height', 'if (self.archipelagoState) self.archipelagoState.deathCause = " didn\'t climb fast enough";');
 NNM.code.insertAtStartOfScope('Flare.die', 'self.archipelagoState?.death();');
 for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
-	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other;');
+	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other; const __archipelagoStartVel = this.vel.value();');
+	NNM.code.insertAtEndOfScope(character + '.takeHit', 'other instanceof Aircon || self.archipelagoState?.knockback(this.vel.sub(__archipelagoStartVel));');
+	NNM.code.insertAfterFirstMatchingLine(character + '.takeHit', 'const damage = ', 'self.archipelagoState?.damage(!(other.originActor instanceof Cannon && game.currentStage === "castle") && damage, this);');
 	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel, Gawr, Bibi] : []),');
 	if (character !== 'MarinePlayer') {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}
 }
 NNM.code.insertAtEndOfScope('Noel.constructor', 'if (self.archipelagoState) this.chargeShot = self.archipelagoState.noelCanCharge;');
+NNM.code.insertAtStartOfScope('Game.swapPlayer', 'self.archipelagoState === arguments[0] || self.archipelagoState?.link.tag.send({character:this.mode==="noel"?"Shiranui Flare":"Shirogane Noel"});');
+NNM.code.insertAfterFirstMatchingLine('Watamelon.update', 'playerAggro', 'const __archipelagoStartVel = actor.vel.value();');
+NNM.code.insertBeforeFirstMatchingLine('Watamelon.update', 'achievement25', 'self.archipelagoState?.knockback(actor.vel.sub(__archipelagoStartVel));');
 NNM.code.insertAtEndOfScope('VaporBlock.constructor', 'this.vaporCollisionBox.__archipelagoVapor = true;');
 NNM.code.insertAtStartOfScope('IntroEvent.endIntro', 'if (self.archipelagoState) self.archipelagoState.incomingDeath = false;');
 NNM.code.findReplaceAllLines('Torche.update', ' instanceof Noel', ' instanceof Noel && !self.archipelagoState');

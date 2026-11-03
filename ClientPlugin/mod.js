@@ -351,8 +351,9 @@ function createClient(forState) {
 	const archipelagoClient = new AP.Client();
 	archipelagoClient.login(`${connectSettings[0]}:${connectSettings[1]}`, connectSettings[2], GAME, {
 		password: connectSettings[3],
-		tags: ['DeathLink'],
-		slotData: !self.archipelagoState
+		slotData: !self.archipelagoState,
+		uuid: NNM.game.config.getItem('archipelagoId'),
+		tags: forState?.tags ?? [],
 	}).then(sd => {
 		if (forState && forState !== self.archipelagoState)
 			archipelagoClient.socket.disconnect();

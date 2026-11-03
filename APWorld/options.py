@@ -1,9 +1,43 @@
 from dataclasses import dataclass
 
-from Options import Choice, Toggle, PerGameCommonOptions, StartInventoryPool, DeathLink, OptionGroup, OptionSet, Range, DefaultOnToggle, TextChoice
+from Options import Choice, Toggle, PerGameCommonOptions, StartInventoryPool, OptionGroup, OptionSet, Range, DefaultOnToggle, TextChoice
 
-class CustomDeathLink(DeathLink):
-	__doc__ = DeathLink.__doc__ + '\n\nThis can be changed during play using the /deathlink command in the in-game text console in the pause menu.'
+class DeathLink(TextChoice):
+	"""When you die, everyone who enabled death link dies. Of course, the reverse is true too. If you enter a group name, you are only linked to the people in the same group.
+
+	This can be adjusted later in the client using the /deathlink command in the in-game text console in the pause menu, unless race mode is enabled."""
+	display_name = "Death Link"
+	default = 0
+	option_false = 0
+	option_true = 1
+
+	@classmethod
+	def get_option_name(cls, value):
+		return value if isinstance(value, str) else ('Yes' if value else 'No')
+
+class DamageLink(DeathLink):
+	"""When you take damage, everyone who enabled damage link also takes damage. Of course, the reverse is true too. If you enter a group name, you are only linked to the people in the same group.
+
+	This can be adjusted later in the client using the /damagelink command in the in-game text console in the pause menu, unless race mode is enabled."""
+	display_name = "Damage Link"
+
+class KnockbackLink(DeathLink):
+	"""When you are moved by something external, such as a fan or knockback from damage or, everyone who enabled knockback link is pushed in the same way. Of course, the reverse is true too. If you enter a group name, you are only linked to the people in the same group.
+
+	This can be adjusted later in the client using the /knockbacklink command in the in-game text console in the pause menu, unless race mode is enabled."""
+	display_name = "Knockback Link"
+
+class TrapLink(DeathLink):
+	"""When you receive a trap, people who enabled trap link may also receive an equivalent trap. Of course, the reverse is true too. If you enter a group name, you are only linked to the people in the same group.
+
+	This can be adjusted later in the client using the /traplink command in the in-game text console in the pause menu, unless race mode is enabled."""
+	display_name = "Trap Link"
+
+class TagLink(DeathLink):
+	"""When switch character in NUINUI QUEST, everyone who enabled tag link will also switch to that character if they have it, otherwise a random character. Of course, the reverse is true too. If you enter a group name, you are only linked to the people in the same group.
+
+	This can be adjusted later in the client using the /taglink command in the in-game text console in the pause menu, unless race mode is enabled."""
+	display_name = "Tag Link"
 
 class MusicRando(Toggle):
 	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.) Music from other mods and music packs is included in the pool."""
@@ -202,9 +236,15 @@ class MMQCrossBoss(NNQCrossBoss):
 @dataclass
 class FNNQOptions(PerGameCommonOptions):
 	# General
-	death_link: CustomDeathLink
 	randomise_music: MusicRando
 	enemy_trap_intensity: EnemyTrapIntensity
+
+	# Links
+	death_link: DeathLink
+	damage_link: DamageLink
+	knockback_link: KnockbackLink
+	trap_link: TrapLink
+	tag_link: TagLink
 
 	# NNQ
 	nnq: NNQ
@@ -250,6 +290,13 @@ class FNNQOptions(PerGameCommonOptions):
 	start_inventory_from_pool: StartInventoryPool
 
 fnnq_option_groups = [
+	OptionGroup("Links", [
+		DeathLink,
+		DamageLink,
+		KnockbackLink,
+		TrapLink,
+		TagLink,
+	]),
 	OptionGroup("NUINUI QUEST", [
 		NNQ,
 		NNQGoal,

@@ -89,7 +89,7 @@ export class APPickup extends Actor {
 		let img = game.assets.images.NNM_Archipelago_logo, rect;
 		if (scout?.game === 'FLARE NUINUI QUEST') {
 			[img, rect] = getIcon(scout.id, true);
-			if (scout.sender.slot !== scout.receiver.slot && scout.sender.slot)
+			if (scout.sender.slot !== scout.receiver.slot && img !== game.assets.images.NNM_Archipelago_logo)
 				cx.drawImage(game.assets.images.NNM_Archipelago_logo, 2, 2);
 		}
 		const yos = Math.round(this.yos);
@@ -244,7 +244,7 @@ export class SmallPickup extends APPickup {
 			}
 			[img, rect] = getIcon(scout.id, true);
 			yos = marginBottom[scout.id] || 0;
-			if (scout.sender.slot !== scout.receiver.slot && scout.sender.slot)
+			if (scout.sender.slot !== scout.receiver.slot)
 				cx.drawImage(game.assets.images.NNM_Archipelago_crate, 0, 0);
 		}
 		if (!img || img === game.assets.images.NNM_Archipelago_logo) img = game.assets.images.NNM_Archipelago_crate;

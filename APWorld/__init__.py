@@ -140,10 +140,11 @@ class FNNQWorld(World):
 				built.place_locked_item(self.create_item(placed))
 			else:
 				unrestricted_locations += not(location.flags.value & 76)
+		unrestricted_locations *= 0.5 if self.options.mmq else 0.8
 
 		restricted_items = sum(item.immediate for item in self.items)
 
-		if len(self.multiworld.worlds) == 1 and restricted_items > unrestricted_locations * 0.8:
+		if len(self.multiworld.worlds) == 1 and restricted_items > unrestricted_locations:
 			self.random.shuffle(self.items)
 			filler_total_weight = sum(w for _, w in self.filler_non_immediate)
 			for i in range(len(self.items)):
@@ -155,7 +156,7 @@ class FNNQWorld(World):
 							self.items[i] = item
 							restricted_items -= 1
 							break
-					if restricted_items < unrestricted_locations * 0.8:
+					if restricted_items < unrestricted_locations:
 						break
 
 		for item in self.items:
@@ -182,7 +183,11 @@ class FNNQWorld(World):
 	def fill_slot_data(self):
 		help_item = get_item(ItemCategory.HELP)
 		return dict(
-			deathLink = self.options.death_link.value,
+			DeathLink = self.options.death_link.value,
+			SharedDamage = self.options.damage_link.value,
+			KnockbackLink = self.options.knockback_link.value,
+			TrapLink = self.options.trap_link.value,
+			TagLink = self.options.tag_link.value,
 			boss = self.boss_data,
 			goal = hex(sum(1 << feat for feat in self.required_feats))[2:],
 			nnq_li = self.options.nnq_stage_items.value,
