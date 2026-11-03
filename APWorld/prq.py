@@ -67,8 +67,8 @@ def prq(world):
 					world.filler.append((1, 2))
 					world.filler.append((2, 2))
 					world.filler.append((10, 1))
-					world.safety_nousagi = True
-					for j in range(6):
+					#world.safety_nousagi = True
+					for j in range(5):
 						world.add_location((location.LocationCategory.PACHINKO, j), region)
 
 			for j in range(1, 4):

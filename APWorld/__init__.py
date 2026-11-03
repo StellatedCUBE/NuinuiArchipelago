@@ -142,7 +142,7 @@ class FNNQWorld(World):
 			if placed:
 				built.place_locked_item(self.create_item(placed))
 			else:
-				unrestricted_locations += not(location.flags.value & 76)
+				unrestricted_locations += not(location.flags.value & 204)
 		unrestricted_locations *= 0.5 if self.options.mmq else 0.8
 
 		restricted_items = sum(item.immediate for item in self.items)

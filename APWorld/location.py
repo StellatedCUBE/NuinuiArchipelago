@@ -41,6 +41,7 @@ class LocationFlags(IntFlag):
 	NO_LOCAL_ONI = 16
 	NO_LOCAL_KEY = 32
 	SHOP = 64
+	NO_TRAP = 128
 
 @dataclass
 class LocationType:
@@ -67,6 +68,8 @@ class LocationType:
 			built.item_rule = lambda item: item.player != player or (item.name != 'Oni' and get_item(item.code).type != ItemCategory.KEY)
 		elif LocationFlags.SHOP in self.flags:
 			built.item_rule = lambda item: item.game != GAME or get_item(item.code).type not in (ItemCategory.HEART, ItemCategory.CRYSTALS, ItemCategory.NOUSAGI, ItemCategory.ALT_PALETTE, ItemCategory.ENEMY)
+		elif LocationFlags.NO_TRAP in self.flags:
+			built.item_rule = lambda item: item.classification != ItemClassification.trap
 		region.locations.append(built)
 		if rule is not None:
 			world.set_rule(built, rule)
@@ -144,11 +147,11 @@ location_types = [
 		LocationType(LocationCategory.SHOP, i, f'Pekoshop item {i + 1}', LocationFlags.SHOP)
 		for i in range(3)
 	),
-	LocationType(LocationCategory.PACHINKO, 0, 'Pachinko moving target'),
-	LocationType(LocationCategory.PACHINKO, 1, 'Pachinko leftmost target'),
-	LocationType(LocationCategory.PACHINKO, 2, 'Pachinko rightmost target'),
-	LocationType(LocationCategory.PACHINKO, 3, 'Pachinko second-from-left target'),
-	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target'),
+	LocationType(LocationCategory.PACHINKO, 0, 'Pachinko moving target', LocationFlags.NO_TRAP),
+	LocationType(LocationCategory.PACHINKO, 1, 'Pachinko leftmost target', LocationFlags.NO_TRAP),
+	LocationType(LocationCategory.PACHINKO, 2, 'Pachinko rightmost target', LocationFlags.NO_TRAP),
+	LocationType(LocationCategory.PACHINKO, 3, 'Pachinko second-from-left target', LocationFlags.NO_TRAP),
+	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target', LocationFlags.NO_TRAP),
 	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
 		LocationType(LocationCategory.COIN, level * 8 + i, f'Maiden Quest stage {level:0>2} {challenge}', LocationFlags.NO_LOCAL_IMMEDIATE)
