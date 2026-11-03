@@ -391,7 +391,7 @@ export class ArchipelagoState {
 		if (!NNM.game.menu && player.playerControl && this.#pendingEnemies.length) {
 			const enemy = this.#pendingEnemies.at(-1), d = player.dir ^ (random() < .8), col = NNM.game.scene.collisions;
 			enemy.pos = player.pos.plus({ x: (random() * 72 + 16) * (d ? -1 : 1) + (d ? -enemy.size.x : 16), y: -enemy.size.y });
-			if (CollisionBox.intersects(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length) {
+			if (CollisionBox.includedIn(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length) {
 				NNM.game.scene.actors.push(enemy);
 				this.#pendingEnemies.pop();
 				do enemy.pos.y -= 8;
@@ -623,7 +623,13 @@ export class ArchipelagoState {
 
 			case 11:
 				this.popupFlag = true;
-				this.bufferedHearts++;
+				const koyosort = NNM.game.scene.events.find(e => e.koyori && e.errors && !('result' in e));
+				if (koyosort) {
+					koyosort.errors--;
+					if (!NNM.game.menu) NNM.game.playSound('question');
+				} else {
+					this.bufferedHearts++;
+				}
 			break;
 
 			case 12:
