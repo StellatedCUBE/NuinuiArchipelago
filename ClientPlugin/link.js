@@ -34,7 +34,7 @@ export class Link {
 
 	take(packet) {
 		if (packet.tags?.includes(this.tag) && (this.#sameSlot ? packet.data.uuid !== NNM.game.config.getItem('archipelagoId') : packet.data.source !== archipelagoState.client.players.self.name)) {
-			console.log(`< ${this.tag} ${JSON.stringify(packet.data)}`);
+			//console.log(`< ${this.tag} ${JSON.stringify(packet.data)}`);
 			this.#action(packet.data);
 		}
 	}
@@ -44,7 +44,7 @@ export class Link {
 			data.uuid = NNM.game.config.getItem('archipelagoId');
 			data.source = archipelagoState.client.players.self.name;
 			data.time = 0|(Date.now() / 1e3);
-			console.log(`> ${this.tag} ${JSON.stringify(data)}`);
+			//console.log(`> ${this.tag} ${JSON.stringify(data)}`);
 			try { archipelagoState.client.bounce({tags:[this.tag]}, data); }
 			catch {}
 		}

@@ -61,7 +61,10 @@ class FNNQWorld(World):
 
 	def get_filler_item_name(self):
 		if self.random.random() * 20 < self.options.enemy_trap_intensity.value:
-			return self.random.choice(ENEMY_TRAPS)
+			trap = self.random.choice(ENEMY_TRAPS)
+			while trap == 'Oni' and len(self.multiworld.worlds) == 1 and not(self.options.nnq and self.options.nnq_enemysanity) and not(self.options.prq and (self.options.prq_enemysanity or self.options.prq_crystalsanity or self.options.prq_cratesanity)):
+				trap = self.random.choice(ENEMY_TRAPS)
+			return trap
 		filler_total_weight = sum(w for _, w in self.filler)
 		i = self.random.randrange(filler_total_weight)
 		for item, weight in self.filler:
