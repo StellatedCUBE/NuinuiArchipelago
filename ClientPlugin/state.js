@@ -244,6 +244,17 @@ export class ArchipelagoState {
 		this.toScout.push(...Object.keys(this.scouts).filter(loc => this.scouts[loc] === null).map(x=>+x));
 	}
 
+	#checkGun() {
+		if (!this.saves.nuinui['item-gun']) {
+			this.setSaveField('nuinui', 'item-gun', !!(this.#flareWeapons && (this.gotGunPickup || (this.feats & 49279n) || this.nuinuiPlayers === 3 || this.availableLevelCount > 1 || NNM.game.currentStage !== 'falls')));
+			if (NNM.game.mode === 'flare') {
+				const player = NNM.getPlayer();
+				player.hasBow = true;
+				player.weapon = 'gun';
+			}
+		}
+	}
+
 	update() {
 		this.hitBy = this.deathCause = null;
 		if (!NNM.game.bgm) this.bgmId = null;
@@ -930,15 +941,6 @@ export class ArchipelagoState {
 		return getIcon(i);
 	}
 
-	death() {
-		if (this.incomingDeath || this.incomingDamage)
-			this.incomingDeath = false;
-		else if (this.#lastDeath < NNM.game.frameCount) {
-			this.#lastDeath = NNM.game.frameCount;
-			this.link.death.send({cause: this.#getDamageCause(true)});
-		}
-	}
-
 	damage(qty, player) {
 		if (qty && !this.incomingDamage) {
 			const send = ((this.#damageLinkOutputBuffer += qty * 480 / player.maxHealth) / 3) | 0;
@@ -948,19 +950,30 @@ export class ArchipelagoState {
 	}
 
 	#getDamageCause(death) {
-		let type, cause, message, name = this.client.players.self.name;
+		let type, cause, message, name = this.client.players.self.name, player = NNM.getPlayer();
 		if (this.hitBy instanceof Rock) {
 			message = name + ' crashed into a rock';
 		} else if (this.hitBy instanceof Spike) {
 			message = name + ' was impaled on a spike';
+		} else if (death && this.hitBy?.syringe) {
+			message = name + ' experienced a negative side effect of The Watson Concoction';
+		} else if (this.hitBy?.originActor === player && NNM.game.scene.boss instanceof Ayame) {
+			message = name + "'s attack ricochetted off of Ayame's AT field and hit themselves";
 		} else if (this.hitBy instanceof Bullet && (this.hitBy.pekoArrow || this.hitBy.originActor instanceof PekoraBoss)) {
 			type = 'laughed at';
 			cause = 'Pekora';
-		} else if (this.hitBy instanceof Watamelon || (this.hitBy === NNM.getPlayer() && NNM.game.scene.events.some(e => 'wHand' in e))) {
+		} else if (this.hitBy instanceof Watamelon || (this.hitBy === player && NNM.game.scene.events.some(e => 'wHand' in e))) {
 			message = 'Watame did nothing wrong';
-		} else if (this.hitBy && this.hitBy !== NNM.getPlayer()) {
+		} else if (this.hitBy && this.hitBy !== player) {
 			const causeActor = this.hitBy.originActor || this.hitBy;
-			type = this.hitBy instanceof Projectile ? 'shot' : causeActor instanceof Casinochip ? 'run over' : causeActor instanceof Comet ? 'hit' : causeActor instanceof Tentacle ? 'tentacled' : death ? 'killed' : 'hit';
+			type = this.hitBy instanceof Projectile ? 'shot' :
+				causeActor instanceof Casinochip ? 'run over' :
+				causeActor instanceof Comet ? 'hit' :
+				causeActor instanceof Tentacle ? 'tentacled' :
+				causeActor instanceof DokuroHand ? 'punched' :
+				causeActor instanceof CalliScythe ? 'reaped' :
+				causeActor instanceof BibiFire ? 'burnt' :
+				death ? 'killed' : 'hit';
 			cause = {
 				Nousabot: 'a Nousabot',
 				Nousakumo: 'a Nousakumo',
@@ -970,7 +983,19 @@ export class ArchipelagoState {
 				Mikobell: 'a Mikobell',
 				Cannon: 'a cannon',
 				DokuroEnemy: 'a Dokuro-kun',
+				Gashadokuro: 'Dokuro',
+				DokuroHand: 'Dokuro',
 				Neko: 'a ghost',
+				BibiFire: 'Bibi',
+				CalliScythe: 'Mori',
+				Calli: 'Mori',
+				Scythe: 'a spinning scythe',
+				MarineGhost: 'the ghost of Marine',
+				LuiBird: 'a bird',
+				Gawr: 'a Gawr',
+				Pendulum: 'an axe',
+				Axe: 'Suisei',
+				Sword: 'Ayame',
 				Pirate: 'a robot',
 				RobotBoss: 'a robot',
 				Spirit: 'a spirit',
@@ -978,12 +1003,15 @@ export class ArchipelagoState {
 				Oni: 'an oni',
 				Fairy: 'a smol ' + (causeActor.type ? 'Towa' : 'Kanata'),
 				Fubuzilla: 'Fubura Tower',
+				Laplus: 'La+',
 				Dragon: 'Coco',
 				DragonHand: 'Coco',
 				Card: 'Polka',
 				Tentacle: 'Ina',
 				Demon: 'the demon lord',
 				PekoMiniBoss: "Pekora's drill",
+				Koyodrill: "Koyori's drill",
+				KoyodrillBody: "Koyori's drill",
 				Comet: 'a comet',
 			}[causeActor.constructor.name] || (!(causeActor instanceof Projectile) && causeActor.constructor.name.replace(/Boss|Evil/, ''));
 			if (cause === 'Object') {
@@ -992,27 +1020,42 @@ export class ArchipelagoState {
 			} else if (causeActor === this.hitBy && causeActor instanceof PekoMiniBoss) {
 				typed = 'drilled';
 				cause = 'Pekora';
-			}
+			} else if (causeActor === this.hitBy && (causeActor instanceof Koyodrill || causeActor instanceof KoyodrillBody)) {
+				typed = 'drilled';
+				cause = 'Koyori';
+			} else if (causeActor.__archipelagoOriginActor)
+				cause = causeActor.__archipelagoOriginActor;
 		} else if (this.deathCause) {
 			message = name + this.deathCause;
-		} else if (this.hitBy === NNM.getPlayer()) {
+		} else if (this.hitBy === player) {
 			if (NNM.game.scene.events.some(e => e.hilo)) {
 				message = name + (death ? ' lost to Chloe' : ' guessed wrong');
 			} else if (NNM.game.currentStage === 'holo_hq') {
 				if (this.arenaId === 16) message = name + ' fell off';
 				else if (this.arenaId === 15) type = 'burnt';
-				else if (this.arenaId === 13) message = name + ' stepped on spikes';
+				else if (this.arenaId === 13) message = name + ' stood on spikes';
 			} else if (NNM.game.scene.boss instanceof Kiara) {
 				type = 'burnt';
 				cause = 'Kiara';
 			} else {
 				message = name + ' fell off';
 			}
-		} else if (death && CollisionBox.intersectCollisions(NNM.getPlayer(), NNM.game.scene.currentSection.collisions).length) {
-			message = name + (this.arenaId === 30 && NNM.game.scene.boss ? ' fell off' : ' tried to put something too solid inside of ' + NNM.getPlayer().constructor.name.replace('Player', ''));
+		} else if (death && CollisionBox.intersectCollisions(player, NNM.game.scene.currentSection.collisions).length) {
+			message = name + (this.arenaId === 30 && NNM.game.scene.boss ? ' fell off' : ' tried to put something too solid inside of ' + player.constructor.name.replace('Player', ''));
+		} else if (!this.hitBy && CollisionBox.center(player).y > NNM.game.scene.currentSection.pos.y + NNM.game.scene.currentSection.size.y) {
+			message = name + ' fell off';
 		}
 		if (type) message = name + ' was ' + type + (cause ? ' by ' + cause : '');
 		return message;
+	}
+
+	death() {
+		if (this.incomingDeath || this.incomingDamage)
+			this.incomingDeath = false;
+		else if (this.#lastDeath < NNM.game.frameCount) {
+			this.#lastDeath = NNM.game.frameCount;
+			this.link.death.send({cause: this.#getDamageCause(true)});
+		}
 	}
 
 	knockback(amount) {
@@ -1284,17 +1327,6 @@ export class ArchipelagoState {
 						cx.drawImage(game.assets.images.NNM_Archipelago_lock2, x, 2);
 					}
 				}
-			}
-		}
-	}
-
-	#checkGun() {
-		if (!this.saves.nuinui['item-gun']) {
-			this.setSaveField('nuinui', 'item-gun', !!(this.#flareWeapons && (this.gotGunPickup || (this.feats & 49279n) || this.nuinuiPlayers === 3 || this.availableLevelCount > 1 || NNM.game.currentStage !== 'falls')));
-			if (NNM.game.mode === 'flare') {
-				const player = NNM.getPlayer();
-				player.hasBow = true;
-				player.weapon = 'gun';
 			}
 		}
 	}

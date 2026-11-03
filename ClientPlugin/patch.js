@@ -637,6 +637,7 @@ NNM.code.insertAfterFirstMatchingLine('Laplus.draw', 'sp_demon_laser', `
 		cx.drawImage(game.assets.images.sp_demon_laser, (Math.floor(this.frameCount * .25) % 6) * 64, 0, 64, 96, -32, this.__archipelagoLaserBottom - Math.round(this.pos.y) - 112, 64, 96);
 	} else
 `);
+NNM.code.insertAfterFirstMatchingLine('Bullet.update', 'new BibiFire', 'game.scene.actors.at(-1).__archipelagoOriginActor="La+";');
 NNM.code.insertAtEndOfScope('KoyodrillBody.takeHit', 'if (self.archipelagoState && game.currentQuest !== "random") this.dropHeart(game, .4);');
 NNM.code.insertBeforeFirstMatchingLine('Bullet.takeHit', 'IceShield', 'if (!self.archipelagoState || !this.isGhostWeapon)');
 NNM.code.insertAfterFirstMatchingLine('MarineGhost.phases.tp', 'actor.tpPos = ', _ => {
@@ -662,14 +663,14 @@ NNM.code.findReplaceAllLines('Gashadokuro', /(scenePos.y \+ )?7 \* 16/g, '(self.
 NNM.code.insertAtStartOfScope('Gashadokuro.checkHit', 'if (self.archipelagoState && !this.suddenDeathMode && collisionBox instanceof Projectile && collisionBox.vel.y <= 0) return;');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.idle', '96', '(self.archipelagoState ? scene.currentSection.pos.y + 96 : 96)');
 NNM.code.insertAfterFirstMatchingLine('Gashadokuro.phases.stomp', 'explosion', 'game.scene.actors.find(a => a.archipelagoInaBridge)?.destroy(game, activeHand, true, true);');
-NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.prepare_punch', 'actor.phaseBuffer === 120', 'if (self.archipelagoState) actor.rightHand.targetPos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Left" : "Right")];');
-NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.prepare_full_punch', 'if (actor.phaseBuffer === ', 'if (self.archipelagoState) { actor.rightHand.targetPos.x = actor.__archipelagoLeft; actor.leftHand.targetPos.x = actor.__archipelagoRight; }');
+NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.prepare_punch', 'actor.phaseBuffer === 120', 'if (actor.__archipelagoRight) actor.rightHand.targetPos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Left" : "Right")];');
+NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.prepare_full_punch', 'if (actor.phaseBuffer === ', 'if (actor.__archipelagoRight) { actor.rightHand.targetPos.x = actor.__archipelagoLeft; actor.leftHand.targetPos.x = actor.__archipelagoRight; }');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.full_punch', '< scene.currentSection.pos.x', '< (actor.__archipelagoLeft ?? scene.currentSection.pos.x)');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.full_punch', 'scene.currentSection.pos.x + scene.currentSection.size.x - actor.rightHand.size.x', '(actor.__archipelagoRight ?? (scene.currentSection.pos.x + scene.currentSection.size.x - actor.rightHand.size.x))');
-NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.full_punch', 'isDamage = false', 'if (self.archipelagoState) { actor.leftHand.pos.x = actor.__archipelagoLeft; actor.rightHand.pos.x = actor.__archipelagoRight; }');
+NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.full_punch', 'isDamage = false', 'if (actor.__archipelagoRight) { actor.leftHand.pos.x = actor.__archipelagoLeft; actor.rightHand.pos.x = actor.__archipelagoRight; }');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', '< scenePos.x', '< (actor.__archipelagoLeft ?? scenePos.x)');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.punch', 'scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x', '(actor.__archipelagoRight ?? (scenePos.x + scene.currentSection.size.x - actor.rightHand.size.x))');
-NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.punch', 'isDamage = false', 'if (self.archipelagoState) actor.rightHand.pos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Right" : "Left")];');
+NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.punch', 'isDamage = false', 'if (actor.__archipelagoRight) actor.rightHand.pos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Right" : "Left")];');
 NNM.code.insertAfterFirstMatchingLine('Gashadokuro.phases.move_away', '.xTarget = ', 'if (game.scene.actors.some(a => a.archipelagoInaBridge)) actor.xTarget -= scene.currentSection.size.x / 4');
 for (const scope of NNM.code.filesMatching('bowPickup.js')[0].scopes)
 	if (scope.endsWith('.constructor'))
