@@ -111,6 +111,8 @@ export function patchEvents() {
 
 	prefix(NUINUI_FALLS_EVENTS['3_5'][0], 0, (_, event) => event.winCount > 2 && self.archipelagoState.check(8));
 
+	NUINUI_FALLS_EVENTS['9_0'].push({condition: game => self.archipelagoState && NNM.getPlayer().pos.x > 3200 - 30 && (game.scene.colorSwitchred = false)});
+
 	patchCondition(NUINUI_CASINO_EVENTS['5_2'][0], game => !self.archipelagoState.checked(1) && !game.scene.actors.find(a => a.apLocation === 1));
 	prefix(NUINUI_CASINO_EVENTS['5_2'][0], -1, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(event.elfriend.pos.value().plus(new Vector2(0, -16)), 1)));
 	
@@ -138,7 +140,7 @@ export function patchEvents() {
 	prefix(NUINUI_YAMATO_EVENTS['16_0'][0], -2, (game, event) => event.timelineFrame || game.scene.actors.push(new NoelDrop(event)));
 	prefix(NUINUI_YAMATO_EVENTS['16_0'][0], 3, (game, event) => event.timelineFrame > 3600 && self.archipelagoState.check(9));
 
-	NUINUI_CASTLE_EVENTS['4.6_8'] = [{condition: _ => self.archipelagoState?.scout(24)}];
+	NNM.addEvent(NUINUI_CASTLE_EVENTS, '4.6_8', {condition: _ => self.archipelagoState?.scout(24)});
 	prefix(NUINUI_CASTLE_EVENTS['5_9'][0], 0, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(game.scene.currentSection.pos.plus(new Vector2(152, 104)), 24, true)));
 	prefix(NUINUI_CASTLE_EVENTS['3_3'][0], 0, (_, event) => {
 		if (event.timelineFrame === 1) {
