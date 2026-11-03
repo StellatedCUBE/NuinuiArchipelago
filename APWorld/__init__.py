@@ -199,6 +199,7 @@ class FNNQWorld(World):
 			help = +any(item == help_item for item in self.items),
 			c = self.characters,
 			et = self.options.enemy_trap_intensity.value,
+			v = 'sC(b'
 		)
 	
 	def prevent_boss_plando(self):

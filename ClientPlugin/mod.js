@@ -285,7 +285,6 @@ class ArchipelagoConnectMenu extends Menu {
 		}
 
 		else if (connectFail) {
-			this.page = 'Error';
 			let txt = connectFail.toLowerCase();
 			if (txt.startsWith('error:'))
 				txt = txt.substr(6);
@@ -302,10 +301,11 @@ class ArchipelagoConnectMenu extends Menu {
 				cw += tw;
 			}
 			this.errorMessage = [this.errorHeader, ...lines.map(l => new TextElem(game, [...l.trimEnd()], { textAlign: 'center', lang: 'en' }))];
+			this.page = 'Error';
 		}
 
 		else if (self.archipelagoState?.availableLevelCount) {
-			this.successTime++
+			this.successTime++;
 		}
 	}
 
@@ -359,6 +359,10 @@ function createClient(forState) {
 			archipelagoClient.socket.disconnect();
 		else if (self.archipelagoState)
 			self.archipelagoState.use(archipelagoClient);
+		else if (!sd.v?.startsWith('sC'))
+			connectFail = 'unrecognised slotdata format. please ensure your apworld is from an official source, like archipelago.shinten.moe';
+		else if (!['sC(b'].includes(sd.v))
+			connectFail = 'unrecognised apworld version. your client mod may be out of date.';
 		else
 			(self.archipelagoState = new ArchipelagoState(sd, createClient)).use(archipelagoClient);
 	}).catch(e => {
