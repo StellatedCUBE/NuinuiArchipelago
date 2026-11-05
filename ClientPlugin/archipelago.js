@@ -163,6 +163,7 @@ class B {
 		}
 	}
 }
+export let PKGDB;
 class I {
 	#G;
 	#Q = new Map;
@@ -178,6 +179,17 @@ class I {
 		return this.#Q.get(G) ?? null
 	}
 	async fetchPackage(G = [], Q = !0) {
+		if (!PKGDB) {
+			await new Promise(done => {
+				const dbrequest = indexedDB.open('Archipelago', 1);
+				dbrequest.onsuccess = event => done(PKGDB = event.target.result);
+				dbrequest.onupgradeneeded = event => {
+					dbrequest.onsuccess = _ => {};
+					PKGDB = event.target.result;
+					PKGDB.createObjectStore('DataPackageCache').transaction.oncomplete = done;
+				};
+			});
+		}
 		if (G.length === 0) G = Array.from(this.#Y);
 		G = G.filter((Y) => {
 			if (!this.#Y.has(Y)) return !1;
@@ -188,12 +200,24 @@ class I {
 			games: {}
 		};
 		for (let Y of G) {
+			const cached = await new Promise(resolve => {
+				const request = PKGDB.transaction('DataPackageCache').objectStore('DataPackageCache').get(Y);
+				request.onerror = _ => resolve();
+				request.onsuccess = _ => resolve(request.result);
+			});
+			if (cached?.checksum === this.#X.get(Y))
+				X.games[Y] = cached;
+			else {
 			const Z = {
 					cmd: "GetDataPackage",
 					games: [Y]
 				},
 				[$] = await this.#G.socket.send(Z).wait("dataPackage");
-			X.games[Y] = $.data.games[Y]
+			await new Promise(done => {
+				const request = PKGDB.transaction('DataPackageCache', 'readwrite').objectStore('DataPackageCache').put(X.games[Y] = $.data.games[Y], Y);
+				request.onsuccess = request.onerror = done;
+			});
+			}
 		}
 		if (Q) this.importPackage(X);
 		return X

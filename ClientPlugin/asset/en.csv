@@ -33,6 +33,7 @@ menu_archipelago_spend_coin,spend coin
 archipelago_bonus_info,- spending a coin heals 6 hp
 archipelago_noel_charge,you can now charge up noel's mace
 menu_archipelago_tracker,show archipelago tracker
+menu_archipelago_delete_cache,clear archipelago cache
 
 archipelago_shop_320,falls
 archipelago_shop_384,falls

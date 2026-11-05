@@ -33,6 +33,7 @@ menu_archipelago_spend_coin,spend coin
 archipelago_bonus_info,*金貨使用で６ＨＰ回復
 archipelago_noel_charge,you can now charge up noel's mace
 menu_archipelago_tracker,display archipelago tracker
+menu_archipelago_delete_cache,clear archipelago cache
 
 archipelago_shop_769,noel
 archipelago_shop_771,mace

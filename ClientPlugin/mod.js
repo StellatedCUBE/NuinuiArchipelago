@@ -26,7 +26,7 @@ class ArchipelagoConnectMenu extends Menu {
 		this.form.style.position = 'absolute';
 		this.form.style.zIndex = 5;
 
-		const df = NNM.game.config.getItem('archipelago') || ['localhost', '38281', 'StellatedNNQ', '']//['archipelago.gg', 38281, '', ''];
+		const df = NNM.game.config.getItem('archipelago') || ['archipelago.gg', 38281, '', ''];
 		this.fields = ['host', 'port', 'slot name', 'password'].map((field, i) => {
 			const input = document.createElement('INPUT');
 			this.form.appendChild(input);

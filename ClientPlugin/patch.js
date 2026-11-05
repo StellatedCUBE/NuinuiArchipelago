@@ -1,4 +1,4 @@
-import {q} from "./archipelago.js";
+import {q, PKGDB} from "./archipelago.js";
 
 export const NAME = 'Archipelago';
 
@@ -12,8 +12,37 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 			.normalize('NFKD')
 			.replace(/\p{Diacritic}/gu, '')
 			.replace(/ß/g, 'ss')
-			.replace(/ø/g, 'o')
-			.replace(/ł/g, 'l')
+			.replace(/æ/g, 'ae')
+			.replace(/œ/g, 'oe')
+			.replace(/ƕ/g, 'hv')
+			.replace(/[\\÷]/g, '/')
+			.replace(/{/g, '(')
+			.replace(/}/g, ')')
+			.replace(/</g, '[')
+			.replace(/>/g, ']')
+			.replace(/`/g, "'")
+			.replace(/~/g, '-')
+			.replace(/[ɓƃ]/g, 'b')
+			.replace(/ƈ/g, 'c')
+			.replace(/ɖ/g, 'd')
+			.replace(/ɛ/g, 'e')
+			.replace(/ƒ/g, 'f')
+			.replace(/[ɠɡ]/g, 'g')
+			.replace(/[ħɦ]/g, 'h')
+			.replace(/[ɨƖ]/g, 'i')
+			.replace(/[ɉɟ]/g, 'j')
+			.replace(/ƙ/g, 'k')
+			.replace(/[łƚ]/g, 'l')
+			.replace(/[ɲƞ/g, 'n')
+			.replace(/[øơ]/g, 'o')
+			.replace(/ƥ/g, 'p')
+			.replace(/ɍ/g, 'r')
+			.replace(/[ŧƫƭʈ]/g, 't')
+			.replace(/[ưʉ]/g, 'u')
+			.replace(/ʋ/g, 'v')
+			.replace(/[*×]/g, 'x')
+			.replace(/[ƴɏ]/g, 'y')
+			.replace(/[ƶʐʑ]/g, 'z')
 		].map(c => FONT_EN[c] ? c : "?");
 	}
 });
@@ -791,5 +820,9 @@ NNM.code.insertAfterFirstMatchingLine('RANDOM_CASTLE_EVENTS.17_1', 'player.pos.y
 NNM.code.findReplaceAllLines('RANDOM_HOLO_HQ_EVENTS.0_0', 'player.die(game);', '{if (self.archipelagoState) self.archipelagoState.deathCause = " fell off"; player.die(game);}');
 NNM.code.insertBeforeAllMatchingLines('MAIDEN_BOAT_3_EVENTS', 'sp_cup', 'if (event.archipelagoItem) {event.archipelagoItem.pos = event.cupPos.sub({x:1,y:1}); event.archipelagoItem.draw(game,cx)} else');
 NNM.code.findReplaceAllLines('MAIDEN_BOAT_3_EVENTS', 'new DialogueEvent', 'event.archipelagoDialogue ? event.archipelagoDialogue(bubbleOptions, dokuroBubblePos, marineBubblePos) : new DialogueEvent');
+NNM.code.insertAfterFirstMatchingLine('DataMenu.constructor', 'super', 'this.options.push(o);', {o: {
+	id: 'menu_archipelago_delete_cache',
+	func: _ => PKGDB ? PKGDB.transaction('DataPackageCache', 'readwrite').objectStore('DataPackageCache').clear() : indexedDB.deleteDatabase('Archipelago')
+}});
 
 //NNM.code.findReplaceAllLines('Scene', 'a.displayCollisionBox', 'a.displayCollisionBox&&a.displayCollisionBox');
