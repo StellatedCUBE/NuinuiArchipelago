@@ -41,6 +41,7 @@ export class ArchipelagoState {
 	#saveKey;
 	#forcePopup;
 	#itemCrystals = 0;
+	palette = 0;
 	#gameCrystals = 0;
 	#crystalsToSend = 0;
 	dueCrystalPopup = 0;
@@ -639,16 +640,11 @@ export class ArchipelagoState {
 			break;
 
 			case 14:
-				this.popupFlag = true;
-				if (inGame) {
-					if (!item.xt) this.link.trap.send({trap_name: 'Invert Colors Trap'});
-					if (!NNM.game.scene.altColorLocked) {
-						NNM.game.config.setItem('altColor', !NNM.game.config.getItem('altColor'));
-						if (!NNM.game.menu) {
-							NNM.game.playSound('no_damage');
-							NNM.game.scene.shakeBuffer = 12;
-						}
-					}
+				this.palette ^= (this.popupFlag = true);
+				if (inGame && !item.xt) this.link.trap.send({trap_name: 'Invert Colors Trap'});
+				if (inGame && !NNM.game.scene.altColorLocked && !NNM.game.menu) {
+					NNM.game.playSound('no_damage');
+					NNM.game.scene.shakeBuffer = 12;
 				}
 			break;
 

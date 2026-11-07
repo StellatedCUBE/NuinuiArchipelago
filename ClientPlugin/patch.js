@@ -2,6 +2,8 @@ import {q, PKGDB} from "./archipelago.js";
 
 export const NAME = 'Archipelago';
 
+if (!NNM.gameVersion.startsWith('Steam/')) throw new RangeError(NNM.gameVersion);
+
 NNM.code.insertAtStartOfScope('SaveData.setItem', 'if (self.archipelagoState) return;');
 NNM.code.insertAtEndOfScope('Scene.drawPlayerHealth', 'if (self.archipelagoState?.reconnecting) cx.drawImage(game.assets.images.NNM_Archipelago_dc, 5, 5);');
 NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', function() {
@@ -33,7 +35,7 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 			.replace(/[ɉɟ]/g, 'j')
 			.replace(/ƙ/g, 'k')
 			.replace(/[łƚ]/g, 'l')
-			.replace(/[ɲƞ/g, 'n')
+			.replace(/[ɲƞ]/g, 'n')
 			.replace(/[øơ]/g, 'o')
 			.replace(/ƥ/g, 'p')
 			.replace(/ɍ/g, 'r')
@@ -48,7 +50,6 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 });
 NNM.code.insertAtStartOfScope('TextBubble.parse_en', 'char = char.toLowerCase(); if (!FONT_EN[char] && char !== "\\n") char = "?";');
 NNM.code.insertBeforeFirstMatchingLine('KeyboardListener.handler', 'preventDefault', 'if (document.activeElement.tagName === "INPUT") return;');
-NNM.code.insertAtStartOfScope('Game.update', 'self.archipelagoState?.update();');
 NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMenu)', 'if (self.archipelagoState) this.previousMenu?.menuInit(game); else');
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
@@ -269,7 +270,7 @@ NNM.code.insertAfterFirstMatchingLine('Scene.updateSection', 'this.actors.push',
 			({nuinui: 10, random: 13, maiden: 14}[game.currentQuest] << 16)
 		);
 		self.archipelagoState.scout(loc);
-		enemySanity(this.actors[this.actors.length - 1], loc);
+		enemySanity(this.actors.at(-1), loc);
 	}
 }, {enemySanity});
 NNM.code.insertAfterFirstMatchingLine('NUINUI_PORT_EVENTS.1_0', 'else enemy = new enemyClass', _ => {
@@ -312,7 +313,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 	}
 });
 NNM.code.insertAtEndOfScope('StageSelect.confirm', 'if (self.archipelagoState && this.nextStage === "falls") game.scene.setFromMenu = true;');
-NNM.code.insertAtEndOfScope('Scene.constructor', 'self.archipelagoState?.onSceneStart(this);');
+NNM.code.insertAfterFirstMatchingLine('Scene.update', 'this.isAltColor = ', 'if (self.archipelagoState && !this.altColorLocked) this.isAltColor = self.archipelagoState.palette ^ (game.currentQuest === "random");');
 NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.scene.actors.push(arrow)', 'if (self.archipelagoState && !self.archipelagoState.hasGun && this.weapon === "gun" && !keyChargeAttack) this.__archipelagoGunBlock = this.frameCount; else');
 NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.playSound(this.jetski || this.moto ? "pew"', 'if (this.__archipelagoGunBlock !== this.frameCount) {');
 NNM.code.insertAfterFirstMatchingLine('Flare.update', 'this.animationFrameGun = 0', '} else this.attackBuffer = true;');
@@ -344,6 +345,8 @@ NNM.code.insertAfterFirstMatchingLine('Aircon.update', 'actors.forEach', 'if (se
 NNM.code.insertAfterFirstMatchingLine('MovingBlock.update', 'actors.forEach', 'if (self.archipelagoState && actor instanceof Kanata) return;');
 NNM.code.findReplaceAllLines('NUINUI_CASINO_EVENTS.5_2', "'casino_6'", "game.mode==='noel'?'archipelago_noel_greeting':'casino_6'");
 NNM.code.findReplaceAllLines('NUINUI_CASINO_EVENTS.5_2', "game.assets.locales[game.lang]['casino_8']", "self.archipelagoState?.giftText(1)||game.assets.locales[game.lang]['casino_8']");
+for (const scope of ['NUINUI_CASINO_EVENTS.13_0', 'NUINUI_PORT_EVENTS'])
+	NNM.code.findReplaceAllLines(scope, "game.config.getItem('altColor')", "(self.archipelagoState ? game.scene.isAltColor : game.config.getItem('altColor'))");
 NNM.code.insertBeforeAllMatchingLines('NUINUI_CASINO_EVENTS', 'play_dice', 'if (self.archipelagoState?.bossId !== "Chloe")');
 NNM.code.insertBeforeFirstMatchingLine('NUINUI_PORT_EVENTS.7_0', 'flare.die', 'if (self.archipelagoState) self.archipelagoState.deathCause = " lost a duel to Lui";');
 NNM.code.findReplaceAllLines('NUINUI_YAMATO_EVENTS.2_9', "'yamato_0'", "game.mode==='noel'?'archipelago_noel_greeting':'yamato_0'");
@@ -399,6 +402,7 @@ NNM.code.insertAtStartOfScope('Calli.update', `
 	if (this.archipelagoIgnoreEventCollisions?.collision) __archipelago_col = __archipelago_col.filter(c => c !== this.archipelagoIgnoreEventCollisions.collision);
 	else if (this.archipelagoIgnoreEventCollisions?.collisions) __archipelago_col = __archipelago_col.filter(c => !this.archipelagoIgnoreEventCollisions.collisions.includes(c));
 `);
+NNM.code.insertAfterFirstMatchingLine('Calli.attackPhase', 'const targetPos', 'if (self.archipelagoState) targetPos.x = (self.archipelagoState.arenaL + self.archipelagoState.arenaR) / 2 - 8;');
 for (const scope of ['Miko.chantPhase', 'EvilFlare.attackPhase']) {
 	NNM.code.insertAfterFirstMatchingLine(scope, '-', _ => {
 		if (self.archipelagoState) {

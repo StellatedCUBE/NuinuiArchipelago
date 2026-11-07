@@ -202,7 +202,7 @@ def nnq(world):
 				world.random.shuffle(level_ordering)
 				if (
 					level_ordering[0] in possible_starts and
-					5 not in level_ordering[:3 if world.options.nnq_enemysanity or (world.options.nnq_boss_all_drop and world.options.nnq_hidden_area_checks) else 5] and
+					5 not in level_ordering[:3 if world.options.nnq_enemysanity or (world.options.nnq_boss_all_drop and world.options.nnq_achievement_checks.rooms in world.options.nnq_achievement_checks) else 5] and
 					(world.options.nnq_starting_character.value or 4 not in level_ordering[:3])
 				): break
 			if world.options.nnq_goal.value == 4:

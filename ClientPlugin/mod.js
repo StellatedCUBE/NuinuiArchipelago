@@ -344,7 +344,10 @@ class ArchipelagoOption extends NNM.MainMenuOption {
 	}
 }
 
-NNM.MainMenuOption.custom.push(new ArchipelagoOption());
+NNM.MainMenuOption.custom.push(new ArchipelagoOption);
+
+addEventListener('beforeGameUpdate', _ => self.archipelagoState?.update());
+addEventListener('sceneCreated', event => self.archipelagoState?.onSceneStart(event.target));
 
 function createClient(forState) {
 	connectFail = null;
