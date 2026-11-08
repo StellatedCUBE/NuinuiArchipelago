@@ -720,7 +720,7 @@ NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 			if (option.local && scout.id === (17 << 8)) {
 				option.text = new LocaleElem(game, 'menu_shop_bomb', { textAlign: 'center' });
 			} else if (option.local && scout.id === 769) {
-				option.text = new LocaleElem(game, !(self.archipelagoState.nuinuiPlayers & 2) ? 'archipelago_shop_769' : 'archipelago_shop_771', { textAlign: 'center' });
+				option.text = new LocaleElem(game, !(self.archipelagoState.nnqChars & 2) ? 'archipelago_shop_769' : 'archipelago_shop_771', { textAlign: 'center' });
 			} else if (option.local && game.assets.locales.en['archipelago_shop_' + scout.id]) {
 				option.text = new TextElem(game, [...game.assets.locales.en['archipelago_shop_' + scout.id]], { lang: 'en', textAlign: 'center' });
 			} else {

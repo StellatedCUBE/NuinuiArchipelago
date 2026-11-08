@@ -240,7 +240,7 @@ export function patchEvents() {
 							dialogue.push({type: 'createBubble', waitForNext: true, text: scout.id > 1 ? 'i guess pekora might like them.' : 'i guess pekora might like it.', pos: marinePos, options});
 						} else {
 							let i = 0, id = self.I||scout.id;
-							if (id === 769 && (archipelagoState.nuinuiPlayers & 2)) id += 2;
+							if (id === 769 && (archipelagoState.nnqChars & 2)) id += 2;
 							else if (id === 15 << 8) id = archipelagoState.progressiveLevels[0] | (64 | 256);
 							while (true) {
 								const line = game.assets.locales[game.lang][`archipelago_chest_${i}_${id}`] || game.assets.locales[game.lang][`archipelago_chest_${i}_${id >> 8}`];

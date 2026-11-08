@@ -340,7 +340,7 @@ class ArchipelagoOption extends NNM.MainMenuOption {
 	position = 4.5;
 
 	onSelected() {
-		NNM.game.menu = new ArchipelagoConnectMenu();
+		NNM.game.menu = new ArchipelagoConnectMenu;
 	}
 }
 
@@ -367,7 +367,7 @@ function createClient(forState) {
 		else if (!['sC(b'].includes(sd.v))
 			connectFail = 'unrecognised apworld version. your client mod may be out of date.';
 		else
-			(self.archipelagoState = new ArchipelagoState(sd, createClient)).use(archipelagoClient);
+			(self.archipelagoState = new ArchipelagoState(sd, createClient, ArchipelagoConnectMenu)).use(archipelagoClient);
 	}).catch(e => {
 		if (self.archipelagoState) {
 			self.archipelagoState.reconnecting = false;

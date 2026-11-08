@@ -81,7 +81,7 @@ export function getIcon(item, anim) {
 		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
 		case 1: return [getTransparentStages(), [Math.min(item & 7, 6) << 5, 0, 32, 32]];
 		case 2: return [getMaidenStages(), [(item & 31) * 22, 0, 24, 24]];
-		case 3: return anim && !((item & 1) && (archipelagoState.nuinuiPlayers & 2)) ? [(item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare] : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
+		case 3: return anim && !((item & 1) && (archipelagoState.nnqChars & 2)) ? [(item & 1) ? NNM.game.assets.images.NNM_Archipelago_noel : NNM.game.assets.images.NNM_Archipelago_flare] : [NNM.game.assets.images.ui_items, [(item & 1) * 60, 1, 20, 18]];
 		case 4: return (item & 7) ? [NNM.game.assets.images[['sp_peko_rocket', 'sp_petal', 'sp_marine_sword', 'sp_ice_shield', 'sp_kirito'][(item & 7) - 1]]] : [NNM.game.assets.images.sp_arrow, [25, 12, 14, 6]];
 		case 5: return [NNM.game.assets.images.sp_key, [(item & 7) << 4, 0, 16, 16]];
 		case 6: return [NNM.game.assets.images.ui_items, [(item & 7) * 20, 2, 20, 15]];
