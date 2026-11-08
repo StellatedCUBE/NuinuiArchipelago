@@ -40,3 +40,7 @@ Optionally, bosses that don't normally drop items, pachinko slots, checkpoints, 
 The randomiser adds coins to the multiworld item pool.
 These can be spent for health in levels, the same way as in vanilla, but they are permanently consumed.
 Optionally, level access and idol essence can be made into items.
+
+## What about Noel Nuinui Quest?
+
+It simply doesn't have enough unique content to be worth it. If you really want the Noel Nuinui Quest experience, set “Starting Character” to Noel and disable “Include Other Character”.
