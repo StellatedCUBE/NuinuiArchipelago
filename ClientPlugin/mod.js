@@ -337,7 +337,7 @@ class ArchipelagoConnectMenu extends Menu {
 
 class ArchipelagoOption extends NNM.MainMenuOption {
 	key = 'archipelago';
-	position = -4.5;
+	position = 4.5;
 
 	onSelected() {
 		NNM.game.menu = new ArchipelagoConnectMenu();
