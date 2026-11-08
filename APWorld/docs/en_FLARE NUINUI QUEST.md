@@ -1,41 +1,42 @@
-# Hololive Treasure Mountain
+# FLARE NUINUI QUEST
 
 ## Where is the options page?
 
 The [player options page for this game](../player-options) contains all the options you need to configure and export a config file.
 
-## What does randomisation do to this game?
+## What changes does the randomiser make?
 
-Randomisation locks treasures behind items in the multiworld.
-Completing the requirements to unlock a treasure normally will send a multiworld item to yourself or another player.
+Various link options are available that share deaths, damage, and knockback between players in the multiworld. All links can be grouped, which means they only connect to other players in the same group.
 
-## What is the goal of Hololive Treasure Mountain when randomised?
+Boss fights in all quests can be shuffled (or plando'd). Not every boss works in every arena, but an effort has been made to make them as compatible as possible.
 
-The goal is configurable on the options page.
-It consists of one or more of:
+Optionally, traps can be enabled that spawn enemies on the player when received.
 
-- Unlock some specific or some number of treasures
-- Create some specific or some number of treasures at the largest size
-- Reach some specific or some number of locations (checks)
-- Merge pairs of some specific or some number of treasures at the largest size, causing them to disappear
+Music can also be shuffled, and the pool includes any music added by other installed mods or music packs.
 
-## What does another world's item look like in Hololive Treasure Mountain?
+Quest specific changes are:
 
-In the “Treasure Index”, an Archipelago icon will appear in the corner of each treasure with an associated location.
-Depending on your visibility settings, it may have an outline to indicate its item class.
-If the location has been reached, a check mark will appear on top of the icon.
-If the icon is black, then the item has been collected, and reaching the location will not award anything, but may still be required by your goal condition.
+### Nuinui Quest
 
-## When the player receives an item, what happens?
+The randomiser adds all the items from the game that are found in the world (keys), dropped by bosses (shot types, HoloX emblems, Noel), or gifted by Elfriends (clock, feathers) to the multiworld item pool.
+Level access can also be optionally included.
+The bonus health available after dying thrice at the same checkpoint is removed, and instead turned into a consumable filler item, unless there is no space in the pool to put it.
+Hearts are added as further filler.
 
-It will be displayed the next time the player finishes a round or views the title menu.
+Optionally, bosses that don't normally drop items, achievements, checkpoints, hearts placed in the world (except those in Holo Office), and killing enemies can be turned into locations.
 
-## What counts as a death for the purpose of Death Link?
+Tag Link can be enabled for Nuinui Quest, which shares swapping between characters across the multiworld. This is compatible with some other games that have character swapping, such as Banjo-Tooie and Donkey Kong 64.
 
-Dropping a treasure in the water will send a Death Link.
+### Random Quest
 
-## What happens when a Death Link is received?
+The randomiser adds the large crystals, Nousagi, level access, and opening the final door in the casino to the multiworld item pool.
+The casino door can also be locked to always be behind Chloe.
+Crystals and hearts are added as further filler.
 
-If the player is currently in game, their treasures will fall in the water.
+Optionally, bosses that don't normally drop items, pachinko slots, checkpoints, crystals, crates, and killing enemies can be turned into locations.
 
-If they are not in game, the Death Link will be ignored.
+### Maiden Quest
+
+The randomiser adds coins to the multiworld item pool.
+These can be spent for health in levels, the same way as in vanilla, but they are permanently consumed.
+Optionally, level access and idol essence can be made into items.
