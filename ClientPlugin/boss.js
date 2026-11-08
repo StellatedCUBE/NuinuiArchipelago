@@ -26,6 +26,9 @@ import {
 } from "./bossEffects.js";
 import * as Feat from "./feat.js";
 
+let sectionChange = 0;
+addEventListener('sectionChanged', _ => sectionChange = NNM.game.frameCount);
+
 function fadeIn1(game, event) {
 	event.next = true;
 	const fade = new FadeIn();
@@ -1686,7 +1689,7 @@ const bosses = {
 		},
 		timeline: [
 			(game, event) => {
-				if (!game.scene.newSectionBuffer && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
+				if (game.frameCount > sectionChange + 18 && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
 					event.bossActor = event.helper.demon = new Demon(game.scene.view.pos.plus({ x: 128, y: 192 }), 96);
 					event.next = event.bossActor.phase = 'intro';
 					event.bossActor.__archipelagoLaserBottom = [18, 43].includes(archipelagoState.arenaId) ? 192 : archipelagoState.arenaB;
@@ -1751,7 +1754,7 @@ const bosses = {
 			event.bossActor.intro = true;
 		},
 		timeline: [
-			(game, event) => event.next = !game.scene.newSectionBuffer && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x),
+			(game, event) => event.next = game.frameCount > sectionChange + 18 && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x),
 			warn('gawr_gura', 1, 'idle', null, 30, 180, {
 				'0': event => {
 					NNM.game.bgmFadeOut = false;
@@ -1926,7 +1929,7 @@ const bosses = {
 	Coco: {
 		timeline: [
 			(game, event) => {
-				if (!game.scene.newSectionBuffer && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
+				if (game.frameCount > sectionChange + 18 && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
 					event.bossActor = new Dragon(game.scene.view.pos.plus({ x: 128, y: 128 }), 64);
 					event.next = event.bossActor.phase = 'intro';
 					event.bossActor.__archipelagoLaserBottom = [16, 18, 34, 43].includes(archipelagoState.arenaId) ? game.scene.view.pos.y + 192 : archipelagoState.arenaB;
@@ -2251,7 +2254,7 @@ const bosses = {
 	Dokuro: {
 		timeline: [
 			(game, event) => {
-				if (!game.scene.newSectionBuffer && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
+				if (game.frameCount > sectionChange + 18 && (!game.scene.lockedViewPos || game.scene.lockedViewPos.x === game.scene.view.pos.x)) {
 					event.bossActor = new Gashadokuro(game.scene.view.pos.plus({ x: 8.5 * 16, y: 192 }), 96);
 					event.bossActor.lookAt(NNM.getPlayer().pos);
 
