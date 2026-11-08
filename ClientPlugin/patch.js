@@ -69,6 +69,7 @@ NNM.code.insertAtEndOfScope('MarineStageSelect.constructor', 'self.archipelagoSt
 NNM.code.insertAfterFirstMatchingLine('MarineStageSelect.drawOptions', 'bonusDesc.draw', 'value && this.frameCount - 90 > i * 60 && self.archipelagoState?.drawCoinMessage(cx, this.stageResult, i);');
 NNM.code.insertAtStartOfScope('SaveData.unlockAchievement', 'self.archipelagoState?.achieve(id);');
 NNM.code.insertAtStartOfScope('Game.playBGM', 'id = self.archipelagoState?.getBgm(id)??id;');
+NNM.code.insertAtStartOfScope('Game.playSound', 'id = self.archipelagoState?.getSfx(id)??id;');
 NNM.code.insertAtEndOfScope('Game.setQuest', function() {
 	if (self.archipelagoState) {
 		this.saveData.data = {};

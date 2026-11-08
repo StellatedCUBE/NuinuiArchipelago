@@ -63,6 +63,7 @@ export class ArchipelagoState {
 	#pendingEnemies = [];
 	#pendingCausedEnemies = [];
 	#musicMap = {};
+	#sfxMap = {};
 	bufferedHearts = 0;
 	casinoKey = Infinity;
 	nnqChars = 0;
@@ -104,6 +105,17 @@ export class ArchipelagoState {
 			}
 			for (const i in musicA)
 				this.#musicMap[musicA[i]] = musicB[i];
+		}
+		if (slotData.sr) {
+			const sfxA = NNM.game.assets.audioList.map(sfx => sfx.id).filter(id => id !== 'stage_clear'), rng = createLCG(slotData.sr);
+			sfxA.sort();
+			const sfxB = [...sfxA];
+			for (let i = sfxB.length - 1; i > 0; i--) {
+				const j = 0|(rng() * (i + 1));
+				[sfxB[i], sfxB[j]] = [sfxB[j], sfxB[i]];
+			}
+			for (const i in sfxA)
+				this.#sfxMap[sfxA[i]] = sfxB[i];
 		}
 		if (slotData.boss.nnq) {
 			while (slotData.boss.nnq.length < 21) slotData.boss.nnq.push('None');
@@ -1106,6 +1118,10 @@ export class ArchipelagoState {
 
 	getBgm(id) {
 		return this.#musicMap[this.bgmId = id] || id;
+	}
+
+	getSfx(id) {
+		return this.#sfxMap[id] || id;
 	}
 
 	drawCoins(cx, frame, stage, pos) {

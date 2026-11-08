@@ -195,6 +195,8 @@ class FNNQWorld(World):
 			goal = hex(sum(1 << feat for feat in self.required_feats))[2:],
 			nnq_li = self.options.nnq_stage_items.value,
 			mr = self.options.randomise_music.value * self.random.randrange(1 << 31),
+			sr = self.options.randomise_sfx.value * self.random.randrange(1 << 31),
+			br = (self.options.randomise_backgrounds.value - 1) | (self.random.randrange(1 << 30) << 1) if self.options.randomise_backgrounds else 0,
 			oob = self.options.prq_allow_oob.value,
 			help = +any(item == help_item for item in self.items),
 			c = self.characters,

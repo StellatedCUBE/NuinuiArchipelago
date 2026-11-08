@@ -2299,6 +2299,8 @@ const bosses = {
 	}
 };
 
+self.__AP_BOSS__ = bosses;
+
 function bossTL(boss, intro, introPre, introPost) {
 	return [...(introPre || []), (game, event) => {
 		intro(event);

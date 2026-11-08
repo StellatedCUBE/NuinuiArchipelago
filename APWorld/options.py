@@ -43,6 +43,17 @@ class MusicRando(Toggle):
 	"""Shuffles all BGM in the game. Areas that normally have the same music will continue to do so (but it will be a different track.) Music from other mods and music packs is included in the pool."""
 	display_name = "Randomise Music"
 
+class BGRando(Choice):
+	"""Randomises the backgrounds. “Shuffle” mode just swaps them around, while “Randomise” mixes and matches various layers and palettes to make new backgrounds."""
+	display_name = "Randomise Backgrounds"
+	option_no = 0
+	option_shuffle = 1
+	option_randomise = 2
+
+class SFXRando(Toggle):
+	"""Shuffles all sound effects in the game. Very much a gimmick option."""
+	display_name = "Randomise SFX"
+
 class EnemyTrapIntensity(Range):
 	"""How frequent enemy-spawning traps should be"""
 	display_name = "Enemy Trap Intensity"
@@ -237,6 +248,8 @@ class MMQCrossBoss(NNQCrossBoss):
 class FNNQOptions(PerGameCommonOptions):
 	# General
 	randomise_music: MusicRando
+	randomise_backgrounds: BGRando
+	randomise_sfx: SFXRando
 	enemy_trap_intensity: EnemyTrapIntensity
 
 	# Links
