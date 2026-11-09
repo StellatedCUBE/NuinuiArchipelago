@@ -643,16 +643,6 @@ NNM.code.insertBeforeFirstMatchingLine('NUINUI_CASTLE_EVENTS', 'sp_throne', _ =>
 		}
 	}
 });
-NNM.code.insertBeforeFirstMatchingLine('NUINUI_HOLO_HQ_EVENTS', 'bg_kiara', _ => {
-	if (self.archipelagoState && game.scene.boss instanceof Towa) {
-		const ys = game.scene.boss.mirrorAnim ? (game.scene.boss.mirrorAnim / 10 - 1) * (game.scene.boss.mirror ? 1 : -1) : game.scene.boss.mirror ? -1 : 1;
-		if (ys !== 1) {
-			cx.translate(0, game.height / 2);
-			cx.scale(1, ys);
-			cx.translate(0, -game.height / 2);
-		}
-	}
-});
 NNM.code.insertBeforeFirstMatchingLine('Watamelon.update', 'achievement25', 'if (self.archipelagoState?.watamelon) self.archipelagoState.check(47,"text"); else if (self.archipelagoState) self.archipelagoState.watamelon = true;');
 NNM.code.findReplaceAllLines('RobotBoss', 'PekoraPlayer', 'Flare');
 NNM.code.findReplaceAllLines('RobotBoss.phases.move', 'possibleTargets = [', 'possibleTargets = (this.__archipelagoTargets||[');

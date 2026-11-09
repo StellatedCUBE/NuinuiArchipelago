@@ -88,7 +88,7 @@ class FNNQWorld(World):
 
 	def create_items(self):
 		self.base_region = self.create_region(self.origin_region_name)
-		self.filler = [(ItemCategory.ALT_PALETTE, 1)]
+		self.filler = [] if self.options.randomise_backgrounds else [(ItemCategory.ALT_PALETTE, 1)]
 		self.items = []
 		self.locations = []
 		self.goal_locations = []

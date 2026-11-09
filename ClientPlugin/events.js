@@ -156,6 +156,7 @@ export function patchEvents() {
 
 	prefix(NUINUI_HOLO_HQ_EVENTS['5_0'][0], 0, (game, event) => event.timelineFrame || game.scene.actors.push(new APPickup(new Vector2(1750, 294), game.scene.keyId | (5 << 16), true)));
 	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], 0, (game, event) => event.timelineFrame || archipelagoState.item(new Vector2(2070, 16), (5 << 16) | 5));
+	patchCondition(NUINUI_HOLO_HQ_EVENTS['0_2'][0], _ => false);
 	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], -1, (game, event) => {
 		if (!event.timelineFrame) {
 			self.archipelagoState.check(self.archipelagoState.levelEndCheckA);

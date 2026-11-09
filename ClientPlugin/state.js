@@ -7,6 +7,7 @@ import { getIcon, getBackedHoloX } from './icon.js';
 import { ConsoleMenu, xmlEsc } from "./consoleMenu.js";
 import { Link } from './link.js';
 import * as Feat from "./feat.js";
+import { randomiseBGs, drawRandomBG } from './bgrando.js';
 
 function style(node, state) {
 	if (node.type === 'item')
@@ -117,6 +118,9 @@ export class ArchipelagoState {
 			for (const i in sfxA)
 				this.#sfxMap[sfxA[i]] = sfxB[i];
 		}
+		if (slotData.br) {
+			randomiseBGs(slotData.br, slotData.br & 1);
+		}
 		if (slotData.boss.nnq) {
 			while (slotData.boss.nnq.length < 21) slotData.boss.nnq.push('None');
 		}
@@ -193,7 +197,7 @@ export class ArchipelagoState {
 					else if (trap_name === 'Ghost') this.#handleItem((19 << 8) | 2);
 					else if (trap_name === 'Tarr Trap') this.#handleItem((19 << 8) | 9);
 					else if (trap_name === "Fishin' Boo Trap") this.#handleItem((19 << 8) | 5);
-					else if (trap_name === 'Invert Colors Trap') this.#handleItem(14 << 8);
+					else if (trap_name === 'Invert Colors Trap' && !this.slotData.br) this.#handleItem(14 << 8);
 				}),
 				tag: new Link(this.keyPrefix, 'tag', 'TagLink', ({character}) =>
 					NNM.game.currentQuest !== 'nuinui' ||
@@ -937,7 +941,15 @@ export class ArchipelagoState {
 					scene.actors.push(new APPickup(new Vector2(x, y), 30 + stageIndex));
 				}
 			}
+			else if (stageIndex < 6) {
+				const oldDraw = scene.drawBackground;
+				scene.drawBackground = (game, cx) => {
+					if (scene.currentSection.pos.x + scene.currentSection.pos.y === 384) cx.drawImage(game.assets.images.bg_kiara, 0, 0);
+					else oldDraw(game, cx);
+				};
+			}
 		}
+		if (this.slotData.br) scene.drawBackground = drawRandomBG;
 	}
 
 	emblem(event, level) {
