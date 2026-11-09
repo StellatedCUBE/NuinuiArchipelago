@@ -108,7 +108,7 @@ export class ArchipelagoState {
 				this.#musicMap[musicA[i]] = musicB[i];
 		}
 		if (slotData.sr) {
-			const sfxA = NNM.game.assets.audioList.map(sfx => sfx.id).filter(id => id !== 'stage_clear'), rng = createLCG(slotData.sr);
+			const sfxA = NNM.game.assets.audioList.filter(a => a.buffer.duration < 2).map(a => a.id), rng = createLCG(slotData.sr);
 			sfxA.sort();
 			const sfxB = [...sfxA];
 			for (let i = sfxB.length - 1; i > 0; i--) {
