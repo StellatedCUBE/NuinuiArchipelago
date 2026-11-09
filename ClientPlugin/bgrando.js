@@ -1,3 +1,5 @@
+import { needsRoof } from './boss.js';
+
 function layerImage(name, y=0) {
 	const img = NNM.game.assets.images['bg_' + name];
 	return (game, cx) => cx.drawImage(img, 0, y, 320, 192, 0, 0, 320, 192);
@@ -43,7 +45,7 @@ class Background {
 
 const map = {}, altMap = {}, stageAreas = {
 	nuinui: {
-		holo_hq: ['holo_hq', 'mori', 'water', 'ina', 'kiara']
+		holo_hq: ['holo_hq', 'kiara', 'mori', 'water', 'ina']
 	},
 	random: {
 		port: ['port', 'water']
@@ -90,7 +92,11 @@ export function randomiseBGs(seed, mode) {
 			map[quest] = {};
 			let cPool = pool, baseName, rPool;
 			for (const area of Object.values(stageAreas[quest]).flat()) {
-				do rPool = ['water', 'ina', 'kiara', 'mori'].includes(area) && quest === 'nuinui' ? cPool : cPool.filter(bg => bg.baseName !== 'kiara');
+				do rPool = (
+					area === 'kiara' && needsRoof(archipelagoState.slotData.boss.nnq?.[13]) ? cPool.filter(bg => ['kiara', 'hub'].includes(bg.baseName)) :
+					['water', 'ina', 'kiara', 'mori'].includes(area) && quest === 'nuinui' ? cPool :
+					cPool.filter(bg => bg.baseName !== 'kiara')
+				);
 				while (!rPool.length && (cPool = pool));
 				const baseName = (map[quest][area] = rPool[0|(rng() * rPool.length)]).baseName;
 				if (!['boat-3', 'castle-2', 'falls-4', 'yamato-4'].includes(area))
@@ -115,7 +121,7 @@ export function randomiseBGs(seed, mode) {
 }
 
 export function drawRandomBG(game, cx) {
-	map[game.currentQuest][game.scene.underwater ? 'water' : game.currentQuest === 'nuinui' && game.currentStage === 'holo_hq' ? {
+	map[game.currentQuest][game.scene.underwater ? 'water' : game.currentQuest === 'nuinui' && game.currentStage === 'holo_hq' && game.scene.currentSection.pos.y ? {
 		'320': 'mori',
 		'640': 'ina',
 		'0': 'kiara'
