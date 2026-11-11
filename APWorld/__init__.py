@@ -60,14 +60,15 @@ class FNNQWorld(World):
 		return region
 
 	def get_filler_item_name(self):
-		if self.random.random() * 20 < self.options.enemy_trap_intensity.value:
+		if self.random.random() * 20 < self.options.enemy_trap_intensity.value and not self.restricted_items:
 			trap = self.random.choice(ENEMY_TRAPS)
 			while trap == 'Oni' and len(self.multiworld.worlds) == 1 and not(self.options.nnq and self.options.nnq_enemysanity) and not(self.options.prq and (self.options.prq_enemysanity or self.options.prq_crystalsanity or self.options.prq_cratesanity)):
 				trap = self.random.choice(ENEMY_TRAPS)
 			return trap
-		filler_total_weight = sum(w for _, w in self.filler)
+		filler = self.filler_non_immediate if self.restricted_items else self.filler
+		filler_total_weight = sum(w for _, w in filler)
 		i = self.random.randrange(filler_total_weight)
-		for item, weight in self.filler:
+		for item, weight in filler:
 			i -= weight
 			if i < 0:
 				return item.name
@@ -85,6 +86,7 @@ class FNNQWorld(World):
 		self.safety_nousagi = False
 		self.warned_about_plando = False
 		self.logical_bomb = False
+		self.restricted_items = False
 
 	def create_items(self):
 		self.base_region = self.create_region(self.origin_region_name)
@@ -148,6 +150,7 @@ class FNNQWorld(World):
 		restricted_items = sum(item.immediate for item in self.items)
 
 		if len(self.multiworld.worlds) == 1 and restricted_items > unrestricted_locations:
+			self.restricted_items = True
 			self.random.shuffle(self.items)
 			filler_total_weight = sum(w for _, w in self.filler_non_immediate)
 			for i in range(len(self.items)):

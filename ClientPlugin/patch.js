@@ -54,7 +54,7 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMen
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
-NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super', 'this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
+NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super', 'self.archipelagoState&&(this.options=this.options.filter(o=>o.id!=="color_palette"));this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
 	{f: g => g.config.setItem('archipelagoTracker', !g.config.getItem('archipelagoTracker'))});
 NNM.code.insertAtStartOfScope('Game.start', "d(this,'archipelagoTracker',!0);d(this,'archipelagoId')",
 	{d: (g, f, d) => g.config.getItem(f) ?? g.config.setItem(f, d ?? q())});
@@ -359,7 +359,7 @@ for (const character of ['Flare', 'Noel', 'MarinePlayer', 'PekoraPlayer']) {
 	NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState) self.archipelagoState.hitBy = other; const __archipelagoStartVel = this.vel.value();');
 	NNM.code.insertAtEndOfScope(character + '.takeHit', 'other instanceof Aircon || self.archipelagoState?.knockback(this.vel.sub(__archipelagoStartVel));');
 	NNM.code.insertAfterFirstMatchingLine(character + '.takeHit', 'const damage = ', 'self.archipelagoState?.damage(!(other.originActor instanceof Cannon && game.currentStage === "castle") && damage, this);');
-	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel, Gawr, Bibi] : []),');
+	NNM.code.findReplaceAllLines(character, 'Miteiru,', 'Miteiru, ...(self.archipelagoState ? [Koyodrill, KoyodrillBody, DokuroHand, DragonHand, PekoMiniBoss, PekoraBoss, EvilMiko, Mikobell, Fairy, FlareBoss, EvilNoel, Gawr, Bibi, Marine] : []),');
 	if (character !== 'MarinePlayer') {
 		NNM.code.insertAtStartOfScope(character + '.takeHit', 'if (self.archipelagoState && other instanceof DokuroHand && !other.isDamage) return;');
 	}
@@ -453,7 +453,7 @@ NNM.code.insertAtStartOfScope('Axe.update', function() {
 		}
 	}
 });
-NNM.code.insertBeforeFirstMatchingLine('Suisei.chargePhase', 'this.phaseBuffer === 300', 'if ([18, 43].includes(self.archipelagoState?.arenaId) && this.phaseBuffer < 300 && NNM.getPlayer().pos.y > this.pos.y) this.aimAngle += this.aimAngle ? .2 : -.2;');
+NNM.code.insertBeforeFirstMatchingLine('Suisei.chargePhase', 'this.phaseBuffer === 300', 'if (self.archipelagoState?.arenaId === 18 && this.phaseBuffer < 300 && NNM.getPlayer().pos.y > this.pos.y) this.aimAngle += this.aimAngle ? .2 : -.2;');
 NNM.code.findReplaceAllLines('Suisei.rainPhase', 'scenePos.x', '(self.archipelagoState ? this.pos.x - 152 : scenePos.x)');
 NNM.code.findReplaceAllLines('Suisei.idlePhase', 'this.axe.isGrounded', '(this.axe.isGrounded || (self.archipelagoState && this.axe.gravityBuffer === Infinity))');
 NNM.code.findReplaceAllLines('Suisei.idlePhase', 'CollisionBox.center(this).distance(CollisionBox.center(this.axe))', '(self.archipelagoState ? Math.abs(this.pos.x - this.axe.pos.x - 24) : CollisionBox.center(this).distance(CollisionBox.center(this.axe)))');

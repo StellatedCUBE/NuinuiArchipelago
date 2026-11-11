@@ -55,7 +55,7 @@ function bridge(arena) {
 	arena.introPre = [
 		arena.event.timeline[0],
 		(game, event) => {
-			event.next = true;
+			event.next = event.mmqIntroOver = true;
 			event.collisions[0].size.y = 150;
 			event.collisions[2].pos.y = 0;
 			if (!['Veiled Mori', 'Fubuki', 'Mori', 'Gura', 'Kanata', 'Coco', 'La+', 'Koyodrill', 'Dokuro'].includes(archipelagoState.bossId)) {
@@ -1423,7 +1423,7 @@ const bosses = {
 	},
 	Marine: {
 		setup: event => {
-			event.bossActor = new Marine(new Vector2(0, -Infinity), 96);
+			event.bossActor = new Marine(new Vector2(-64, -Infinity), 96);
 			event.bossActor.__archipelago_xl = archipelagoState.arenaL + 8;
 			event.bossActor.__archipelago_xr = archipelagoState.arenaR - 24;
 			event.bossActor.__archipelago_t = 0;
@@ -1446,7 +1446,9 @@ const bosses = {
 				}
 			}),
 			fight([Bullet, DokuroEnemy], true)
-		]
+		],
+		timeCoin: 45,
+		healthCoin: 8
 	},
 	Ayame: {
 		setup: event => {
@@ -1789,6 +1791,7 @@ const bosses = {
 	},
 	Ina: {
 		setup: event => {
+			if (NNM.game.currentQuest === 'maiden') NNM.game.scene.underwater = true;
 			if (/castle|holo_hq/.test(NNM.game.currentStage)) {
 				NNM.game.scene.background = NNM.game.scene.foreground;
 				NNM.game.scene.foreground = {};
@@ -2382,7 +2385,7 @@ export function patchBosses() {
 				if (boss !== skip) {
 					const bossData = bosses[boss];
 					game.scene.starTimeLimit = (bossData.timeCoin || 60) + (extraTime || 0);
-					game.scene.starHealthLimit = bossData.healthCoin || 6;
+					game.scene.starHealthLimit = (bossData.healthCoin || 6) - 2 * (id === 43);
 					game.resetCpuKeys();
 					if (!playerControl) {
 						NNM.getPlayer().playerControl = false;
