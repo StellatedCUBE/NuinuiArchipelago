@@ -884,10 +884,11 @@ export class Chloe extends Actor {
 }
 
 export class BossCamera extends Actor {
-	constructor(boss, y) {
+	constructor(boss, y, p = 0) {
 		super(Vector2.zero, Vector2.zero);
 		this.boss = boss;
 		this.y = y;
+		this.p = p;
 		if (!(this.toFilter = boss instanceof Chloe))
 			this.update(NNM.game);
 	}
@@ -902,6 +903,6 @@ export class BossCamera extends Actor {
 		if (this.boss.canDie && !this.boss.health)
 			this.toFilter = !(game.scene.lockedViewPos = null);
 		else
-			game.scene.lockedViewPos.x = Math.min(Math.max((this.boss.pos.x + NNM.getPlayer().pos.x - game.width) >> 1, game.scene.currentSection.pos.x), game.scene.currentSection.pos.x + game.scene.currentSection.size.x - game.width);
+			game.scene.lockedViewPos.x = Math.min(Math.max((this.boss.pos.x + NNM.getPlayer().pos.x - game.width) >> 1, game.scene.currentSection.pos.x + this.p), game.scene.currentSection.pos.x + game.scene.currentSection.size.x - game.width - this.p);
 	}
 }

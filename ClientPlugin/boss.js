@@ -929,7 +929,7 @@ const arenas = [
 		bossSpawnX: 104.5 * 16,
 		skip: 'Ayame',
 		introPost: [
-			(game, event) => event.next = game.scene.actors.push(new BossCamera(event.bossActor || NNM.getPlayer(), 12 * 16))
+			(game, event) => event.next = game.scene.actors.push(new BossCamera(event.bossActor || NNM.getPlayer(), 12 * 16, 6 * 16))
 		]
 	},
 	{
@@ -960,7 +960,11 @@ const arenas = [
 		bossSpawnX: 144.5 * 16,
 		skip: 'Polka',
 		introPre: [
-			(game, event) => event.next = game.scene.actors.push(new Aircon({ x: 131, y: 43 }, 1), new Aircon({ x: 147, y: 43 }, -1))
+			(game, event) => {
+				event.next = true;
+				game.scene.actors.push(new Aircon({ x: 131, y: 43 }, 1), new Aircon({ x: 147, y: 43 }, -1));
+				game.scene.lockedViewPos = new Vector2(20 * 6.5 * 16, game.scene.view.pos.y);
+			}
 		]
 	},
 	{
@@ -1332,7 +1336,9 @@ const bosses = {
 				if ((event.bossActor.toFilter = event.next = event.timelineFrame > 159) && archipelagoState.arenaId === 22)
 					game.scene.lockedViewPos = null;
 			}
-		]
+		],
+		timeCoin: 30,
+		healthCoin: 10
 	},
 	Pekora: {
 		setup: event => {
@@ -1527,7 +1533,8 @@ const bosses = {
 			},
 			warn('shirakami_fubuki', 7, 'idle', 'dethroneworld', 30),
 			fight([Bullet], true),
-		]
+		],
+		timeCoin: 40
 	},
 	Noel: {
 		setup: event => {
@@ -1545,7 +1552,8 @@ const bosses = {
 			warn('shirogane_noel', 10, 'idle', 'corrupted_partner', 60),
 			fight([Bullet])
 		],
-		timeCoin: 180
+		timeCoin: 90,
+		healthCoin: 4
 	},
 	Suisei: {
 		setup: event => {
@@ -1584,7 +1592,9 @@ const bosses = {
 				}
 			},
 			fight([Comet, Axe], true)
-		]
+		],
+		timeCoin: 30,
+		healthCoin: 8
 	},
 	Polka: {
 		setup: event => {
@@ -1787,7 +1797,8 @@ const bosses = {
 				}
 			}),
 			fight([Bullet], true),
-		]
+		],
+		timeCoin: 45
 	},
 	Ina: {
 		setup: event => {
@@ -1905,7 +1916,8 @@ const bosses = {
 			}),
 			fight([Bullet], true),
 			(game, event) => game.scene.isAmeFocus = game.scene.ameReset = archipelagoState.ameResetData = !(event.next = true)
-		]
+		],
+		timeCoin: 50
 	},
 	Kanata: {
 		setup: event => {
@@ -2079,7 +2091,8 @@ const bosses = {
 		timeline: [
 			warn(null, 12, 'attack', 'robotic_foe'),
 			fight()
-		]
+		],
+		timeCoin: 30
 	},
 	Chloe: {
 		setup: event => NNM.game.scene.actors.unshift(event.chloe = new Chloe()),
@@ -2224,7 +2237,8 @@ const bosses = {
 				}
 			})
 		],
-		timeCoin: 225
+		timeCoin: 200,
+		healthCoin: 4
 	},
 	'Ghost Marine': {
 		setup: event => {

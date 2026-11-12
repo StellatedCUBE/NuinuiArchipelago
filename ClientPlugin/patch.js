@@ -397,6 +397,7 @@ NNM.code.insertAtStartOfScope('PekoMiniBoss.introPhase', function() {
 });
 NNM.code.findReplaceAllLines('MarinePlayer.update', 'this.hookEnemyPool.includes', '!(self.archipelagoState && actor instanceof PekoMiniBoss && !actor.checkHit(game, this.hook)) && this.hookEnemyPool.includes');
 NNM.code.findReplaceAllLines('Calli.update', "game.currentStage === 'casino'", "(game.currentStage === 'casino' || (self.archipelagoState && this.skullBoss))");
+NNM.code.insertBeforeFirstMatchingLine('Calli.update', 'intersectCollisions(newCollisionBox,', 'if (!self.archipelagoState || this.vel.x)');
 NNM.code.findReplaceAllLines('Calli.update', 'game.scene.currentSection.collisions', '__archipelago_col');
 NNM.code.insertAtStartOfScope('Calli.update', `
 	let __archipelago_col = game.scene.currentSection.collisions;
