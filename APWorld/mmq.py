@@ -21,8 +21,12 @@ def mmq(world):
 			rule |= Has(item.get_item(item.ItemCategory.IDOL_ESSENCE).name, ESSENCE)
 		world.base_region.connect(region, rule=rule)
 		world.add_location((location.LocationCategory.COIN, i * 8), region)
-		world.add_location((location.LocationCategory.COIN, i * 8 + 1 + 2 * world.options.mmq_coin_behaviour.value), region)
-		world.add_location((location.LocationCategory.COIN, i * 8 + 2 + 2 * world.options.mmq_coin_behaviour.value), region)
+		if not world.options.mmq_coin_behaviour.value or getattr(world.multiworld, 'generation_is_fake', False):
+			world.add_location((location.LocationCategory.COIN, i * 8 + 1), region)
+			world.add_location((location.LocationCategory.COIN, i * 8 + 2), region)
+		if world.options.mmq_coin_behaviour.value or getattr(world.multiworld, 'generation_is_fake', False):
+			world.add_location((location.LocationCategory.COIN, i * 8 + 3), region)
+			world.add_location((location.LocationCategory.COIN, i * 8 + 4), region)
 		if world.options.mmq_stage_items and (i < 28 or world.options.mmq_goal.value):
 			if world.options.mmq_stage_shuffle:
 				world.add_item((item.ItemCategory.LEVEL_MARINE, i))

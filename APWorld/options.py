@@ -65,7 +65,7 @@ class TrapIntensity(Range):
 	range_start = 0
 	range_end = 10
 
-class NNQ(Toggle):
+class NNQ(DefaultOnToggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
 
@@ -133,7 +133,7 @@ class NNQBossPlando(TextChoice):
 	option_no_duplicates = 1
 	option_allow_duplicates = 2
 
-class NNQCrossBoss(Toggle):
+class NNQCrossBoss(DefaultOnToggle):
 	"""If “Boss Shuffle” is enabled, can bosses from other quests be included in Nuinui Quest?"""
 	display_name = "Cross-quest Boss Shuffling"
 
@@ -151,7 +151,7 @@ class NNQAchievements(OptionSet):
 	rooms = 'Hidden Areas'
 	quick = 'Quick Clears'
 	boss = 'Boss Fight Conditions'
-	hq = 'Only Flare / Only Noel!'
+	hq = 'Only Flare! / Only Noel!'
 	misc = 'Miscellaneous'
 	old = 'Old Version Exclusive'
 	default = set()

@@ -10,10 +10,10 @@ from rule_builder.rules import CanReachLocation, Has, HasAny
 
 def nnq(world):
 	if world.options.nnq_starting_character.value:
-		world.push_precollected(world.create_item('progressive Noel'))
+		world.push_precollected(world.create_item((item.ItemCategory.CHARACTER, 1)))
 		world.add_item(boss.MACE)
 		weapon = 'mace'
-		if world.options.nnq_other_character.value:
+		if world.options.nnq_other_character:
 			world.add_item(boss.FLARE)
 			world.add_item(item.ItemCategory.DUAL_PISTOLS)
 			for i in data.SHOTS:
@@ -39,7 +39,7 @@ def nnq(world):
 			world.push_precollected(world.create_item(item.ItemCategory.DUAL_PISTOLS))
 			for i in data.SHOTS:
 				world.add_item(i)
-		if world.options.nnq_other_character.value:
+		if world.options.nnq_other_character:
 			world.add_item(boss.NOEL)
 			world.add_item(boss.NOEL)
 		elif world.options.nnq_goal.value == 1:
@@ -90,15 +90,6 @@ def nnq(world):
 			world.add_location((location.LocationCategory.BOSS_DROP, i), world.get_region('nnq_castle_0_384') if arena.drop == boss.Drop.NOEL else region)
 	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
 
-	if world.options.nnq_achievement_checks.quick in world.options.nnq_achievement_checks:
-		qc_region = world.create_region('Quick Clear')
-		world.base_region.connect(qc_region, rule=(Has(item.get_item((item.ItemCategory.FLARE_ITEM, 4)).name) & HasAny(boss.NOEL, boss.FEATHERS)) | Has(world.glitches_item_name))
-		for i, stage in enumerate([*level_names[:4], 'Bad End' if world.characters & 1 else 'Good End']):
-			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good End' or any(
-				(arena.boss.tags & boss.T_LONG) and data.LEVELS[i] in arena.name and arena.name not in ('Crystal Falls midboss', 'Demon Lord Castle lift', 'Demon Lord Castle turret')
-				for arena in arenas
-			))
-	
 	only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
 	exclude_only_noel = False
 	only_noel_hard = False
@@ -124,13 +115,13 @@ def nnq(world):
 				case 'Underworld Casino final boss':
 					p_rules = [Has(item.get_item(item.ItemCategory.DUAL_PISTOLS).name) & Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name), Has(item.get_item((item.ItemCategory.CHARACTER, 1)).name)]
 					rules = []
-					if item.get_item(item.ItemCategory.DUAL_PISTOLS).name in arena.boss.flare_requirements:
+					if item.get_item(item.ItemCategory.DUAL_PISTOLS).name in arena.boss.flare_requirements and world.characters & 1:
 						rules.append(p_rules[0])
-					if not arena.boss.noel_difficulty:
+					if not arena.boss.noel_difficulty and world.characters & 2:
 						rules.append(p_rules[1])
 					match rules:
 						case []: rule = Has(world.glitches_item_name) & (p_rules[0] | p_rules[1]) if getattr(world.multiworld, 'generation_is_fake', False) else None
-						case [x]: rule = x
+						case [x]: rule = x | (Has(world.glitches_item_name) & (p_rules[0] | p_rules[1]))
 						case [x, y]: rule = x | y
 					world.add_location('Elite Win', world.get_region(arena.region), rule, not rules)
 				case 'Pirate Harbor boss':
@@ -225,4 +216,12 @@ def nnq(world):
 			placed = (item.ItemCategory.LEVEL_PROGRESSIVE, 0)
 			if i == levels - 1: placed = None
 			world.place_item(('Bad End' if world.characters == 1 else 'Good End') if i == 4 else level_names[i], placed)
-
+	
+	if world.options.nnq_achievement_checks.quick in world.options.nnq_achievement_checks:
+		qc_region = world.create_region('Quick Clear')
+		world.base_region.connect(qc_region, rule=(Has(item.get_item((item.ItemCategory.FLARE_ITEM, 4)).name) & HasAny(boss.NOEL, boss.FEATHERS)) | Has(world.glitches_item_name))
+		for i, stage in enumerate([*level_names[:4], 'Bad End' if world.characters & 1 else 'Good End']):
+			world.add_location(i + 50, qc_region, CanReachLocation(stage), stage == 'Good End' or any(
+				(arena.boss.tags & boss.T_LONG) and data.LEVELS[i] in arena.name and arena.name not in ('Crystal Falls midboss', 'Demon Lord Castle lift', 'Demon Lord Castle turret')
+				for arena in arenas
+			))

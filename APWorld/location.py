@@ -55,9 +55,9 @@ class LocationType:
 	def __post_init__(self):
 		self.id = (self.type.value << 16) | self.sub_id
 	
-	def build(self, world, region, rule=None, excluded=False):
+	def build(self, world, is_empty_event, region, rule=None, excluded=False):
 		player = world.player
-		built = FNNQLocation(player, self.name, self.id, region)
+		built = FNNQLocation(player, self.name, None if is_empty_event else self.id, region)
 		if LocationFlags.NO_LOCAL_IMMEDIATE in self.flags:
 			built.item_rule = lambda item: item.player != player or not get_item(item.code).immediate
 		elif LocationFlags.NO_LOCAL_TRAP in self.flags:
@@ -73,7 +73,10 @@ class LocationType:
 		region.locations.append(built)
 		if rule is not None:
 			world.set_rule(built, rule)
-		if excluded:
+		if is_empty_event:
+			built.place_locked_item(world.create_item(None))
+			built.show_in_spoiler = False
+		elif excluded:
 			built.progress_type = LocationProgressType.EXCLUDED
 		return built
 

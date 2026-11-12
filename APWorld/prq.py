@@ -24,12 +24,14 @@ def prq(world):
 	shop2 = world.create_region('prq_shop_2')
 	if not world.single_quest or world.multiworld.players > 1:
 		world.add_location((location.LocationCategory.SHOP, 0), shop)
-		shop.connect(shop2, rule=HasAny(item.get_item((item.ItemCategory.CRYSTALS, 200)).name, item.get_item((item.ItemCategory.LEVEL, 1|level_item_bits)).name, world.glitches_item_name))
+		shop.connect(shop2, rule=HasAny(item.get_item((item.ItemCategory.CRYSTALS, 200)).name, item.get_item((item.ItemCategory.LEVEL, 1|level_item_bits)).name, data.OOL_ITEM))
 		world.add_location((location.LocationCategory.SHOP, 1), shop2)
 		world.add_location((location.LocationCategory.SHOP, 2), shop2)
 		for i in range(-3, 0):
 			world.options.start_location_hints.value.add(world.locations[i][0].name)
-	
+
+	world.base_region.connect(shop, rule=Has(data.OOL_ITEM))
+
 	world.add_item(200)
 
 	bomb = item.get_item(item.ItemCategory.BOMB).name

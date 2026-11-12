@@ -3,7 +3,7 @@ from enum import Enum
 
 from Options import OptionError
 
-from .data import SHOTS
+from .data import SHOTS, OOL_ITEM
 from .item import get_item, ItemCategory
 
 A_PRQ = {
@@ -259,7 +259,7 @@ class Drop(Enum):
 PISTOLS = get_item(ItemCategory.DUAL_PISTOLS).name
 CLOCK = get_item((ItemCategory.FLARE_ITEM, 1)).name
 FEATHERS = get_item((ItemCategory.FLARE_ITEM, 2)).name
-ANY_FLARE_WEAPON = {PISTOLS, *SHOTS[:4], SHOTS[5]}
+ANY_FLARE_WEAPON = frozenset((PISTOLS, *SHOTS[:4], SHOTS[5]))
 NOT_CUTLASS = ANY_FLARE_WEAPON - {SHOTS[3]}
 FLARE, NOEL, MACE = [get_item((ItemCategory.CHARACTER, i)).name for i in (0, 1, 3)]
 
@@ -267,10 +267,11 @@ FLARE, NOEL, MACE = [get_item((ItemCategory.CHARACTER, i)).name for i in (0, 1, 
 class Boss:
 	name: str
 	quests: int
-	flare_requirements: set[str]
+	flare_requirements: frozenset[str]
 	noel_difficulty: int
-	valid_arenas: set[str]
+	valid_arenas: frozenset[str]
 	tags: int = 0
+	flare_requirements_ool: frozenset[str] = ANY_FLARE_WEAPON
 
 	def __post_init__(self):
 		if self.flare_requirements is None:
@@ -282,7 +283,11 @@ class Boss:
 			(not self.noel_difficulty and state.has(NOEL, player)) or
 			(self.noel_difficulty == 1 and state.has(NOEL, player, 2)) or
 			(self.noel_difficulty == 1 and state.has(MACE, player) and state.has(NOEL, player)) or
-			(self.noel_difficulty == 2 and state.has(MACE, player) and state.has('NOEL NUINUI QUEST', player))
+			(self.noel_difficulty == 2 and state.has(MACE, player) and state.has('NOEL NUINUI QUEST', player)) or
+			(state.has(OOL_ITEM, player) and (
+				(state.has(FLARE, player) and any(state.has(item, player) for item in self.flare_requirements_ool)) or
+				(self.noel_difficulty != 3 and state.has(NOEL, player))
+			))
 		)
 
 Q_NNQ = 1
@@ -296,14 +301,14 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, A_ALL - A_BRIDGE),
 	Boss('Veiled Mori', Q_NNQ, None, 0, A_FLOORED & A_WALLED),
 	Boss('Miko', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_ROOFED),
-	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 3, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, T_LONG),
+	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 4, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, T_LONG),
 	Boss('Fubura Tower', Q_NNQ, None, 0, {'Yamato midboss 1'}),
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL - {'Stage 25'}),
 	Boss('Noel', Q_NNQ, {SHOTS[5]}, 2, A_MMQ & A_ROUGH_FLOORED - A_BRIDGE),
 	Boss('Suisei', Q_NNQ|Q_PRQ, NOT_CUTLASS, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE - {'Stage 25'}, T_BAD_DEBUT),
 	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}, T_BAD_DEBUT),
-	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2], SHOTS[3]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT, {FEATHERS, SHOTS[1]}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Demon', Q_NNQ, {PISTOLS}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
@@ -321,7 +326,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, T_LONG | T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
 	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN, T_LONG | T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN, T_BAD_DEBUT),
-	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ),
+	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ, 0, {SHOTS[2]}),
 ]}
 
 BOSSES_PH_WITHOUT_FEATHERS = ('Suisei', 'Marine', 'Iroha', 'Fubuki', 'Pekora')
@@ -377,7 +382,7 @@ def allocate_bosses(world, option, arenas, source_quests):
 					banned.append(by_name[boss_name])
 				except KeyError:
 					raise OptionError('Unknown boss ' + repr(boss_name))
-			case [_, "none"]:
+			case [_, "none"] if not getattr(world.multiworld, 'generation_is_fake', False):
 				raise OptionError("Unknown boss 'none'")
 			case [singularity]:
 				if world.prevent_boss_plando(): continue
@@ -392,7 +397,7 @@ def allocate_bosses(world, option, arenas, source_quests):
 				if world.prevent_boss_plando(): continue
 				try:
 					arena = next(a for a in arenas if a.name.lower() == arena_name)
-					if arena.boss:
+					if arena.boss and not getattr(world.multiworld, 'generation_is_fake', False):
 						raise OptionError('Arena has already been filled by time of ' + repr(command))
 					boss = by_name[boss_name]
 					if arena.fqname in boss.valid_arenas:

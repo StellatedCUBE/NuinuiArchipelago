@@ -45,10 +45,13 @@ class ItemType:
 		self.id = (self.type.value << 8) | self.sub_id
 
 	def build(self, world):
-		return FNNQItem(self.name, self.class_ if isinstance(self.class_, ItemClassification) else self.class_(world), self.id, world.player)
+		return FNNQItem(self.name, self.get_class(world), self.id, world.player)
 	
 	def __str__(self):
 		return self.name
+
+	def get_class(self, world):
+		return self.class_ if isinstance(self.class_, ItemClassification) else self.class_(world)
 
 item_types = [
 	*(
@@ -81,7 +84,7 @@ item_types = [
 	ItemType(ItemCategory.FLARE_ITEM, 4, "Angel's Boots", ItemClassification.progression),
 
 	*(
-		ItemType(ItemCategory.HOLOX, i, name + "'s Emblem", lambda world: ItemClassification.filler if getattr(world, 'characters', 0) == 2 else ItemClassification.progression)
+		ItemType(ItemCategory.HOLOX, i, name + "'s Emblem", lambda world: ItemClassification.progression if getattr(world, 'laplus', True) else ItemClassification.filler)
 		for i, name in enumerate(('Iroha', 'Koyori', 'Chloe', 'Lui'))
 	),
 	ItemType(ItemCategory.HOLOX, 4, "La+'s Emblem", ItemClassification.filler),
@@ -108,7 +111,10 @@ item_types = [
 
 	ItemType(ItemCategory.CASINO_KEY, 0, 'Casino Key', ItemClassification.progression),
 
-	ItemType(ItemCategory.BOMB, 0, 'Bomb', lambda world: ItemClassification.filler if world.logical_bomb and not getattr(world.multiworld, 'generation_is_fake', False) else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized),
+	ItemType(ItemCategory.BOMB, 0, 'Bomb', lambda world: (
+		ItemClassification.filler if getattr(world, 'logical_bomb', False) and not getattr(world.multiworld, 'generation_is_fake', False)
+		else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized)
+	),
 
 	ItemType(ItemCategory.DUAL_PISTOLS, 0, 'Dual Pistols', ItemClassification.progression | ItemClassification.useful),
 

@@ -3,13 +3,14 @@ from BaseClasses import Tutorial, Region, ItemClassification, PlandoOptions
 from Options import OptionError
 from rule_builder.rules import CanReachRegion, True_
 
-from .data import GAME, ENEMY_TRAPS
+from .data import GAME, ENEMY_TRAPS, FEAT_NNQ_BOSS_DEFEAT, FEAT_PRQ_LEVEL_CLEAR, FEAT_NNQ_GOOD_END, FEAT_MMQ_COIN, FEAT_NNQ_LEVEL_CLEAR, OOL_ITEM
 from .options import FNNQOptions, fnnq_option_groups
 from .item import item_name_to_id, get_item, ItemCategory, FNNQItem
 from .location import location_name_to_id, get_location, LocationCategory
 from .nnq import nnq
 from .prq import prq
 from .mmq import mmq
+from . import arenas
 
 class FNNQWebWorld(WebWorld):
 	setup_en = Tutorial(
@@ -34,7 +35,8 @@ class FNNQWorld(World):
 	options_dataclass = FNNQOptions
 	location_name_to_id = location_name_to_id
 	item_name_to_id = item_name_to_id
-	glitches_item_name = '_'
+	glitches_item_name = OOL_ITEM
+	ut_can_gen_without_yaml = True
 
 	def add_item(self, item):
 		self.items.append(get_item(item))
@@ -60,6 +62,12 @@ class FNNQWorld(World):
 		return region
 
 	def get_filler_item_name(self):
+		if not hasattr(self, 'restricted_items'):
+			pool = []
+			if self.options.mmq: pool.append(ItemCategory.COIN)
+			if self.options.prq: pool.append((ItemCategory.CRYSTALS, 1))
+			if pool: return self.random.choice(pool).name
+			else: return 'Heart'
 		if self.random.random() * 20 < self.options.trap_intensity.value and not self.restricted_items:
 			trap = self.random.choice(ENEMY_TRAPS)
 			while trap == 'Oni' and len(self.multiworld.worlds) == 1 and not(self.options.nnq and self.options.nnq_enemysanity) and not(self.options.prq and (self.options.prq_enemysanity or self.options.prq_crystalsanity or self.options.prq_cratesanity)):
@@ -75,9 +83,60 @@ class FNNQWorld(World):
 		return 'Heart'
 
 	def create_item(self, name):
-		return FNNQItem(name, ItemClassification.progression, None, self.player) if name == self.glitches_item_name else get_item(name).build(self)
+		return (FNNQItem(name, ItemClassification.progression, None, self.player) if name == self.glitches_item_name else get_item(name).build(self)) if name else FNNQItem('Nothing', ItemClassification.filler, None, self.player)
 
 	def generate_early(self):
+		utsd = getattr(self.multiworld, "re_gen_passthrough", {}).get(GAME)
+		if utsd:
+			goal = int(utsd['goal'], 16)
+
+			self.options.nnq_goal.value = (
+				self.options.nnq_goal.option_all_bosses if goal & 1 << FEAT_NNQ_BOSS_DEFEAT else
+				self.options.nnq_goal.option_true if goal & 1 << (FEAT_NNQ_LEVEL_CLEAR + 6) else
+				self.options.nnq_goal.option_good if goal & 1 << FEAT_NNQ_GOOD_END else
+				self.options.nnq_goal.option_holo_office if goal & 1 <<FEAT_NNQ_GOOD_END else
+				self.options.nnq_goal.option_bad
+			)
+			self.options.nnq_all_stages.value = 1
+			
+			self.options.nnq_other_character.value = 0
+			match utsd['c']:
+				case 3:
+					self.options.nnq_other_character.value = 1
+				case 2:
+					self.options.nnq_starting_character.value = 1
+				case 1:
+					self.options.nnq_starting_character.value = 0
+
+			self.options.nnq_boss_all_drop.value = 1
+			self.options.nnq_heart_checks.value = 1
+			self.options.nnq_checkpointsanity.value = 1
+			self.options.nnq_enemysanity.value = 1
+			for category in self.options.nnq_achievement_checks.valid_keys:
+				self.options.nnq_achievement_checks.value.add(category)
+
+			self.options.prq_goal.value = +bool(goal & 1 << FEAT_PRQ_LEVEL_CLEAR)
+			self.options.prq_casino_checks.value = 1
+			self.options.prq_boss_all_drop.value = 1
+			self.options.prq_checkpointsanity.value = 1
+			self.options.prq_enemysanity.value = 1
+			self.options.prq_crystalsanity.value = 1
+			self.options.prq_cratesanity.value = 1
+			
+			self.options.mmq_goal.value = (
+				self.options.mmq_goal.option_all_coins if goal & 1 << (FEAT_MMQ_COIN + 1) else
+				self.options.mmq_goal.option_all_stages if goal & 1 <<FEAT_MMQ_COIN else
+				self.options.mmq_goal.option_final_stage
+			)
+
+			self.options.nnq.value = 0
+			self.options.prq.value = 0
+			self.options.mmq.value = 0
+
+			for quest, bosses in utsd['boss'].items():
+				getattr(self.options, quest).value = 1
+				getattr(self.options, quest + '_boss_shuffle').value = ';'.join([f'{arena.name}-{boss}' for arena, boss in zip(getattr(arenas, quest + '_arenas')(), bosses)])
+
 		self.characters = 3 if self.options.nnq_other_character.value else 1 << self.options.nnq_starting_character.value
 		match self.options.nnq.value + self.options.prq.value + self.options.mmq.value:
 			case 0: raise OptionError('At least one quest must be enabled')
@@ -87,6 +146,7 @@ class FNNQWorld(World):
 		self.warned_about_plando = False
 		self.logical_bomb = False
 		self.restricted_items = False
+		self.laplus = self.characters & 1
 
 	def create_items(self):
 		self.base_region = self.create_region(self.origin_region_name)
@@ -122,9 +182,17 @@ class FNNQWorld(World):
 			self.items.remove(self.random.choice(filler))
 		
 		while len(self.items) > location_count:
-			filler = [item for item in self.items if ItemClassification.progression not in item.class_]
+			filler = [item for item in self.items if ItemClassification.progression not in item.get_class(self)]
 			if not filler:
-				raise Exception('Not enough checks')
+				for location, _ in self.locations:
+					if location.name == "La+'s challenge":
+						self.place_item(location, ItemCategory.HEART)
+						location_count -= 1
+						self.laplus = False
+						break
+				else:
+					raise Exception('Not enough locations')
+				continue
 			self.items.remove(self.random.choice(filler))
 
 		if self.safety_nousagi:
@@ -138,12 +206,10 @@ class FNNQWorld(World):
 		unrestricted_locations = 0
 		for location, args in self.locations:
 			placed = self.locked_items.get(location.id)
-			if placed is None and location.id in self.locked_items:
-				continue
-			built = location.build(self, *args)
+			built = location.build(self, placed is None and location.id in self.locked_items, *args)
 			if placed:
 				built.place_locked_item(self.create_item(placed))
-			else:
+			elif built.address:
 				unrestricted_locations += not(location.flags.value & 204)
 		unrestricted_locations *= 0.5 if self.options.mmq else 0.8
 
