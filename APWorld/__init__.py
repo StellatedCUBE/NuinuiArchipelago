@@ -60,7 +60,7 @@ class FNNQWorld(World):
 		return region
 
 	def get_filler_item_name(self):
-		if self.random.random() * 20 < self.options.enemy_trap_intensity.value and not self.restricted_items:
+		if self.random.random() * 20 < self.options.trap_intensity.value and not self.restricted_items:
 			trap = self.random.choice(ENEMY_TRAPS)
 			while trap == 'Oni' and len(self.multiworld.worlds) == 1 and not(self.options.nnq and self.options.nnq_enemysanity) and not(self.options.prq and (self.options.prq_enemysanity or self.options.prq_crystalsanity or self.options.prq_cratesanity)):
 				trap = self.random.choice(ENEMY_TRAPS)
@@ -203,7 +203,7 @@ class FNNQWorld(World):
 			oob = self.options.prq_allow_oob.value,
 			help = +any(item == help_item for item in self.items),
 			c = self.characters,
-			et = self.options.enemy_trap_intensity.value,
+			t = self.options.trap_intensity.value,
 			v = 'sC(b'
 		)
 	

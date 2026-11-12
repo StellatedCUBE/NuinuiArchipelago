@@ -58,9 +58,9 @@ class SFXRando(Toggle):
 	"""Shuffles all sound effects in the game. Very much a gimmick option."""
 	display_name = "Randomise SFX"
 
-class EnemyTrapIntensity(Range):
-	"""How frequent enemy-spawning traps should be"""
-	display_name = "Enemy Trap Intensity"
+class TrapIntensity(Range):
+	"""How frequent traps should be"""
+	display_name = "Trap Intensity"
 	default = 0
 	range_start = 0
 	range_end = 10
@@ -254,7 +254,7 @@ class FNNQOptions(PerGameCommonOptions):
 	randomise_music: MusicRando
 	randomise_backgrounds: BGRando
 	randomise_sfx: SFXRando
-	enemy_trap_intensity: EnemyTrapIntensity
+	trap_intensity: TrapIntensity
 
 	# Links
 	death_link: DeathLink
