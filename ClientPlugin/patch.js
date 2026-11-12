@@ -395,6 +395,7 @@ NNM.code.insertAtStartOfScope('PekoMiniBoss.introPhase', function() {
 		bridge.destroy(game, this.rightParts[0]);
 	}
 });
+NNM.code.findReplaceAllLines('MarinePlayer.update', 'this.hookEnemyPool.includes', '!(self.archipelagoState && actor instanceof PekoMiniBoss && !actor.checkHit(game, this.hook)) && this.hookEnemyPool.includes');
 NNM.code.findReplaceAllLines('Calli.update', "game.currentStage === 'casino'", "(game.currentStage === 'casino' || (self.archipelagoState && this.skullBoss))");
 NNM.code.findReplaceAllLines('Calli.update', 'game.scene.currentSection.collisions', '__archipelago_col');
 NNM.code.insertAtStartOfScope('Calli.update', `
@@ -670,7 +671,7 @@ NNM.code.insertAfterFirstMatchingLine('MarineGhost.phases.tp', 'actor.tpPos = ',
 		const box = { pos: new Vector2(self.archipelagoState.arenaL + ((random() * (self.archipelagoState.arenaR - self.archipelagoState.arenaL - 16)) & ~15), y), size: actor.size }, col = scene.collisions;
 		while (true) {
 			box.pos.y = Math.min(scenePos.y + scene.currentSection.size.y - 32, Math.max(scenePos.y, y));
-			if (!CollisionBox.intersectCollisions(box, col).length && CollisionBox.intersectCollisions({ pos: { x: box.pos.x, y: scenePos.y - 1 }, size: { x: box.size.x, y: box.pos.y - scenePos.y } }, col).length) {
+			if (!CollisionBox.intersectCollisions(box, col).length && (self.archipelagoState.arenaId > 1 || CollisionBox.intersectCollisions({ pos: { x: box.pos.x, y: scenePos.y }, size: { x: box.size.x, y: box.pos.y - scenePos.y } }, col).length)) {
 				box.pos.y++;
 				if (CollisionBox.intersectCollisions(box, col).length) {
 					box.pos.y--;

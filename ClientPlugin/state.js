@@ -118,9 +118,6 @@ export class ArchipelagoState {
 			for (const i in sfxA)
 				this.#sfxMap[sfxA[i]] = sfxB[i];
 		}
-		if (slotData.br) {
-			randomiseBGs(slotData.br, slotData.br & 1);
-		}
 		if (slotData.boss.nnq) {
 			while (slotData.boss.nnq.length < 21) slotData.boss.nnq.push('None');
 		}
@@ -155,6 +152,10 @@ export class ArchipelagoState {
 				for (let i = 0; i < 5; i++) {
 					this.#toScout.push((2 << 16) | i, (3 << 16) | i, (7 << 16) | i);
 				}
+			}
+		
+			if (this.slotData.br) {
+				randomiseBGs(this.slotData.br, this.slotData.br & 1);
 			}
 
 			client.storage.fetch('_read_race_mode').then(race => this.notRace = !race);
@@ -1046,10 +1047,10 @@ export class ArchipelagoState {
 				cause = null;
 				type = causeActor.__archipelagoVapor && 'steamed';
 			} else if (causeActor === this.hitBy && causeActor instanceof PekoMiniBoss) {
-				typed = 'drilled';
+				type = 'drilled';
 				cause = 'Pekora';
 			} else if (causeActor === this.hitBy && (causeActor instanceof Koyodrill || causeActor instanceof KoyodrillBody)) {
-				typed = 'drilled';
+				type = 'drilled';
 				cause = 'Koyori';
 			} else if (causeActor.__archipelagoOriginActor)
 				cause = causeActor.__archipelagoOriginActor;
