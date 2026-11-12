@@ -9,6 +9,13 @@ function noRain(game) {
 }
 
 function rmInaWater(game) {
+	if (game.currentStage === 'holo_hq' && game.scene.currentSection.pos.x === 640 && game.scene.background['40_22']) {
+		for (let i = 40; i < 60; i++) {
+			delete game.scene.background[i + '_22'];
+			delete game.scene.background[i + '_23'];
+			delete game.scene.foreground[i + '_23'];
+		}
+	}
 }
 
 function layerImage(name, y=0) {
@@ -78,7 +85,7 @@ export function randomiseBGs(seed, mode) {
 		}
 	}
 	
-	const rng = createLCG(seed);
+	const rng = seed ? createLCG(seed) : random;
 
 	if (mode) {
 
@@ -145,6 +152,8 @@ export function randomiseBGs(seed, mode) {
 		}
 	}
 }
+
+self.__APRBG = randomiseBGs;
 
 let bossKill;
 

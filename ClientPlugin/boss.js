@@ -83,9 +83,10 @@ function bridge(arena) {
 	arena.outroPre = [
 		(game, event) => {
 			game.scene.rain = !(event.next = event.archipelagoBridge.done = true);
+			if (NNM.game.currentQuest === 'nuinui')
 			for (let i = 40; i < 60; i++) {
-				game.scene.background[`${i}_22`] = '40';
-				game.scene.background[`${i}_23`] = '41';
+				game.scene.background[i + '_22'] = '40';
+				game.scene.background[i + '_23'] = '41';
 			}
 		}
 	];
