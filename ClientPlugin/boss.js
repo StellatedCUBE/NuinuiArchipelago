@@ -1116,7 +1116,7 @@ function fight(clear, setDefeatedPhase, allowTravelBelowSection) {
 			player.vel.x = 0;
 		}
 
-		if (player.pos.y < game.scene.currentSection.pos.y) {
+		if (player.pos.y < game.scene.currentSection.pos.y && archipelagoState.bossId !== 'Dokuro') {
 			player.pos.y = game.scene.currentSection.pos.y
 			player.vel.y = 0;
 		}
