@@ -91,6 +91,7 @@ def nnq(world):
 	world.boss_data['nnq'] = [arena.boss.name for arena in arenas]
 
 	only_flare_rule = Has(item.get_item((item.ItemCategory.CHARACTER, 0)).name)
+	only_flare_rule_ool = only_flare_rule & Has(data.OOL_ITEM)
 	exclude_only_noel = False
 	only_noel_hard = False
 	iv_region = fit_region = None
@@ -100,6 +101,7 @@ def nnq(world):
 			exclude_only_noel |= arena.boss.noel_difficulty > 2
 			only_noel_hard |= arena.boss.noel_difficulty
 			only_flare_rule &= HasAny(*arena.boss.flare_requirements)
+			only_flare_rule_ool &= HasAny(*arena.boss.flare_requirements, *arena.boss.flare_requirements_ool)
 
 		if world.options.nnq_achievement_checks.boss in world.options.nnq_achievement_checks:
 			match arena.name:
@@ -140,7 +142,7 @@ def nnq(world):
 					world.get_region(arena.region).connect(fit_region)
 	
 	if levels > 5 and world.options.nnq_achievement_checks.hq in world.options.nnq_achievement_checks:
-		world.add_location('Only Flare!', world.get_region('nnq_hq_roof'), only_flare_rule)
+		world.add_location('Only Flare!', world.get_region('nnq_hq_roof'), only_flare_rule | only_flare_rule_ool)
 		world.add_location(
 			'Only Noel!',
 			world.get_region('nnq_hq_roof'),
