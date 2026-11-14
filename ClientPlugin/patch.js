@@ -4,6 +4,10 @@ export const NAME = 'Archipelago';
 
 if (!NNM.gameVersion.startsWith('Steam/')) throw new RangeError(NNM.gameVersion);
 
+export function loc(k) {
+	return 'raw:' + NNM.game.assets.locales[NNM.game.lang][k].replace(/{\d}/g, m => arguments[+m[1]+1]);
+}
+
 NNM.code.insertAtStartOfScope('SaveData.setItem', 'if (self.archipelagoState) return;');
 NNM.code.insertAtEndOfScope('Scene.drawPlayerHealth', 'if (self.archipelagoState?.reconnecting) cx.drawImage(game.assets.images.NNM_Archipelago_dc, 5, 5);');
 NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', function() {
@@ -686,7 +690,7 @@ NNM.code.insertAfterFirstMatchingLine('MarineGhost.phases.tp', 'actor.tpPos = ',
 	}
 });
 NNM.code.findReplaceAllLines('Gashadokuro', /(scenePos.y \+ )?7 \* 16/g, '(self.archipelagoState ? self.archipelagoState.arenaB - 48 : $&)');
-NNM.code.insertAtStartOfScope('Gashadokuro.checkHit', 'if (self.archipelagoState && !this.suddenDeathMode && collisionBox instanceof Projectile && collisionBox.vel.y <= 0) return;');
+NNM.code.insertAtStartOfScope('Gashadokuro.checkHit', 'if (self.archipelagoState && game.mode !== "marine" && !this.suddenDeathMode && collisionBox instanceof Projectile && collisionBox.vel.y <= 0) return;');
 NNM.code.findReplaceAllLines('Gashadokuro.phases.idle', '96', '(self.archipelagoState ? scene.currentSection.pos.y + 96 : 96)');
 NNM.code.insertAfterFirstMatchingLine('Gashadokuro.phases.stomp', 'explosion', 'game.scene.actors.find(a => a.archipelagoInaBridge)?.destroy(game, activeHand, true, true);');
 NNM.code.insertBeforeFirstMatchingLine('Gashadokuro.phases.prepare_punch', 'actor.phaseBuffer === 120', 'if (actor.__archipelagoRight) actor.rightHand.targetPos.x = actor["__archipelago" + (actor.punchDir === 1 ? "Left" : "Right")];');
@@ -727,12 +731,13 @@ NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
 			}
 			option.desc = new LocaleElem(
 				game,
-				!option.local ? `raw:sends ${scout.name} to ${scout.target}` :
+				!option.local ? loc(scout.name, scout.target) :
 				scout.id === (17 << 8) ? 'archipelago_shop_bomb' :
 				scout.id === (12 << 8) ? 'archipelago_shop_gsh' :
 				scout.id === (10 << 8) ? 'archipelago_shop_coin' :
 				scout.id === (15 << 8) ? 'archipelago_shop_prog_level_nnq' :
 				scout.id === (15 << 8) + 1 ? 'archipelago_shop_prog_level_mmq' :
+				game.lang !== 'en' ? 'raw:' + scout.name :
 				([1,2,3,4].includes(scout.id >> 8) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 8) ? 'raw: get the ' : 'raw:get ') + scout.name,
 				{ textAlign: 'center' }
 			);

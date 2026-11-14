@@ -1,4 +1,4 @@
-import { itemTextParticle } from './patch.js';
+import { itemTextParticle, loc } from './patch.js';
 import { APQuestMenu } from "./questMenu.js";
 import { TextParticle } from "./textParticle.js";
 import { patchEvents } from "./events.js";
@@ -530,11 +530,10 @@ export class ArchipelagoState {
 					if (this.popupFlag = !this.slotData.nnq_li && item.locationId > 9) break;
 				}
 				if ((item.id & 128) && sub_id < 6 && this.slotData.boss.prq) this.#unlockLevel('random', level);
-				let level_name = NNM.game.assets.locales[NNM.game.lang]['stage_' + level];
-				level_name = level_name.substring(2, level_name.length - 2);
-				msg = [(item.id & (64 | 128)) === (64 | 128) ? 'raw:you obtained access to ' + level_name : `raw:you obtained ${level_name} in ` + ((item.id & 64) ? 'nuinui quest' : 'random quest')];
+				const level_name = NNM.game.assets.locales[NNM.game.lang]['stage_' + level].replace(/[-－]/gu, '').trim();
+				msg = [(item.id & (64 | 128)) === (64 | 128) ? loc('archipelago_stage_noq', level_name) : loc((item.id & 64) ? 'archipelago_stage_nnq' : 'archipelago_stage_prq', level_name)];
 				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'stage', sub_id));
 			break;
 
@@ -544,9 +543,9 @@ export class ArchipelagoState {
 					for (const key in NNM.game.quests.maiden.stages)
 						if (!['boat-0', 'holo_hq-1'].includes(key))
 							this.setSaveField('maiden', 'stage-' + key);
-				msg = ['raw:unlocked stage ' + sub_id + (this.slotData.boss.nnq || this.slotData.boss.prq ? ' in maiden quest' : '')];
+				msg = [loc(this.slotData.boss.nnq || this.slotData.boss.prq ? 'archipelago_stage_mmq' : 'archipelago_stage_noq_mmq', `${sub_id}`.padStart(2, 0))];
 				if (!local && !item.essence)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 8) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
 			break;
 
@@ -556,7 +555,7 @@ export class ArchipelagoState {
 					if (player) player.chargeShot = true;
 					msg = ['archipelago_noel_charge'];
 					if (!local)
-						msg.push('raw:received from ' + item.sender.name);
+						msg.push(loc('archipelago_source', item.sender.name));
 					this.popup(new PopUpMenu(NNM.game, null, msg, 'item', 3));
 				} else {
 					if (!this.nnqChars) {
@@ -568,7 +567,7 @@ export class ArchipelagoState {
 					this.nnqChars |= 1 << sub_id;
 					if (this.nnqChars === 3) {
 						this.setSaveField('nuinui', 'item-noel');
-						this.popup(new PopUpMenu(NNM.game, null, [sub_id ? 'castle_2' : 'archipelago_flare', local ? 'castle_3' : 'raw:received from ' + item.sender.name], 'item', sub_id * 3));
+						this.popup(new PopUpMenu(NNM.game, null, [sub_id ? 'castle_2' : 'archipelago_flare', local ? 'castle_3' : loc('archipelago_source', item.sender.name)], 'item', sub_id * 3));
 					}
 					this.#checkGun();
 				}
@@ -586,7 +585,7 @@ export class ArchipelagoState {
 				this.#checkGun();
 				msg = [sub_id === 1 ? 'falls_10' : 'archipelago_shot_' + sub_id];
 				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 			break;
 
@@ -596,7 +595,7 @@ export class ArchipelagoState {
 					NNM.game.scene.events[0].key = true;
 				msg = ['archipelago_key'];
 				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 			break;
 
@@ -604,7 +603,7 @@ export class ArchipelagoState {
 				this.setSaveField('nuinui', 'item-' + ['clock', 'jump', '', 'boots'][sub_id - 1]);
 				if (NNM.game.currentQuest === 'nuinui' && player && (sub_id === 4 || NNM.game.mode === 'flare'))
 					player[['item', 'doubleJump', '', 'canWallJump'][sub_id - 1]] = true;
-				this.popup(new PopUpMenu(NNM.game, null, [['casino_7', 'yamato_8', '', 'heaven_0'][sub_id - 1], local ? ['casino_70', 'yamato_9', '', 'heaven_1'][sub_id - 1] : 'raw:received from ' + item.sender.name], 'item', sub_id));
+				this.popup(new PopUpMenu(NNM.game, null, [['casino_7', 'yamato_8', '', 'heaven_0'][sub_id - 1], local ? ['casino_70', 'yamato_9', '', 'heaven_1'][sub_id - 1] : loc('archipelago_source', item.sender.name)], 'item', sub_id));
 			break;
 
 			case 7:
@@ -612,7 +611,7 @@ export class ArchipelagoState {
 				if (local || (this.slotData.c & 1)) {
 					msg = ['archipelago_emblem_' + sub_id];
 					if (!local)
-						msg.push('raw:received from ' + item.sender.name);
+						msg.push(loc('archipelago_source', item.sender.name));
 					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 				}
 			break;
@@ -625,7 +624,7 @@ export class ArchipelagoState {
 						this.#unlockLevel('random', 'holo_hq');
 					msg = ['archipelago_big_crystal'];
 					if (!local)
-						msg.push('raw:received from ' + item.sender.name);
+						msg.push(loc('archipelago_source', item.sender.name));
 					this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 				}
 			break;
@@ -676,7 +675,7 @@ export class ArchipelagoState {
 				this.casinoKey = 0;
 				msg = ['archipelago_key'];
 				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 			break;
 
@@ -684,7 +683,7 @@ export class ArchipelagoState {
 				this.#bombs++;
 				msg = ['archipelago_bomb'];
 				if (!local)
-					msg.push('raw:received from ' + item.sender.name);
+					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', getIcon(item.id)));
 			break;
 
@@ -693,7 +692,7 @@ export class ArchipelagoState {
 				this.hasGun = true;
 				if (!this.firstWeapon) this.firstWeapon = item;
 				this.#checkGun();
-				this.popup(new PopUpMenu(NNM.game, null, ['falls_5', local ? 'falls_50' : 'raw:received from ' + item.sender.name], 'item', 0));
+				this.popup(new PopUpMenu(NNM.game, null, ['falls_5', local ? 'falls_50' : loc('archipelago_source', item.sender.name)], 'item', 0));
 			break;
 
 			case 19:
@@ -765,36 +764,38 @@ export class ArchipelagoState {
 		return !this.#checking.includes(loc) && this.client.room.missingLocations.includes(loc);
 	}
 
-	check(loc, noPopup) {
-		if (loc === 3) {
+	check(l, noPopup) {
+		if (l === 3) {
 			this.feat(Feat.NNQ_LEVEL_CLEAR + 4);
-		} else if (loc === 4) {
+		} else if (l === 4) {
 			this.feat(Feat.NNQ_LEVEL_CLEAR + 4);
 			this.feat(Feat.NNQ_GOOD_END);
-		} else if ((loc >> 16) === 1) {
-			this.feat(Feat.NNQ_LEVEL_CLEAR + (loc & 7));
-		} else if ((loc >> 16) === 2) {
-			this.feat(Feat.PRQ_LEVEL_CLEAR + (loc & 7));
+		} else if ((l >> 16) === 1) {
+			this.feat(Feat.NNQ_LEVEL_CLEAR + (l & 7));
+		} else if ((l >> 16) === 2) {
+			this.feat(Feat.PRQ_LEVEL_CLEAR + (l & 7));
 		}
 
 
-		if (loc && !this.checked(loc)) {
-			this.#checking.push(loc);
-			const scout = this.getScout(loc);
+		if (l && !this.checked(l)) {
+			this.#checking.push(l);
+			const scout = this.getScout(l);
 			if (!noPopup && scout && !scout.local) {
-				this.popup(new PopUpMenu(NNM.game, null, ['raw:sent ' + scout.name, 'raw:to ' + scout.target], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
+				this.popup(new PopUpMenu(NNM.game, null, [loc('archipelago_send_nonlocal', scout.name), loc('archipelago_send_nonlocal_2', scout.target)], 'archipelago', [NNM.game.assets.images.NNM_Archipelago_logo2]));
 			}
 			if (scout?.local) {
 				this.popupFlag = noPopup;
-				this.#handleItem(this.scouts[loc]);
-				this.localIgnoreLocations.push(loc);
+				this.#handleItem(this.scouts[l]);
+				this.localIgnoreLocations.push(l);
 				if (!this.popupFlag) {
 					let name = scout.name;
-					if (scout.id === (9 << 8))
-						name = 'some idol essence';
-					else if (!+name[0])
-						name = 'a ' + name;
-					this.popup(new PopUpMenu(NNM.game, null, ['raw:found ' + name], 'archipelago', getIcon(scout.id)));
+					if (NNM.game.lang === 'en') {
+						if (scout.id === (9 << 8))
+							name = 'some idol essence';
+						else if (!+name[0])
+							name = 'a ' + name;
+					}
+					this.popup(new PopUpMenu(NNM.game, null, [loc('archipelago_send_local', name)], 'archipelago', getIcon(scout.id)));
 				}
 			}
 
@@ -802,7 +803,7 @@ export class ArchipelagoState {
 
 			if (noPopup === 'text' && scout && !this.pendingPopUp) {
 				if (!(scout.local && [0, 10, 11, 14, 19].includes(scout.id >> 8)))
-					itemTextParticle(NNM.getPlayer(), loc);
+					itemTextParticle(NNM.getPlayer(), l);
 				else if (scout.local && scout.id < 256)
 					this.#dueCrystalPopup += scout.id;
 				else if (scout.local && scout.id === (10 << 8))
@@ -810,7 +811,7 @@ export class ArchipelagoState {
 			}
 
 			try {
-				this.client.check(loc);
+				this.client.check(l);
 			} catch {}
 		}
 		

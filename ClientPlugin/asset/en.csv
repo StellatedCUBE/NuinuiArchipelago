@@ -3,26 +3,36 @@ archipelago_connect_header,connect to archipelago
 archipelago_connect,connect
 archipelago_connecting,connecting...
 archipelago_connect_error,error:
+archipelago_source,received from {0}
+archipelago_send_local,found {0}
+archipelago_send_nonlocal,sent {0}
+archipelago_send_nonlocal_2,to {0}
+archipelago_stage_noq,you obtained access to {0}!
+archipelago_stage_nnq,you unlocked {0} in nuinui quest!
+archipelago_stage_prq,you unlocked {0} in random quest!
+archipelago_stage_mmq,you unlocked stage {0} in maiden quest!
+archipelago_stage_noq_mmq,you unlocked stage {0}!
 menu_archipelago_quest_select,quest select
-archipelago_shot_0,you obtained fire shot
-archipelago_shot_2,you obtained sakura shot
-archipelago_shot_3,you obtained marine's cutlass
-archipelago_shot_4,you obtained the ice shield
-archipelago_shot_5,you obtained the dual swords
+archipelago_shot_0,you obtained fire shot!
+archipelago_shot_2,you obtained sakura shot!
+archipelago_shot_3,you obtained marine's cutlass!
+archipelago_shot_4,you obtained the ice shield!
+archipelago_shot_5,you obtained the dual swords!
 archipelago_flare,you can now freely play as flare!
-archipelago_key,you obtained a key
-archipelago_emblem_0,you obtained iroha's emblem
-archipelago_emblem_1,you obtained koyori's emblem
-archipelago_emblem_2,you obtained chloe's emblem
-archipelago_emblem_3,you obtained lui's emblem
-archipelago_emblem_4,you obtained la+'s emblem
+archipelago_key,you obtained a key!
+archipelago_emblem_0,you obtained iroha's emblem!
+archipelago_emblem_1,you obtained koyori's emblem!
+archipelago_emblem_2,you obtained chloe's emblem!
+archipelago_emblem_3,you obtained lui's emblem!
+archipelago_emblem_4,you obtained la+'s emblem!
 menu_archipelago_console,text console
 archipelago_noel_greeting,konmassuru!
 archipelago_gsh,got some help
-archipelago_big_crystal,you obtained a big crystal
+archipelago_big_crystal,you obtained a big crystal!
 archipelago_bomb,bomb limit increased
 archipelago_shop,ap item
 archipelago_shop_desc,a multiworld item
+archipelago_shop_nonlocal,sends {0} to {1}
 archipelago_shop_bomb,max bombs +1
 archipelago_shop_gsh,get some help
 archipelago_shop_coin,get a gold coin

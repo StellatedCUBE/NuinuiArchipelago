@@ -1,39 +1,49 @@
 archipelago,ＡＰ
-archipelago_connect_header,connect to archipelago
-archipelago_connect,connect
-archipelago_connecting,connect...
-archipelago_connect_error,error:
+archipelago_connect_header,ＡＰログイン
+archipelago_connect,ログイン
+archipelago_connecting,接続中
+archipelago_connect_error,エラー：
+archipelago_source,差出人：{0}
+archipelago_send_local,{0}ゲット！
+archipelago_send_nonlocal,{0}は
+archipelago_send_nonlocal_2,{0}を表す
+archipelago_stage_noq,{0}がアンロックされました！
+archipelago_stage_nnq,{0}がアンロックされました！（ぬいぬいクエスト）
+archipelago_stage_prq,{0}がアンロックされました！（ランダムクエスト）
+archipelago_stage_mmq,ステージ{0}がアンロックされました！（メイデンクエスト）
+archipelago_stage_noq_mmq,ステージ{0}がアンロックされました！
 menu_archipelago_quest_select,クエストセレクト
-archipelago_shot_0,you obtained fire shot
-archipelago_shot_2,you obtained sakura shot
-archipelago_shot_3,you obtained marine's cutlass
-archipelago_shot_4,you obtained the ice shield
-archipelago_shot_5,you obtained kirito's swords
+archipelago_shot_0,ファイアショットを手に入れた！
+archipelago_shot_2,桜ショットを手に入れた！
+archipelago_shot_3,マリンさんのカットラスを手に入れた！
+archipelago_shot_4,アイスシールドを手に入れた！
+archipelago_shot_5,デュアルソードを手に入れた！
 archipelago_flare,フレアを自由にプレイできるようになりました！
-archipelago_key,you obtained a key
-archipelago_emblem_0,you obtained iroha's emblem
-archipelago_emblem_1,you obtained koyori's emblem
-archipelago_emblem_2,you obtained chloe's emblem
-archipelago_emblem_3,you obtained lui's emblem
-archipelago_emblem_4,you obtained la+'s emblem
-menu_archipelago_console,text console
+archipelago_key,鍵を手に入れた！
+archipelago_emblem_0,いろはさんの印を手に入れた！
+archipelago_emblem_1,こよりさんの印を手に入れた！
+archipelago_emblem_2,クロヱさんの印を手に入れた！
+archipelago_emblem_3,ルイさんの印を手に入れた！
+archipelago_emblem_4,ラプ様の印を手に入れた！
+menu_archipelago_console,ＡＰコンソール
 archipelago_noel_greeting,こんマッスル！
-archipelago_gsh,got some help
-archipelago_big_crystal,you obtained a big crystal
-archipelago_bomb,bomb limit increased
-archipelago_shop,ap item
-archipelago_shop_desc,a multiworld item
-archipelago_shop_bomb,max bombs +1
-archipelago_shop_gsh,get some help
-archipelago_shop_coin,get a gold coin
-archipelago_shop_local,item
-archipelago_shop_prog_level_nnq,unlocks the next nuinui quest stage
-archipelago_shop_prog_level_mmq,unlocks the next maiden quest stage
-menu_archipelago_spend_coin,spend coin
+archipelago_gsh,「助けて！」ゲット！
+archipelago_big_crystal,大きな結晶を手に入れた！
+archipelago_bomb,最大ボム数+1
+archipelago_shop,ＡＰアイテム
+archipelago_shop_desc,他世界のアイテム
+archipelago_shop_nonlocal,{0}を{1}に送信する
+archipelago_shop_bomb,最大ボム数+1
+archipelago_shop_gsh,「助けて！」+1
+archipelago_shop_coin,金貨+1
+archipelago_shop_local,アイテム
+archipelago_shop_prog_level_nnq,ぬいぬいクエストのレベルをアンロック
+archipelago_shop_prog_level_mmq,メイデンクエストのレベルをアンロック
+menu_archipelago_spend_coin,金貨交換
 archipelago_bonus_info,*金貨使用で６ＨＰ回復
-archipelago_noel_charge,you can now charge up noel's mace
-menu_archipelago_tracker,display archipelago tracker
-menu_archipelago_delete_cache,clear archipelago cache
+archipelago_noel_charge,鎚矛チャージ攻撃がアンロックされました！
+menu_archipelago_tracker,ＡＰのアイテムトラッカー表示
+menu_archipelago_delete_cache,ＡＰキャッシュをクリア
 
-archipelago_shop_769,noel
-archipelago_shop_771,mace
+archipelago_shop_769,ノエル
+archipelago_shop_771,鎚矛
