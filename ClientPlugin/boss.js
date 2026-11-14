@@ -1181,44 +1181,45 @@ function dontJumpOffEdge(boss) {
 function calli(skullBoss) {
 	return {
 		setup: event => {
-			event.bossActor = new Calli(new Vector2(archipelagoState.bossSpawnX, 0), skullBoss ? 32 : 64);
-			event.bossActor.archipelagoIgnoreEventCollisions = event;
-			event.bossActor.setAnimation('hide');
+			const boss = event.bossActor = new Calli(new Vector2(archipelagoState.bossSpawnX, 0), skullBoss ? 32 : 64);
+			boss.archipelagoIgnoreEventCollisions = event;
+			boss.moveDir = 0;
+			boss.setAnimation('hide');
 			if (skullBoss) {
-				event.bossActor.skullBoss = {takeHit:_=>{}};
-				event.bossActor.typeWeakness = {};
+				boss.skullBoss = {takeHit:_=>{}};
+				boss.typeWeakness = {};
 			}
-			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
+			boss.lookAt = a => boss.dir = CollisionBox.center(boss).x < a.x;
 			const f = _ => {
-				event.bossActor.pos.y = archipelagoState.arenaB - 32;
-				event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+				boss.pos.y = archipelagoState.arenaB - 32;
+				boss.lookAt(CollisionBox.center(NNM.getPlayer()));
 				if (
-					event.bossActor.pos.x > NNM.getPlayer().pos.x && (
+					boss.pos.x > NNM.getPlayer().pos.x && (
 						archipelagoState.arenaR > Math.max(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x) + NNM.game.scene.view.size.x + 48 ||
 						archipelagoState.arenaR === NNM.game.scene.currentSection.pos.x + NNM.game.scene.view.size.x
 					)
 				) {
-					event.bossActor.pos.x = Math.max(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x) + NNM.game.scene.view.size.x + 16;
-					event.bossActor.vel = new Vector2(-2, -4);
-					event.bossActor.setAnimation('jump2');
+					boss.pos.x = Math.max(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x) + NNM.game.scene.view.size.x + 16;
+					boss.vel = new Vector2(-2, -4);
+					boss.setAnimation('jump2');
 				} else if (
-					event.bossActor.pos.x < NNM.getPlayer().pos.x && archipelagoState.arenaId !== 9 && (
+					boss.pos.x < NNM.getPlayer().pos.x && archipelagoState.arenaId !== 9 && (
 						archipelagoState.arenaL < Math.min(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x - NNM.game.scene.view.size.x) - 48 ||
 						archipelagoState.arenaL === NNM.game.scene.currentSection.pos.x
 					)
 				) {
-					event.bossActor.pos.x = Math.min(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x - NNM.game.scene.view.size.x) - 16;
-					event.bossActor.vel = new Vector2(2, -4);
-					event.bossActor.setAnimation('jump2');
+					boss.pos.x = Math.min(NNM.game.scene.view.pos.x, NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x - NNM.game.scene.view.size.x) - 16;
+					boss.vel = new Vector2(2, -4);
+					boss.setAnimation('jump2');
 				} else {
-					event.bossActor.vel = Vector2.zero;
+					boss.vel = Vector2.zero;
 				}
 			};
 			if (NNM.getPlayer().playerControl || archipelagoState.arenaId === 10) {
-				event.bossActor.pos.y = Infinity;
+				boss.pos.y = Infinity;
 				event.calliJump = f;
 			} else f();
-			NNM.game.scene.actors.push(new CalliLand(event.bossActor, skullBoss));
+			NNM.game.scene.actors.push(new CalliLand(boss, skullBoss));
 		},
 		timeline: [
 			warn(skullBoss ? 'unknown' : 'mori_calliope', 1, 'idle', 'mori', 0, skullBoss ? 150 : 240, {
