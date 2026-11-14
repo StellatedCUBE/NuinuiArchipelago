@@ -59,7 +59,7 @@ class SFXRando(Toggle):
 	display_name = "Randomise SFX"
 
 class TrapIntensity(Range):
-	"""How frequent traps should be"""
+	"""How frequent traps should be. Frequency is also heavily influenced by check count."""
 	display_name = "Trap Intensity"
 	default = 0
 	range_start = 0
