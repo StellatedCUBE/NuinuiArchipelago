@@ -310,7 +310,7 @@ by_name = {boss.name.lower(): boss for boss in [
 	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}, T_BAD_DEBUT),
 	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2], SHOTS[3]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT, {FEATHERS, SHOTS[1]}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Demon', Q_NNQ, {PISTOLS}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
+	Boss('Demon', Q_NNQ, {PISTOLS, SHOTS[2], SHOTS[3], SHOTS[5]}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
 	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Mori', Q_NNQ|Q_PRQ, {PISTOLS, SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS),
