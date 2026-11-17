@@ -1281,7 +1281,11 @@ export class ArchipelagoState {
 			}
 		} else {
 			if (quest === 'random') {
-				if (!(this.#goal & BigInt(1 << Feat.PRQ_LEVEL_CLEAR))) {
+				if (this.#goal & BigInt(1 << Feat.PRQ_LEVEL_CLEAR)) {
+					if (this.casinoKey) cx.globalAlpha = .3;
+					cx.drawImage(game.assets.images.NNM_Archipelago_key, 2, 2);
+					cx.globalAlpha = 1;
+				} else {
 					for (let i = 0; i < 4; i++) {
 						cx.filter = (this.#bigCrystals & (2 << i)) ? 'none' : 'grayscale(100%)';
 						cx.drawImage(game.assets.images.ui_crystal, i * 24, 0, 24, 24, i * 24 - (i === 3 ? 9 : 2), -1, 24, 24);
