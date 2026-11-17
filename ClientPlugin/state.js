@@ -804,10 +804,13 @@ export class ArchipelagoState {
 			if (noPopup === 'text' && scout && !this.pendingPopUp) {
 				if (!(scout.local && [0, 10, 11, 14, 19].includes(scout.id >> 8)))
 					itemTextParticle(NNM.getPlayer(), l);
-				else if (scout.local && scout.id < 256)
+				else if (scout.local && scout.id < 256) {
 					this.#dueCrystalPopup += scout.id;
-				else if (scout.local && scout.id === (10 << 8))
+					this.#overheadTextPopupDelay = 0;
+				} else if (scout.local && scout.id === (10 << 8)) {
 					this.#dueCoinPopup++;
+					this.#overheadTextPopupDelay = 0;
+				}
 			}
 
 			try {
