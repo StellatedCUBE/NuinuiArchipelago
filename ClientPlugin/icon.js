@@ -76,6 +76,20 @@ function getFairies() {
 	return fairies;
 }
 
+let help;
+function getSomeHelp() {
+	if (!help) {
+		help = document.createElement('canvas');
+		help.width = 23;
+		help.height = 18;
+		const cx = help.getContext('2d'), elfriend = NNM.game.assets.images.sp_elfriend_help;
+		cx.drawImage(NNM.game.assets.images.sp_checkpoint, 7, 12);
+		cx.drawImage(elfriend, -1, -2);
+		cx.drawImage(elfriend, 1, 15);
+	}
+	return help;
+}
+
 export function getIcon(item, anim) {
 	switch (item >> 8) {
 		case 0: return [NNM.game.assets.images.sp_gem, [1, 4, 14, 8]];
@@ -90,7 +104,7 @@ export function getIcon(item, anim) {
 		case 9: return [NNM.game.assets.images.sp_cup, [0, 0, 16, 16]];
 		case 10: return [NNM.game.assets.images.sp_star, [anim ? (NNM.game.frameCount >> 3 & 3) * 8 : 24, 0, 8, 8]];
 		case 11: return [NNM.game.assets.images.sp_heart];
-		case 12: return [NNM.game.assets.images.NNM_Archipelago_help];
+		case 12: return [getSomeHelp()];
 		case 13: return [NNM.game.assets.images.sp_nousagi, [0, 0, 24, 24]];
 		case 14: return [NNM.game.assets.images.NNM_Archipelago_alt];
 		case 15: return getIcon((item & 1) ? (2 << 8) | archipelagoState.progressiveLevels[1] - 1 : ((1 << 8) | archipelagoState.progressiveLevels[0]));
