@@ -1853,7 +1853,7 @@ const bosses = {
 						event.destroyedInaTiles = {};
 						for (let i = 0; i <= tilesToDestroy; i++) {
 							//for (let j = 10 - (i < tilesToDestroy); j < 11; j++) {
-								const k = `${i + NNM.game.scene.currentSection.pos.x / 16}_58`; //`${i + NNM.game.scene.currentSection.pos.x / 16}_${j + NNM.game.scene.currentSection.pos.y / 16}`;
+								const k = `${i + NNM.game.scene.currentSection.pos.x / 16}_10`; //`${i + NNM.game.scene.currentSection.pos.x / 16}_${j + NNM.game.scene.currentSection.pos.y / 16}`;
 								event.destroyedInaTiles[k] = NNM.game.scene.foreground[k];
 								delete NNM.game.scene.foreground[k];
 								//if (NNM.game.scene.background[k] == 3)
