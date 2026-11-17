@@ -113,7 +113,7 @@ item_types = [
 
 	ItemType(ItemCategory.BOMB, 0, 'Bomb', lambda world: (
 		ItemClassification.filler if getattr(world, 'logical_bomb', False) and not getattr(world.multiworld, 'generation_is_fake', False)
-		else setattr(world, 'logical_bomb', True) or ItemClassification.progression_deprioritized)
+		else setattr(world, 'logical_bomb', getattr(world, 'is_building_items', False)) or ItemClassification.progression_deprioritized)
 	),
 
 	ItemType(ItemCategory.DUAL_PISTOLS, 0, 'Dual Pistols', ItemClassification.progression | ItemClassification.useful),

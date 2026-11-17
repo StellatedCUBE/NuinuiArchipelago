@@ -231,6 +231,7 @@ class FNNQWorld(World):
 					if restricted_items < unrestricted_locations:
 						break
 
+		self.is_building_items = True
 		for item in self.items:
 			built = item.build(self)
 			self.multiworld.itempool.append(built)
@@ -254,6 +255,7 @@ class FNNQWorld(World):
 	
 	def fill_slot_data(self):
 		help_item = get_item(ItemCategory.HELP)
+		ps_item = get_item(ItemCategory.ALT_PALETTE)
 		return dict(
 			DeathLink = self.options.death_link.value,
 			SharedDamage = self.options.damage_link.value,
@@ -267,7 +269,8 @@ class FNNQWorld(World):
 			sr = self.options.randomise_sfx.value * self.random.randrange(1 << 31),
 			br = (self.options.randomise_backgrounds.value - 1) | (self.random.randrange(1 << 30) << 1) if self.options.randomise_backgrounds else 0,
 			oob = self.options.prq_allow_oob.value,
-			help = +any(item == help_item for item in self.items),
+			help = +any(item is help_item for item in self.items),
+			ps = +any(item is ps_item for item in self.items),
 			c = self.characters,
 			t = self.options.trap_intensity.value,
 			v = 'sC(b'
