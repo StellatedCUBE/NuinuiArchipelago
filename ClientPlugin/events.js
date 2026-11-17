@@ -1,6 +1,7 @@
 import { APPickup, NoelDrop, NousagiItem, WorldText } from "./pickup.js";
 import { enemySanity } from "./patch.js";
 import { patchBosses } from "./boss.js";
+import { Water } from "./bgrando.js";
 
 let hasPatchedEvents = false;
 
@@ -128,12 +129,34 @@ export function patchEvents() {
 		}
 	}]});
 
+	let portScrollBGRCode = 'return ', flag;
+	for (const line of NNM.code.filesMatching('nuinui/port.js')[0].lines) {
+		if (line.scope?.startsWith('NUINUI_PORT_EVENTS.1_0')) {
+			if (!line.modded && line.code.trim() === ']') {
+				break;
+			} else if (flag) {
+				portScrollBGRCode += (
+					line.code
+					.replace(/game.assets.images\[[^\]]*\]/g, code => 'archipelagoState.portScroll.i' + +code.includes(2))
+					.replace(/game.ctx0.drawImage/g, 'archipelagoState.portScroll&&game.ctx0.drawImage')
+					.replace('customDraw.push', 'customDraw.unshift')
+				);
+			} else if (line.code.includes('timeline:')) {
+				flag = true;
+			}
+		}
+	}
+
 	NUINUI_PORT_EVENTS['1_0'].push({condition: _ => {
 		if (self.archipelagoState)
 			for (let i = 11 << 16; self.archipelagoState.client.room.allLocations.includes(i); i++)
 				self.archipelagoState.scout(i);
-	}});
+	}}, {condition: _ => self.archipelagoState?.slotData.br, isPersistent: true, timeline: [
+		(new Function(portScrollBGRCode))()
+	]});
 	prefix(NUINUI_PORT_EVENTS['1_0'][1], -3, (game, event) => !event.timelineFrame && event.marine && archipelagoState.item(event.marine.pos.value(), 'boss'));
+	patchCondition(NUINUI_PORT_EVENTS['1_0'][0], _ => !archipelagoState.slotData.br);
+	NUINUI_PORT_EVENTS['2_0'].push({condition: game => self.archipelagoState?.water?.no && !game.scene.actors.push(new Water(Vector2.one, Vector2.one))});
 
 	patchCondition(NUINUI_YAMATO_EVENTS['2_9'][0], game => !self.archipelagoState.checked(2) && !game.scene.actors.find(a => a.apLocation === 2));
 	prefix(NUINUI_YAMATO_EVENTS['2_9'][0], -1, (game, event) => event.timelineFrame || archipelagoState.item(event.elfriend.pos.value().plus({x: 0, y: -16}), 2));

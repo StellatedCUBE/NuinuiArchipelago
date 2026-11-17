@@ -18,9 +18,63 @@ function rmInaWater(game) {
 	}
 }
 
+function processWaterData(data) {
+	data.ts = NNM.game.assets.images[data.alt ? 'ts_port_alt' : 'ts_port'];
+}
+
+function water(data) {
+	processWaterData(data);
+	return _ => archipelagoState.water = data;
+}
+
+function caveWater(game, cx) {
+	if (game.currentQuest === 'nuinui' && (game.currentStage === 'port' || (game.currentStage === 'holo_hq' && game.scene.currentSection.pos.x === 640)))
+		cx.drawImage(game.assets.images.NNM_Archipelago_cave, 0, 145);
+}
+
+function drawPortWater(y = 140) {
+	return (game, cx) => {
+		if (game.currentQuest === 'nuinui' && game.currentStage === 'port') {
+			cx.save();
+			if (archipelagoState.water?.filter) cx.filter = archipelagoState.water.filter;
+			cx.fillStyle = (archipelagoState.water?.alt ?? game.scene.isAltColor) ? '#00007f' : '#5f7fff';
+			cx.fillRect(0, y, 320, 52);
+			cx.restore();
+		}
+	};
+}
+
+function drawPortWaterWithReflection(game, cx) {
+	if (game.currentQuest === 'nuinui' && game.currentStage === 'port') {
+		cx.save();
+		if (archipelagoState.water?.filter) cx.filter = archipelagoState.water.filter;
+		cx.fillStyle = (archipelagoState.water?.alt ?? game.scene.isAltColor) ? '#00007f' : '#5f7fff';
+		cx.fillRect(0, 140, 320, 52);
+		cx.restore();
+
+		for (let i = 0; i < 20; i++) {
+			cx.globalAlpha = .5 - i / 40;
+			const o = Math.round(Math.sin((game.scene.frameCount + i * 4) * .02));
+			cx.drawImage(cx.canvas, 0, 139 - i, 320, 1, o, 140 + i, 320, 1);
+			if (o < 0) cx.drawImage(cx.canvas, 320 + o, 139 - i, -o, 1, 320 + o, 140 + i, -o, 1);
+			else if (o) cx.drawImage(cx.canvas, 0, 139 - i, o, 1, 0, 140 + i, o, 1);
+		}
+
+		cx.globalAlpha = 1;
+	}
+}
+
 function layerImage(name, y=0) {
 	const img = NNM.game.assets.images['bg_' + name];
 	return (game, cx) => cx.drawImage(img, 0, y, 320, 192, 0, 0, 320, 192);
+}
+
+function portScroll(alt) {
+	const psData = {
+		i0: NNM.game.assets.images[alt ? 'bg_port_scroll_alt' : 'bg_port_scroll'],
+		i1: NNM.game.assets.images[alt ? 'bg_port_scroll_alt2' : 'bg_port_scroll2'],
+	};
+	return _ => archipelagoState.portScroll = psData;
 }
 
 function heavenForeground(alt) {
@@ -46,19 +100,30 @@ const castleWave = [
 
 class Background {
 	#layers;
+	#water;
 	other = this;
 
 	constructor(baseName, layers, alt) {
 		this.baseName = baseName;
 		this.#layers = layers;
-		this.alt = alt;
+		if ((this.alt = alt) + 1) processWaterData(this.#water = {alt});
 	}
 
 	draw(game, cx) {
+		archipelagoState.portScroll = null;
+		archipelagoState.water = this.#water;
 		for (const layer of this.#layers)
 			layer(game, cx);
 		if (game.scene.skyTransistion && this.baseName !== 'water')
 			castleWave[this.baseName === 'castle' ? +this.alt : 2](game, cx);
+
+		if (self.water) {
+			if (!self.water._P) {
+				processWaterData(self.water);
+				self.water._P = 1;
+			}
+			archipelagoState.water = self.water;
+		}
 	}
 }
 
@@ -91,42 +156,57 @@ export function randomiseBGs(seed, mode) {
 
 	} else {
 		let boat = '', flag;
-		for (const line of NNM.code.filesMatching('scene.js')[0].lines.filter(l => l.scope?.startsWith('Scene.drawBackground'))) {
-			if (flag) {
-				if (line.code.trim() === 'return;') break;
-				else boat += line.code.replace(/this\./g, 'game.scene.') + '\n';
-			} else if (line.code.includes("=== 'boat'")) flag = true;
+		for (const line of NNM.code.filesMatching('scene.js')[0].lines) {
+			if (line.scope?.startsWith('Scene.drawBackground')) {
+				if (flag) {
+					if (line.code.trim() === 'return;') break;
+					else boat += line.code.replace(/this\.frameCount/g,
+						'(game.scene.frameCount * (game.currentQuest === "nuinui" && game.currentStage === "port" && (game.scene.lockedViewPos || (!game.scene.currentSection.pos.y && game.scene.currentSection.pos.x === 320)) ? -.5 : 1))') + '\n';
+				} else if (line.code.includes("=== 'boat'")) flag = true;
+			}
 		}
 		const pool = [
-			new Background('boat', [new Function('game', 'cx', boat), noSun, rmInaWater]),
+			new Background('boat', [new Function('game', 'cx', boat), noSun, rmInaWater, water({no: 1})]),
 			...pair(
-				new Background('castle', [layerImage('castle'), noSun, noRain, rmInaWater], false),
-				new Background('castle', [layerImage('castle_alt'), noSun, noRain, rmInaWater], true)
+				new Background('falls', [layerImage('falls'), water({filter: 'brightness(.8) contrast(1.3) hue-rotate(-25deg)'}), drawPortWater()], false),
+				new Background('falls', [layerImage('falls_alt'), noSun, water({alt: 1, filter: 'hue-rotate(15deg)'}), drawPortWater()], true)
 			),
 			...pair(
-				new Background('holo_hq', [layerImage('holo_hq'), rmInaWater], false),
-				new Background('holo_hq', [layerImage('holo_hq_alt'), noSun, rmInaWater], true)
+				new Background('casino', [layerImage('casino'), water({filter: 'grayscale(.2) brightness(.6)'}), drawPortWater()], false),
+				new Background('casino', [layerImage('casino_alt'), noSun, water({filter: 'grayscale(.4) hue-rotate(-50deg)'}), drawPortWater()], true)
 			),
 			...pair(
-				new Background('heaven', [layerImage('heaven'), heavenForeground(false)], false),
-				new Background('heaven', [layerImage('heaven_alt'), heavenForeground(true)], true)
+				new Background('port', [layerImage('port'), portScroll(false)], false),
+				new Background('port', [layerImage('port_alt'), portScroll(true), noSun], true)
 			),
-			new Background('mori', [layerImage('calli')]),
-			new Background('kiara', [layerImage('kiara'), noSun, noRain]),
+			...pair(
+				new Background('yamato', [layerImage('yamato'), water({alt: 1, filter: 'hue-rotate(132deg)'}), drawPortWater(158)], false),
+				new Background('yamato', [layerImage('yamato_alt'), noSun, water({alt: 1, filter: 'hue-rotate(10deg) grayscale(.7)'}), drawPortWater(154)], true)
+			),
+			...pair(
+				new Background('castle', [layerImage('castle'), noSun, noRain, rmInaWater, drawPortWaterWithReflection], false),
+				new Background('castle', [layerImage('castle_alt'), noSun, noRain, rmInaWater, drawPortWaterWithReflection], true)
+			),
+			...pair(
+				new Background('holo_hq', [layerImage('holo_hq'), rmInaWater, drawPortWater(149)], false),
+				new Background('holo_hq', [layerImage('holo_hq_alt'), noSun, rmInaWater, drawPortWater(149)], true)
+			),
+			...pair(
+				new Background('heaven', [layerImage('heaven'), heavenForeground(false), drawPortWater(157)], false),
+				new Background('heaven', [layerImage('heaven_alt'), heavenForeground(true), water({filter: 'grayscale(.3) brightness(.6) hue-rotate(230deg)'}), drawPortWater(157)], true)
+			),
+			new Background('mori', [layerImage('calli'), caveWater, water({alt: 1, filter: 'contrast(2) grayscale(.2) brightness(.8) hue-rotate(9deg)'})]),
+			new Background('kiara', [layerImage('kiara'), noSun, noRain, water({filter: 'brightness(.7) contrast(1.2)'})]),
 			new Background('water', [wave('bg_gura', .008727, 4), layerImage('gura', 192), noRain, rmInaWater]),
-			//new Background('sky', [layerImage('castle'), wave('bg_castle2', .07, 2, .75)], false),
-			//new Background('sky', [layerImage('castle_alt'), wave('bg_castle_alt2', .07, 2, .75)], true),
 			new Background('hub', [(game, cx) => game.scene.drawHubBackground(game, cx, game.arcadeBg = 1), noSun, noRain])
 		];
-		for (const stage of ['falls','casino','port','yamato'])
-			pool.push(...pair(new Background(stage, [layerImage(stage)], false), new Background(stage, [layerImage(stage + '_alt'), noSun], true)));
-		
 		for (const quest in stageAreas) {
 			map[quest] = {};
 			let cPool = pool, baseName, rPool;
 			for (const area of Object.values(stageAreas[quest]).flat()) {
 				do rPool = (
 					area === 'kiara' && needsRoof(archipelagoState.slotData.boss.nnq?.[13]) ? cPool.filter(bg => ['kiara', 'hub'].includes(bg.baseName)) :
+					area === 'port' && quest === 'nuinui' ? cPool.filter(bg => !['kiara', 'water'].includes(bg.baseName)) :
 					['water', 'ina', 'kiara', 'mori'].includes(area) && quest === 'nuinui' ? cPool :
 					cPool.filter(bg => bg.baseName !== 'kiara')
 				);
@@ -143,7 +223,7 @@ export function randomiseBGs(seed, mode) {
 		for (const stage in stageAreas[quest]) {
 			let alt = rng() > .5;
 			for (const area of stageAreas[quest][stage]) {
-				if (map[quest][area].alt !== undefined) {
+				if (map[quest][area].alt + 1) {
 					alt = map[quest][area].alt;
 					break;
 				}
@@ -154,6 +234,7 @@ export function randomiseBGs(seed, mode) {
 }
 
 self.__APRBG = randomiseBGs;
+addEventListener('keypress', e=>e.key==='1'&&randomiseBGs());
 
 let bossKill;
 
@@ -169,4 +250,37 @@ export function drawRandomBG(game, cx) {
 	const bg = map[game.currentQuest][key];
 	(bossKill && ['ina', 'port-4'].includes(key) ? bg.other : bg).draw(game, cx);
 	game.scene.isAltColor = altMap[game.currentQuest + game.currentStage];
+}
+
+let waterImage;
+
+export class Water extends Actor {
+	isPersistent = true;
+	x = 0;
+
+	update = game => {
+		if (!waterImage) {
+			waterImage = document.createElement('canvas');
+			waterImage.width = 256;
+			waterImage.height = 22;
+			const cx = waterImage.getContext('2d');
+			cx.drawImage(game.assets.images.NNM_Archipelago_water, 0, 0);
+			cx.globalCompositeOperation = 'source-in';
+			cx.drawImage(game.assets.images.bg_boat, 0, -113);
+		}
+
+		if ((this.x += (this.s = (game.scene.lockedViewPos ?? game.scene.currentSection.pos).x) < 400 ? 5 : 1) > 0) this.x -= 256;
+		game.scene.customDraw.push(this.#customDraw);
+	}
+
+	#customDraw = game => {
+		for (let i = 0; i < 3; i++) {
+			const o = this.s - game.scene.view.pos.x;
+			const x = i * 256 + this.x + o, c = 7 * 16 + o;
+			if (this.s < 400 || x < c - 256)
+				game.ctx1.drawImage(waterImage, x, 192 - 22);
+			else if (x < c)
+				game.ctx1.drawImage(waterImage, 0, 0, c - x, 22, x, 192 - 22, c - x, 22);
+		}
+	}
 }

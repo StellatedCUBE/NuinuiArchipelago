@@ -608,6 +608,15 @@ NNM.code.insertAtStartOfScope('Scene.get collisions', 'const __archipelago_plr=N
 NNM.code.findReplaceAllLines('Scene.get collisions', 'this.currentSection.collisions', '([16, 22, 34].includes(self.archipelagoState?.arenaId) && __archipelago_plr.pos.y + __archipelago_plr.size.y > self.archipelagoState.arenaB &&' +
 	'__archipelago_plr.pos.y < self.archipelagoState.arenaB + 16 ? this.currentSection.collisions.map(c => !c.archipelagoInaBridge || c.pos.x + c.size.x <= __archipelago_plr.pos.x || c.pos.x >= __archipelago_plr.pos.x + __archipelago_plr.size.x ?' +
 	'c : {pos:{x:__archipelago_plr.pos.x + __archipelago_plr.size.x,y:c.pos.y},size:c.size}) : this.currentSection.collisions)');
+NNM.code.insertAfterFirstMatchingLine('Scene.drawTiles', '> 63', `
+	if (self.archipelagoState?.water && ((game.currentStage === 'holo_hq' && this.currentSection.pos.x === 640) || (game.currentStage === 'port' && game.currentQuest === 'nuinui' && (tile & 7) > 1 && (tile & 7) < 5)) && tile > 63) {
+		if (self.archipelagoState.water.no) continue;
+		if ((tile & 7) < 2) tile += 3;
+		if (self.archipelagoState.water.filter) ctx.filter = self.archipelagoState.water.filter;
+		ctx.drawImage(self.archipelagoState.water.ts, (tile & 7) * 16, (tile & ~7) * 2, 16, 16, x * 16, y * 16, 16, 16);
+		continue;
+	}
+`);
 NNM.code.findReplaceAllLines('Kanata.divePhase', '-8 * 16', '(self.archipelagoState ? game.scene.currentSection.pos.y - 128 : -8 * 16)');
 NNM.code.findReplaceAllLines('Kanata.divePhase', '12 * 16', '(self.archipelagoState ? game.scene.currentSection.pos.y + 192 : 12 * 16)');
 NNM.code.findReplaceAllLines('Kanata.divePhase', /10 [*] 16/g, '(self.archipelagoState && ![18, 43].includes(self.archipelagoState.arenaId) && self.archipelagoState.arenaId !== 4 ? self.archipelagoState.arenaB - self.archipelagoState.arenaT : 10 * 16)');
