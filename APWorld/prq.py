@@ -18,13 +18,11 @@ def prq(world):
 	for i in range(5):
 		world.add_item(item.ItemCategory.BOMB)
 	
-	level_item_bits = 128 if world.options.nnq else 64|128
-
 	shop = world.create_region('prq_shop')
 	shop2 = world.create_region('prq_shop_2')
 	if not world.single_quest or world.multiworld.players > 1:
 		world.add_location((location.LocationCategory.SHOP, 0), shop)
-		shop.connect(shop2, rule=HasAny(item.get_item((item.ItemCategory.CRYSTALS, 200)).name, item.get_item((item.ItemCategory.LEVEL, 1|level_item_bits)).name, data.OOL_ITEM))
+		shop.connect(shop2, rule=HasAny(item.get_item((item.ItemCategory.CRYSTALS, 200)).name, item.get_item((item.ItemCategory.LEVEL, 1|128)).name, data.OOL_ITEM))
 		world.add_location((location.LocationCategory.SHOP, 1), shop2)
 		world.add_location((location.LocationCategory.SHOP, 2), shop2)
 		for i in range(-3, 0):
@@ -36,18 +34,17 @@ def prq(world):
 
 	bomb = item.get_item(item.ItemCategory.BOMB).name
 
-	level_location_type = location.LocationCategory.LEVEL_CLEAR_RANDOM if world.options.nnq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
 	for i, level in enumerate(data.LEVELS[:6]):
 		if i == 5:
 			if world.options.prq_goal.value:
-				world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
-				world.add_location((level_location_type, i), shop, Has(world.items[-1].name))
+				world.add_item((item.ItemCategory.LEVEL, 128|i))
+				world.add_location((location.LocationCategory.LEVEL_CLEAR_RANDOM, i), shop, Has(world.items[-1].name))
 			else:
-				world.add_location((level_location_type, i), shop, HasAll(*crystals))
+				world.add_location((location.LocationCategory.LEVEL_CLEAR_RANDOM, i), shop, HasAll(*crystals))
 		else:
 			if world.options.prq_goal.value:
 				world.add_goal_feat(data.FEAT_PRQ_LEVEL_CLEAR + i)
-			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
+			world.add_item((item.ItemCategory.LEVEL, 128|i))
 			region = world.create_region('prq_' + level)
 			if i in (0, 1, 3):
 				world.potential_starting_levels.append(world.items[-1])
@@ -80,7 +77,7 @@ def prq(world):
 				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else (world.options.prq_checkpointsanity if type_ == 'Checkpoint' else world.options.prq_enemysanity)):
 					world.add_location((location.LocationCategory.SANITY_RANDOM, l), region2 if i == 1 and y > 36 else region)
 			
-			world.add_location((level_location_type, i), region2 if i == 1 else region)
+			world.add_location((location.LocationCategory.LEVEL_CLEAR_RANDOM, i), region2 if i == 1 else region)
 
 		if i == 5 or world.options.prq_goal.value:
 			world.add_goal_location(world.locations[-1][0])

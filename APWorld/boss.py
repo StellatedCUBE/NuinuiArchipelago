@@ -6,18 +6,21 @@ from Options import OptionError
 from .data import SHOTS, OOL_ITEM
 from .item import get_item, ItemCategory
 
+NQ = '(Nuinui Quest) '
+RQ = '(Random Quest) '
+
 A_PRQ = {
-	'Random Quest Crystal Falls midboss',
-	'Random Quest Crystal Falls final boss',
-	'Random Quest Underworld Casino game room',
-	'Random Quest Underworld Casino final boss',
-	'Random Quest Pirate Harbor midboss',
-	'Random Quest Pirate Harbor final boss',
-	'Random Quest Yamato midboss',
-	'Random Quest Yamato final boss',
-	'Random Quest Demon Lord Castle midboss',
-	'Random Quest Demon Lord Castle final boss',
-	'Random Quest Holo Office',
+	RQ + 'Crystal Falls midboss',
+	RQ + 'Crystal Falls final boss',
+	RQ + 'Underworld Casino game room',
+	RQ + 'Underworld Casino final boss',
+	RQ + 'Pirate Harbor midboss',
+	RQ + 'Pirate Harbor final boss',
+	RQ + 'Yamato midboss',
+	RQ + 'Yamato final boss',
+	RQ + 'Demon Lord Castle midboss',
+	RQ + 'Demon Lord Castle final boss',
+	RQ + 'Holo Office',
 }
 
 A_MMQ = {
@@ -26,41 +29,41 @@ A_MMQ = {
 } | {'Stage 28'}
 
 A_BRIDGE = {
-	"Ina's office",
+	NQ + "Ina's office",
 
 	'Stage 07',
 }
 
 A_FLOORED = {
 	*A_BRIDGE,
-	'Crystal Falls midboss',
-	'Crystal Falls final boss',
-	'Underworld Casino midboss',
-	'Underworld Casino final boss',
-	'Yamato midboss 1',
-	'Yamato midboss 2',
-	'Yamato midboss 3',
-	'Demon Lord Castle midboss 1',
-	'Demon Lord Castle midboss 2',
-	'Demon Lord Castle throne room',
-	'Demon Lord Castle lift',
-	'Demon Lord Castle turret',
-	"Kiara's office",
-	"Mori's office",
-	"Gura's office",
-	"Ame's office",
-	'Sky Palace secret boss',
-	'Sky Palace final boss',
+	NQ + 'Crystal Falls midboss',
+	NQ + 'Crystal Falls final boss',
+	NQ + 'Underworld Casino midboss',
+	NQ + 'Underworld Casino final boss',
+	NQ + 'Yamato midboss 1',
+	NQ + 'Yamato midboss 2',
+	NQ + 'Yamato midboss 3',
+	NQ + 'Demon Lord Castle midboss 1',
+	NQ + 'Demon Lord Castle midboss 2',
+	NQ + 'Demon Lord Castle throne room',
+	NQ + 'Demon Lord Castle lift',
+	NQ + 'Demon Lord Castle turret',
+	NQ + "Kiara's office",
+	NQ + "Mori's office",
+	NQ + "Gura's office",
+	NQ + "Ame's office",
+	NQ + 'Sky Palace secret boss',
+	NQ + 'Sky Palace final boss',
 
-	'Random Quest Crystal Falls final boss',
-	'Random Quest Underworld Casino final boss',
-	'Random Quest Pirate Harbor midboss',
-	'Random Quest Pirate Harbor final boss',
-	'Random Quest Yamato midboss',
-	'Random Quest Yamato final boss',
-	'Random Quest Demon Lord Castle midboss',
-	'Random Quest Demon Lord Castle final boss',
-	'Random Quest Holo Office',
+	RQ + 'Crystal Falls final boss',
+	RQ + 'Underworld Casino final boss',
+	RQ + 'Pirate Harbor midboss',
+	RQ + 'Pirate Harbor final boss',
+	RQ + 'Yamato midboss',
+	RQ + 'Yamato final boss',
+	RQ + 'Demon Lord Castle midboss',
+	RQ + 'Demon Lord Castle final boss',
+	RQ + 'Holo Office',
 
 	'Stage 03',
 	'Stage 05',
@@ -77,30 +80,30 @@ A_FLOORED = {
 
 A_ROUGH_FLOORED = {
 	*A_FLOORED,
-	'Random Quest Crystal Falls midboss',
-	'Random Quest Underworld Casino game room',
+	RQ + 'Crystal Falls midboss',
+	RQ + 'Underworld Casino game room',
 
 	'Stage 13',
 }
 
 A_VISIBLY_WALLED = {
-	'Crystal Falls midboss',
-	'Crystal Falls final boss',
-	'Underworld Casino midboss',
-	'Yamato midboss 1',
-	'Yamato midboss 2',
-	'Demon Lord Castle midboss 1',
-	'Demon Lord Castle midboss 2',
-	'Demon Lord Castle throne room',
-	'Demon Lord Castle lift',
-	"Kiara's office",
-	"Ame's office",
-	'Sky Palace secret boss',
+	NQ + 'Crystal Falls midboss',
+	NQ + 'Crystal Falls final boss',
+	NQ + 'Underworld Casino midboss',
+	NQ + 'Yamato midboss 1',
+	NQ + 'Yamato midboss 2',
+	NQ + 'Demon Lord Castle midboss 1',
+	NQ + 'Demon Lord Castle midboss 2',
+	NQ + 'Demon Lord Castle throne room',
+	NQ + 'Demon Lord Castle lift',
+	NQ + "Kiara's office",
+	NQ + "Ame's office",
+	NQ + 'Sky Palace secret boss',
 
-	'Random Quest Crystal Falls midboss',
-	'Random Quest Underworld Casino game room',
-	'Random Quest Yamato midboss',
-	'Random Quest Demon Lord Castle midboss',
+	RQ + 'Crystal Falls midboss',
+	RQ + 'Underworld Casino game room',
+	RQ + 'Yamato midboss',
+	RQ + 'Demon Lord Castle midboss',
 
 	'Stage 03',
 	'Stage 09',
@@ -113,16 +116,16 @@ A_VISIBLY_WALLED = {
 A_WALLED = {
 	*A_VISIBLY_WALLED,
 	*A_BRIDGE,
-	'Underworld Casino final boss',
-	'Pirate Harbor boss',
-	'Yamato midboss 3',
-	"Mori's office",
-	'Sky Palace final boss',
+	NQ + 'Underworld Casino final boss',
+	NQ + 'Pirate Harbor boss',
+	NQ + 'Yamato midboss 3',
+	NQ + "Mori's office",
+	NQ + 'Sky Palace final boss',
 
-	'Random Quest Crystal Falls final boss',
-	'Random Quest Underworld Casino final boss',
-	'Random Quest Pirate Harbor midboss',
-	'Random Quest Pirate Harbor final boss',
+	RQ + 'Crystal Falls final boss',
+	RQ + 'Underworld Casino final boss',
+	RQ + 'Pirate Harbor midboss',
+	RQ + 'Pirate Harbor final boss',
 
 	'Stage 05',
 	'Stage 15',
@@ -132,16 +135,16 @@ A_WALLED = {
 }
 
 A_ROOFED = {
-	'Crystal Falls final boss',
-	'Yamato midboss 2',
-	'Demon Lord Castle midboss 2',
-	"Ame's office",
-	'Sky Palace final boss',
+	NQ + 'Crystal Falls final boss',
+	NQ + 'Yamato midboss 2',
+	NQ + 'Demon Lord Castle midboss 2',
+	NQ + "Ame's office",
+	NQ + 'Sky Palace final boss',
 
-	'Random Quest Crystal Falls midboss',
-	'Random Quest Underworld Casino game room',
-	'Random Quest Pirate Harbor midboss',
-	'Random Quest Yamato midboss',
+	RQ + 'Crystal Falls midboss',
+	RQ + 'Underworld Casino game room',
+	RQ + 'Pirate Harbor midboss',
+	RQ + 'Yamato midboss',
 
 	'Stage 03',
 	'Stage 05',
@@ -154,49 +157,49 @@ A_ROOFED = {
 
 A_CAN_BE_ROOFED = {
 	*A_ROOFED,
-	'Underworld Casino midboss',
-	'Demon Lord Castle throne room',
-	"Kiara's office",
-	'Sky Palace secret boss',
+	NQ + 'Underworld Casino midboss',
+	NQ + 'Demon Lord Castle throne room',
+	NQ + "Kiara's office",
+	NQ + 'Sky Palace secret boss',
 
 	'Stage 13',
 } - {'Stage 05'}
 
 A_ANY_ROOFED = {
 	*A_ROOFED,
-	'Yamato midboss 1',
-	'Demon Lord Castle midboss 1',
+	NQ + 'Yamato midboss 1',
+	NQ + 'Demon Lord Castle midboss 1',
 }
 
 A_SINGLE_SCREEN = {
 	*A_BRIDGE,
-	'Crystal Falls midboss',
-	'Crystal Falls final boss',
-	'Underworld Casino final boss',
-	'Pirate Harbor boss',
-	'Yamato midboss 3',
-	'Demon Lord Castle midboss 1',
-	'Demon Lord Castle midboss 2',
-	'Demon Lord Castle lift',
-	'Demon Lord Castle turret',
-	"Kiara's office",
-	"Mori's office",
-	"Gura's office",
-	"Ame's office",
-	'Sky Palace midboss 2',
-	'Sky Palace secret boss',
-	'Sky Palace final boss',
+	NQ + 'Crystal Falls midboss',
+	NQ + 'Crystal Falls final boss',
+	NQ + 'Underworld Casino final boss',
+	NQ + 'Pirate Harbor boss',
+	NQ + 'Yamato midboss 3',
+	NQ + 'Demon Lord Castle midboss 1',
+	NQ + 'Demon Lord Castle midboss 2',
+	NQ + 'Demon Lord Castle lift',
+	NQ + 'Demon Lord Castle turret',
+	NQ + "Kiara's office",
+	NQ + "Mori's office",
+	NQ + "Gura's office",
+	NQ + "Ame's office",
+	NQ + 'Sky Palace midboss 2',
+	NQ + 'Sky Palace secret boss',
+	NQ + 'Sky Palace final boss',
 
-	'Random Quest Crystal Falls midboss',
-	'Random Quest Crystal Falls final boss',
-	'Random Quest Underworld Casino game room',
-	'Random Quest Underworld Casino final boss',
-	'Random Quest Pirate Harbor midboss',
-	'Random Quest Pirate Harbor final boss',
-	'Random Quest Yamato final boss',
-	'Random Quest Demon Lord Castle midboss',
-	'Random Quest Demon Lord Castle final boss',
-	'Random Quest Holo Office',
+	RQ + 'Crystal Falls midboss',
+	RQ + 'Crystal Falls final boss',
+	RQ + 'Underworld Casino game room',
+	RQ + 'Underworld Casino final boss',
+	RQ + 'Pirate Harbor midboss',
+	RQ + 'Pirate Harbor final boss',
+	RQ + 'Yamato final boss',
+	RQ + 'Demon Lord Castle midboss',
+	RQ + 'Demon Lord Castle final boss',
+	RQ + 'Holo Office',
 
 	'Stage 03',
 	'Stage 05',
@@ -213,11 +216,11 @@ A_SINGLE_SCREEN = {
 
 A_INA = {
 	*A_BRIDGE,
-	'Sky Palace midboss 2',
-	'Demon Lord Castle turret',
+	NQ + 'Sky Palace midboss 2',
+	NQ + 'Demon Lord Castle turret',
 
-	'Random Quest Crystal Falls final boss',
-	'Random Quest Demon Lord Castle final boss',
+	RQ + 'Crystal Falls final boss',
+	RQ + 'Demon Lord Castle final boss',
 
 	'Stage 19',
 	'Stage 25',
@@ -227,20 +230,20 @@ A_INA = {
 A_NO_DEMON = {
 	*A_PRQ,
 	*A_BRIDGE,
-	'Crystal Falls midboss',
-	'Crystal Falls final boss',
-	'Pirate Harbor boss',
+	NQ + 'Crystal Falls midboss',
+	NQ + 'Crystal Falls final boss',
+	NQ + 'Pirate Harbor boss',
 }
 
 A_NO_CHLOE = {
 	*A_BRIDGE,
-	'Crystal Falls midboss',
-	'Pirate Harbor boss',
-	'Demon Lord Castle throne room',
-	'Demon Lord Castle lift',
-	'Demon Lord Castle turret',
+	NQ + 'Crystal Falls midboss',
+	NQ + 'Pirate Harbor boss',
+	NQ + 'Demon Lord Castle throne room',
+	NQ + 'Demon Lord Castle lift',
+	NQ + 'Demon Lord Castle turret',
 
-	'Random Quest Crystal Falls midboss',
+	RQ + 'Crystal Falls midboss',
 }
 
 A_ALL = A_SINGLE_SCREEN | A_FLOORED | A_INA | A_MMQ | A_PRQ
@@ -297,36 +300,36 @@ Q_ALL = -1
 
 by_name = {boss.name.lower(): boss for boss in [
 	Boss('None', 0, None, 0, A_ALL),
-	Boss('Usadrill', Q_NNQ, None, 0, A_BRIDGE | {'Crystal Falls midboss', 'Random Quest Crystal Falls final boss'}),
+	Boss('Usadrill', Q_NNQ, None, 0, A_BRIDGE | {NQ + 'Crystal Falls midboss', RQ + 'Crystal Falls final boss'}),
 	Boss('Pekora', Q_NNQ|Q_MMQ, None, 0, A_ALL - A_BRIDGE),
 	Boss('Veiled Mori', Q_NNQ, None, 0, A_FLOORED & A_WALLED),
 	Boss('Miko', Q_NNQ|Q_MMQ, None, 0, A_ROUGH_FLOORED - A_ROOFED),
 	Boss('Marine', Q_NNQ, {SHOTS[0], SHOTS[1], SHOTS[5]}, 4, A_SINGLE_SCREEN - (A_FLOORED & A_WALLED) - A_ROOFED - A_PRQ, T_LONG),
-	Boss('Fubura Tower', Q_NNQ, None, 0, {'Yamato midboss 1'}),
+	Boss('Fubura Tower', Q_NNQ, None, 0, {NQ + 'Yamato midboss 1'}),
 	Boss('Ayame', Q_NNQ|Q_MMQ, None, 0, A_CAN_BE_ROOFED),
 	Boss('Fubuki', Q_NNQ|Q_PRQ, None, 0, A_ALL - {'Stage 25'}),
 	Boss('Noel', Q_NNQ, {SHOTS[5]}, 2, A_MMQ & A_ROUGH_FLOORED - A_BRIDGE),
 	Boss('Suisei', Q_NNQ|Q_PRQ, NOT_CUTLASS, 0, A_SINGLE_SCREEN - A_ROOFED - A_BRIDGE - {'Stage 25'}, T_BAD_DEBUT),
-	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {'Random Quest Underworld Casino game room'}, T_BAD_DEBUT),
-	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2], SHOTS[3]}, 1, {'Pirate Harbor boss'} | A_WALLED - A_MMQ - {'Underworld Casino final boss', 'Demon Lord Castle midboss 2', 'Stage 17'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT, {FEATHERS, SHOTS[1]}),
+	Boss('Polka', Q_NNQ|Q_MMQ, NOT_CUTLASS, 0, (A_FLOORED & A_SINGLE_SCREEN) | {RQ + 'Underworld Casino game room'}, T_BAD_DEBUT),
+	Boss('Demon Lord Miko', Q_NNQ, {SHOTS[2], SHOTS[3]}, 1, {NQ + 'Pirate Harbor boss'} | A_WALLED - A_MMQ - {NQ + 'Underworld Casino final boss', NQ + 'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT, {FEATHERS, SHOTS[1]}),
 	Boss('Flare', Q_NNQ|Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Demon', Q_NNQ, {PISTOLS, SHOTS[2], SHOTS[3], SHOTS[5]}, 0, A_SINGLE_SCREEN - A_NO_DEMON, T_LONG | T_BAD_DEBUT),
-	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
-	Boss('Mori', Q_NNQ|Q_PRQ, {PISTOLS, SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Kiara', Q_NNQ|Q_MMQ, {SHOTS[1]}, 2, A_FLOORED & A_WALLED - A_INA - {NQ + 'Demon Lord Castle midboss 2'}, T_NEEDS_JUMP | T_BAD_DEBUT),
+	Boss('Mori', Q_NNQ|Q_PRQ, {PISTOLS, SHOTS[0], SHOTS[5]}, 0, A_FLOORED & A_WALLED - A_ANY_ROOFED - {NQ + 'Underworld Casino final boss', 'Stage 15'}, T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Gura', Q_NNQ|Q_PRQ, {SHOTS[1], SHOTS[2], SHOTS[3]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Ina', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[3]}, 1, A_INA, T_LONG),
 	Boss('Ame', Q_NNQ, {CLOCK, SHOTS[5]}, 0, A_FLOORED & A_VISIBLY_WALLED & A_SINGLE_SCREEN),
 	Boss('Kanata', Q_NNQ|Q_MMQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[4]}, 1, A_SINGLE_SCREEN, T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
-	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'} - A_PRQ, T_LONG | T_NEEDS_JUMP_OR_CUTLASS),
+	Boss('Coco', Q_NNQ, {SHOTS[1], SHOTS[2], SHOTS[3], SHOTS[5]}, 1, A_SINGLE_SCREEN - {NQ + 'Crystal Falls midboss'} - A_PRQ, T_LONG | T_NEEDS_JUMP_OR_CUTLASS),
 	Boss('Towa', Q_NNQ|Q_MMQ, {SHOTS[5]}, 2, A_CAN_BE_ROOFED & A_FLOORED),
 	Boss('Robot', Q_PRQ, None, 0, A_ROUGH_FLOORED),
 	Boss('Chloe', Q_PRQ, None, 0, (A_WALLED | A_ROUGH_FLOORED) - A_NO_CHLOE, T_LONG | T_BAD_DEBUT),
 	Boss('Lui', Q_PRQ|Q_MMQ, None, 0, A_ROUGH_FLOORED),
-	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, (A_FLOORED & A_WALLED) | {'Pirate Harbor boss'}),
-	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {'Crystal Falls midboss'}, T_LONG | T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
+	Boss('Iroha', Q_PRQ|Q_MMQ, None, 0, (A_FLOORED & A_WALLED) | {NQ + 'Pirate Harbor boss'}),
+	Boss('La+', Q_PRQ|Q_MMQ, None, 1, A_SINGLE_SCREEN - {NQ + 'Crystal Falls midboss'}, T_LONG | T_NEEDS_JUMP_OR_CUTLASS | T_BAD_DEBUT),
 	Boss('Koyodrill', Q_PRQ, {SHOTS[2], SHOTS[3]}, 3, A_SINGLE_SCREEN, T_LONG | T_NEEDS_JUMP | T_BAD_DEBUT),
 	Boss('Ghost Marine', Q_MMQ, None, 0, A_CAN_BE_ROOFED & A_SINGLE_SCREEN, T_BAD_DEBUT),
-	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {'Crystal Falls midboss'} - A_PRQ, 0, {SHOTS[2]}),
+	Boss('Dokuro', Q_MMQ, {SHOTS[3]}, 3, (A_FLOORED & A_SINGLE_SCREEN) - {NQ + 'Crystal Falls midboss'} - A_PRQ, 0, {SHOTS[2]}),
 ]}
 
 BOSSES_PH_WITHOUT_FEATHERS = ('Suisei', 'Marine', 'Iroha', 'Fubuki', 'Pekora')
@@ -417,9 +420,9 @@ def allocate_bosses(world, option, arenas, source_quests):
 	) if world.options.nnq_starting_character.value else b.flare_requirements))]
 
 	if nnq and world.characters == 2:
-		bosses = [b if b.name in BOSSES_PH_WITHOUT_FEATHERS or 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {'Pirate Harbor boss'}) for b in bosses]
+		bosses = [b if b.name in BOSSES_PH_WITHOUT_FEATHERS or NQ + 'Pirate Harbor boss' not in b.valid_arenas else Boss(b.name, b.quests, None, b.noel_difficulty, b.valid_arenas - {NQ + 'Pirate Harbor boss'}) for b in bosses]
 		if by_name['marine'] not in banned:
-			bosses.append(Boss('Marine', Q_NNQ, None, 0, {'Pirate Harbor boss'}))
+			bosses.append(Boss('Marine', Q_NNQ, None, 0, {NQ + 'Pirate Harbor boss'}))
 
 	if not duplicates:
 		bosses = [b for b in bosses if not any(a.boss and b.name == a.boss.name for a in arenas) and (not nnq or b.name != 'Chloe')]

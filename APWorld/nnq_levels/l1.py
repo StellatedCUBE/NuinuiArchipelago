@@ -2,7 +2,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_768=w.create_region('nnq_casino_0_768')
-	w.base_region.connect(r_0_768,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,65)).name,I.get_item((I.ItemCategory.LEVEL,193)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,2))
+	w.base_region.connect(r_0_768,rule=Has(I.get_item((I.ItemCategory.LEVEL,65)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,2))
 	r_960_768=w.create_region('nnq_casino_960_768')
 	r_1280_384=w.create_region('nnq_casino_1280_384')
 	r_1600_384=w.create_region('nnq_casino_1600_384')
@@ -42,7 +42,7 @@ def create_locations(w,I,L,D):
 	r_3200_0.connect(r_2560_192)
 	r_2560_192.connect(r_2240_384)
 	r_1600_0.connect(r_1280_0)
-	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI if w.options.prq else L.LocationCategory.LEVEL_CLEAR_NAMELESS,1),r_4800_384)
+	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI,1),r_4800_384)
 	if w.options.nnq_enemysanity:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,17),r_960_768)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,529),r_960_768)

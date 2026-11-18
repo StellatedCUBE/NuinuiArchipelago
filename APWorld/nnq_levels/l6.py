@@ -2,7 +2,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1152=w.create_region('nnq_heaven_0_1152')
-	w.base_region.connect(r_0_1152,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,70)).name,I.get_item((I.ItemCategory.LEVEL,198)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,7))
+	w.base_region.connect(r_0_1152,rule=Has(I.get_item((I.ItemCategory.LEVEL,70)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,7))
 	r_320_1152=w.create_region('nnq_heaven_320_1152')
 	if w.options.nnq_achievement_checks.boss in w.options.nnq_achievement_checks:w.add_location(46,r_320_1152,HasAny("Progressive Noel","Elfriend's Feathers",w.glitches_item_name))
 	r_960_1152=w.create_region('nnq_heaven_960_1152')
@@ -50,7 +50,7 @@ def create_locations(w,I,L,D):
 	r_0_768.connect(r_0_384)
 	r_0_384.connect(r_320_0)
 	r_320_0.connect(r_0_0)
-	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI if w.options.prq else L.LocationCategory.LEVEL_CLEAR_NAMELESS,6),r_0_0)
+	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI,6),r_0_0)
 	if w.options.nnq_enemysanity:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,14),r_320_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,526),r_320_1152)

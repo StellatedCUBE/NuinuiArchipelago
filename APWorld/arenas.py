@@ -1,14 +1,14 @@
-from .boss import Arena, HarborArena, Drop
+from .boss import Arena, HarborArena, Drop, NQ, RQ
 from .data import MYTH, LEVELS
 
 def nnq_arenas():
-	Arena.prefix = ''
+	Arena.prefix = NQ
 	return [
 		Arena('Crystal Falls midboss', 'Usadrill', 'nnq_falls_1280_0'),
 		Arena('Crystal Falls final boss', 'Pekora', 'nnq_falls_1920_192', Drop.ALWAYS),
 		Arena('Underworld Casino midboss', 'Veiled Mori', 'nnq_casino_2560_0'),
 		Arena('Underworld Casino final boss', 'Miko', 'nnq_casino_2560_0', Drop.ALWAYS),
-		HarborArena('Pirate Harbor boss', 'Marine', 'nnq_port_640_0', Drop.ALWAYS),
+		HarborArena('Pirate Harbor boss', 'Marine', 'nnq_port_320_0', Drop.ALWAYS),
 		Arena('Yamato midboss 1', 'Fubura Tower', 'nnq_yamato_320_768'),
 		Arena('Yamato midboss 2', 'Ayame', 'nnq_yamato_1280_192'),
 		Arena('Yamato midboss 3', 'Fubuki', 'nnq_yamato_4480_0', Drop.ALWAYS),
@@ -27,7 +27,7 @@ def nnq_arenas():
 	]
 
 def prq_arenas():
-	Arena.prefix = 'Random Quest '
+	Arena.prefix = RQ
 	return [
 		Arena('Crystal Falls midboss', 'Robot', 'prq_' + LEVELS[0]),
 		Arena('Crystal Falls final boss', 'Flare', 'prq_' + LEVELS[0], Drop.NEVER),

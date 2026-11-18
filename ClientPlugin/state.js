@@ -514,7 +514,6 @@ export class ArchipelagoState {
 		if (local && this.localIgnoreLocations.includes(item.locationId))
 			return;
 		local |= !item.sender.slot;
-		//const levelEnd = local && [this.levelEndCheckA, this.levelEndCheckB, 3, 4].includes(item.locationId);
 		switch (item.id >> 8) {
 			case 0:
 				this.#itemCrystals += sub_id;
@@ -532,7 +531,7 @@ export class ArchipelagoState {
 				}
 				if ((item.id & 128) && sub_id < 6 && this.slotData.boss.prq) this.#unlockLevel('random', level);
 				const level_name = NNM.game.assets.locales[NNM.game.lang]['stage_' + level].replace(/[-－]/gu, '').trim();
-				msg = [(item.id & (64 | 128)) === (64 | 128) ? loc('archipelago_stage_noq', level_name) : loc((item.id & 64) ? 'archipelago_stage_nnq' : 'archipelago_stage_prq', level_name)];
+				msg = [loc(Object.keys(this.slotData.boss).length < 2 ? 'archipelago_stage_noq' : (item.id & 64) ? 'archipelago_stage_nnq' : 'archipelago_stage_prq', level_name)];
 				if (!local)
 					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'stage', sub_id));
@@ -544,7 +543,7 @@ export class ArchipelagoState {
 					for (const key in NNM.game.quests.maiden.stages)
 						if (!['boat-0', 'holo_hq-1'].includes(key))
 							this.setSaveField('maiden', 'stage-' + key);
-				msg = [loc(this.slotData.boss.nnq || this.slotData.boss.prq ? 'archipelago_stage_mmq' : 'archipelago_stage_noq_mmq', `${sub_id}`.padStart(2, 0))];
+				msg = [loc(Object.keys(this.slotData.boss).length < 2 ? 'archipelago_stage_mmq' : 'archipelago_stage_noq_mmq', `${sub_id}`.padStart(2, 0))];
 				if (!local && !item.essence)
 					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 8) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
@@ -853,10 +852,8 @@ export class ArchipelagoState {
 			name = name.replace(/_/g, ' ');
 		else if (scout.receiver.game.includes('Factorio'))
 			name = name.replace(/-/g, ' ');
-		else if (local && name[0] === '(') {
-			const [quest, stage] = name.split(') ');
-			name = stage + ' in ' + quest.substr(1);
-		}
+		else if (local && (scout.id >> 8) === 1)
+			name = this.slotData.boss.nnq && this.slotData.boss.prq ? name.replace(' (', ' in ').replace(')', '') : name.split(' (')[0];
 		return {
 			name,
 			nnq: scout.receiver.game === 'FLARE NUINUI QUEST',
@@ -1099,8 +1096,7 @@ export class ArchipelagoState {
 	}
 
 	diedToNoel() {
-		this.check(this.levelEndCheckA);
-		this.check(this.levelEndCheckB);
+		this.check(this.end);
 		this.popup(new StageSelect(NNM.game, null, this.transitionLevelNNQ));
 		NNM.game.menu = self.archipelagoState.pendingPopUp;
 		this.pendingPopUp = null;

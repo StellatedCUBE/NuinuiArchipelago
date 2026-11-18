@@ -47,21 +47,16 @@ menu_archipelago_delete_cache,clear archipelago cache
 
 archipelago_shop_320,falls
 archipelago_shop_384,falls
-archipelago_shop_448,falls
 archipelago_shop_321,casino
 archipelago_shop_385,casino
-archipelago_shop_449,casino
 archipelago_shop_322,harbor
 archipelago_shop_386,harbor
-archipelago_shop_450,harbor
 archipelago_shop_323,yamato
 archipelago_shop_387,yamato
 archipelago_shop_324,castle
 archipelago_shop_388,castle
-archipelago_shop_452,castle
 archipelago_shop_325,holo hq
 archipelago_shop_389,holo hq
-archipelago_shop_453,holo hq
 archipelago_shop_326,sky palace
 archipelago_shop_769,noel
 archipelago_shop_771,mace
@@ -85,24 +80,17 @@ archipelago_shop_4608,pistols
 
 archipelago_chest_0_320,mcrystal falls...?
 archipelago_chest_0_384,mcrystal falls...?
-archipelago_chest_0_448,mcrystal falls...?
 archipelago_chest_0_321,munderworld casino...?
 archipelago_chest_0_385,munderworld casino...?
-archipelago_chest_0_449,munderworld casino...?
 archipelago_chest_0_322,mpirate harbor...?
 archipelago_chest_0_386,mpirate harbor...?
-archipelago_chest_0_450,mpirate harbor...?
 archipelago_chest_0_323,myamato...?
 archipelago_chest_0_387,myamato...?
-archipelago_chest_0_451,myamato...?
 archipelago_chest_0_324,mdemon lord castle...?
 archipelago_chest_0_388,mdemon lord castle...?
-archipelago_chest_0_452,mdemon lord castle...?
 archipelago_chest_0_325,mholo office...?
 archipelago_chest_0_389,mholo office...?
-archipelago_chest_0_453,mholo office...?
 archipelago_chest_0_326,msky palace...?
-archipelago_chest_0_454,msky palace...?
 archipelago_chest_1_1,dhow does that even fit in there?
 
 archipelago_chest_0_771,ma mace...?

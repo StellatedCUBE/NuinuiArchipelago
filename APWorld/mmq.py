@@ -62,7 +62,7 @@ def mmq(world):
 	
 	match world.options.mmq_goal.value:
 		case 0:
-			world.add_goal_location('Maiden Quest stage 28 clear')
+			world.add_goal_location('(Maiden Quest) Stage 28 clear')
 			world.add_goal_feat(FEAT_MMQ_COIN + 27 * 3)
 		case 1:
 			for i in range(1, 29):

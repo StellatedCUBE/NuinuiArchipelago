@@ -3,7 +3,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_576=w.create_region('nnq_port_0_576')
-	w.base_region.connect(r_0_576,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,66)).name,I.get_item((I.ItemCategory.LEVEL,194)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,3))
+	w.base_region.connect(r_0_576,rule=Has(I.get_item((I.ItemCategory.LEVEL,66)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,3))
 	r_960_576=w.create_region('nnq_port_960_576')
 	h_960_576=w.create_region('nnq_port_960_576_h')
 	r_960_576.connect(h_960_576,rule=lambda s:(s.has("Angel's Boots",p))or(s.has("Flare",p)and s.has("Elfriend's Feathers",p)))
@@ -56,7 +56,7 @@ def create_locations(w,I,L,D):
 	r_960_192.connect(r_640_192,rule=lambda s:(s.has(D.SHOTS[0],p)and s.has("Time Zone Clock",p))or(s.has("NOEL NUINUI QUEST",p)))
 	r_1600_0.connect(r_1920_0,rule=lambda s:s.has("Flare",p)and s.has("Progressive Noel",p)and(s.has("Elfriend's Feathers",p)or s.has("Angel's Boots",p)))
 	r_1920_0.connect(r_2240_0)
-	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI if w.options.prq else L.LocationCategory.LEVEL_CLEAR_NAMELESS,2),r_320_0)
+	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI,2),r_320_0)
 	if w.options.nnq_enemysanity:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2058),r_0_576)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,2570),r_0_576)

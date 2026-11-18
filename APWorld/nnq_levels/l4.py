@@ -3,7 +3,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1344=w.create_region('nnq_castle_0_1344')
-	w.base_region.connect(r_0_1344,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,68)).name,I.get_item((I.ItemCategory.LEVEL,196)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,5))
+	w.base_region.connect(r_0_1344,rule=Has(I.get_item((I.ItemCategory.LEVEL,68)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,5))
 	r_320_1152=w.create_region('nnq_castle_320_1152')
 	r_640_1152=w.create_region('nnq_castle_640_1152')
 	r_1280_1152=w.create_region('nnq_castle_1280_1152')

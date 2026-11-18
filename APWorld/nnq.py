@@ -52,13 +52,12 @@ def nnq(world):
 
 	levels = 7 if world.options.nnq_all_stages else (6 if world.options.nnq_goal.value == 4 else (7 if world.options.nnq_goal.value > 1 else 5))
 	level_items = []
-	level_item_bits = 64 if world.options.prq else 64|128
 	heart_entries = 10
 	if world.options.nnq_heart_checks:
 		heart_entries = 22
 	for i in range(levels):
 		if world.options.nnq_stage_shuffle and world.options.nnq_stage_items:
-			world.add_item((item.ItemCategory.LEVEL, level_item_bits|i))
+			world.add_item((item.ItemCategory.LEVEL, 64|i))
 			level_items.append(world.items[-1])
 		level_modules[i].create_locations(world, item, location, data)
 		if world.options.nnq_enemysanity:
@@ -70,8 +69,7 @@ def nnq(world):
 	for i in range(4):
 		world.add_item(item.ItemCategory.HELP)
 
-	clear_category = location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS
-	level_names = [location.get_location((clear_category, i) if i != 4 else 'Good End').name for i in range(7)]
+	level_names = [location.get_location((location.LocationCategory.LEVEL_CLEAR_NUINUI, i)).name if i != 4 else 'Good End' for i in range(7)]
 	
 	arenas = [a for a in nnq_arenas() if a.region in world.multiworld.regions.region_cache[world.player]]
 	for i, arena in enumerate(arenas):
@@ -201,11 +199,11 @@ def nnq(world):
 			if world.options.nnq_goal.value == 4:
 				level_ordering.remove(5)
 				level_ordering.append(5)
-			world.push_precollected(world.create_item((item.ItemCategory.LEVEL, level_item_bits|level_ordering[0])))
+			world.push_precollected(world.create_item((item.ItemCategory.LEVEL, 64|level_ordering[0])))
 			world.needs_starting_level = False
 			for i in range(levels if world.single_quest and world.options.nnq_goal < 3 else levels - 1):
 				placed = None
-				if i < levels - 1: placed = (item.ItemCategory.LEVEL, level_item_bits|level_ordering[i + 1])
+				if i < levels - 1: placed = (item.ItemCategory.LEVEL, 64|level_ordering[i + 1])
 				world.place_item(('Bad End' if world.characters == 1 else 'Good End') if level_ordering[i] == 4 else level_names[level_ordering[i]], placed)
 	elif world.options.nnq_stage_items:
 		for i in range(levels):

@@ -19,7 +19,6 @@ class LocationCategory(Enum):
 	MANUAL = 0
 	LEVEL_CLEAR_NUINUI = 1
 	LEVEL_CLEAR_RANDOM = 2
-	LEVEL_CLEAR_NAMELESS = 3
 	BOSS_DROP = 4
 	HQ_LEVEL = 5
 	NOUSAGI = 6
@@ -123,22 +122,25 @@ location_types = [
 		for i, level in enumerate(LEVELS[:5], start=50)
 	),
 	*(
-		LocationType(category, i, prefix + 'Clear ' + level, LocationFlags.NO_LOCAL_IMMEDIATE)
+		LocationType(LocationCategory.LEVEL_CLEAR_NUINUI, i, '(Nuinui Quest) Clear ' + level, LocationFlags.NO_LOCAL_IMMEDIATE)
 		for i, level in enumerate(LEVELS)
-		for category, prefix in ((LocationCategory.LEVEL_CLEAR_NUINUI, '(Nuinui Quest) '), (LocationCategory.LEVEL_CLEAR_RANDOM, '(Random Quest) '), (LocationCategory.LEVEL_CLEAR_NAMELESS, ''))
-		if (i != 4 or category != LocationCategory.LEVEL_CLEAR_NUINUI) and (i != 6 or category != LocationCategory.LEVEL_CLEAR_RANDOM)
+		if i != 4
+	),
+	*(
+		LocationType(LocationCategory.LEVEL_CLEAR_RANDOM, i, '(Random Quest) Clear ' + level, LocationFlags.NO_LOCAL_IMMEDIATE)
+		for i, level in enumerate(LEVELS[:-1])
 	),
 	*(
 		LocationType(LocationCategory.BOSS_DROP, i, arena.fqname + ' drop' if 'boss' in arena.name else arena.fqname + ' boss drop', {
 			'Demon Lord Castle lift': LocationFlags.CN_NOEL,
 			'Demon Lord Castle turret': LocationFlags.CN_NOEL,
 			'Sky Palace secret boss': LocationFlags.CN_FLARE
-		}.get(arena.fqname, LocationFlags.NONE) | LocationFlags.NO_LOCAL_ONI)
+		}.get(arena.name, LocationFlags.NONE) | LocationFlags.NO_LOCAL_ONI)
 		for i, arena in enumerate(nnq_arenas() + prq_arenas())
 		if arena.drop != Drop.NEVER
 	),
 	*(
-		LocationType(LocationCategory.HQ_LEVEL, i, f'Holo Office floor {i} clear', LocationFlags.NO_LOCAL_KEY)
+		LocationType(LocationCategory.HQ_LEVEL, i, f'(Nuinui Quest) Holo Office floor {i} clear', LocationFlags.NO_LOCAL_KEY)
 		for i in range(1, 6)
 	),
 	*(
@@ -157,27 +159,27 @@ location_types = [
 	LocationType(LocationCategory.PACHINKO, 4, 'Pachinko second-from-right target', LocationFlags.NO_TRAP),
 	LocationType(LocationCategory.PACHINKO, 5, 'Pachinko skull block'),
 	*(
-		LocationType(LocationCategory.COIN, level * 8 + i, f'Maiden Quest stage {level:0>2} {challenge}', LocationFlags.NO_LOCAL_IMMEDIATE)
+		LocationType(LocationCategory.COIN, level * 8 + i, f'(Maiden Quest) Stage {level:0>2} {challenge}', LocationFlags.NO_LOCAL_IMMEDIATE)
 		for level in range(1, 29)
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'{name} in Nuinui Quest {level} at x: {x}, y: {y}',
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'(Nuinui Quest) {name} in {level} at x: {x}, y: {y}',
 			(LocationFlags.CN_FLARE if name == 'Ghost' or i in (126,638,1150) else (LocationFlags.CN_NOEL if i == 132 else LocationFlags.NONE)) | (LocationFlags.NO_LOCAL_ONI if name == 'Heart' else LocationFlags.NONE)
 		)
 		for level, mod in zip(LEVELS, nnq_levels.level_modules)
 		for i, name, x, y in mod.enemies
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, ('Right', 'Left')[j] + ' cannon of Nuinui Quest Pirate Harbor boat' if name == 'Cannon' else f'{name} {j} of Nuinui Quest Pirate Harbor pre-final-boss enemies')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, '(Nuinui Quest) ' + ('Right', 'Left')[j] + ' cannon of Pirate Harbor boat' if name == 'Cannon' else f'(Nuinui Quest) {name} {j} of Pirate Harbor pre-final-boss enemies')
 		for i, (name, j) in enumerate(pre_marine_enemies)
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'{name} {j} of enemy wave {wave} on Nuinui Quest Demon Lord Castle final bridge' if j else f'{name} of enemy wave {wave} on Nuinui Quest Demon Lord Castle final bridge')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'(Nuinui Quest) {name} {j} of enemy wave {wave} on Demon Lord Castle final bridge' if j else f'(Nuinui Quest) {name} of enemy wave {wave} on Demon Lord Castle final bridge')
 		for i, (name, wave, j) in enumerate(pre_miko_enemies)
 	),
 	*(
-		LocationType(LocationCategory.SANITY_RANDOM, i, f'{name} in Random Quest {level} at x: {x}, y: {y}')
+		LocationType(LocationCategory.SANITY_RANDOM, i, f'(Random Quest) {name} in {level} at x: {x}, y: {y}')
 		for level, objects in zip(LEVELS, prq_enemy_data)
 		for i, name, x, y in objects
 	)

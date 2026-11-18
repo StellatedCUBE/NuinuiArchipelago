@@ -55,9 +55,9 @@ class ItemType:
 
 item_types = [
 	*(
-		ItemType(ItemCategory.LEVEL, i|m, prefix + level, ItemClassification.progression)
+		ItemType(ItemCategory.LEVEL, i|m, level + suffix, ItemClassification.progression)
 		for i, level in enumerate(LEVELS)
-		for m, prefix in ((64, '(Nuinui Quest) '), (128, '(Random Quest) '), (64|128, ''))
+		for m, suffix in ((64, ' (Nuinui Quest)'), (128, ' (Random Quest)'))
 	),
 
 	*(
@@ -104,7 +104,7 @@ item_types = [
 	
 	ItemType(ItemCategory.NOUSAGI, 0, 'Nousagi', ItemClassification.filler),
 
-	ItemType(ItemCategory.ALT_PALETTE, 0, 'Colour Palette Swap', ItemClassification.trap, True),
+	ItemType(ItemCategory.ALT_PALETTE, 0, 'Palette Swap', ItemClassification.trap, True),
 	
 	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 0, 'Progressive Nuinui Quest Stage', ItemClassification.progression),
 	ItemType(ItemCategory.LEVEL_PROGRESSIVE, 1, 'Progressive Maiden Quest Stage', ItemClassification.progression),

@@ -314,8 +314,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 					self.archipelagoState.scout((6 << 16) | (stageIndex << 2) | i);
 			}
 
-			self.archipelagoState.scout(self.archipelagoState.levelEndCheckA = ((1 + (this.currentQuest === 'random')) << 16) | stageIndex);
-			self.archipelagoState.scout(self.archipelagoState.levelEndCheckB = (3 << 16) | stageIndex);
+			self.archipelagoState.scout(self.archipelagoState.end = ((1 + (this.currentQuest === 'random')) << 16) | stageIndex);
 		}
 	}
 });

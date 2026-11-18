@@ -9,9 +9,8 @@ function wrap(inner) {
 	return (game, event) => {
 		if (self.archipelagoState) {
 			if (event.timelineFrame === 1) {
-				self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
-				self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
-				if (game.scene.finalTime <= 300000 && game.currentQuest === 'nuinui') self.archipelagoState.check(50 + (7 & self.archipelagoState.levelEndCheckA));
+				self.archipelagoState.check(self.archipelagoState.end);
+				if (game.scene.finalTime <= 300000 && game.currentQuest === 'nuinui') self.archipelagoState.check(50 + (7 & self.archipelagoState.end));
 				if (game.scene.achievement11) self.archipelagoState.check(37);
 				if (game.scene.achievement5) self.archipelagoState.check(45);
 			} else if (event.timelineFrame === 180) {
@@ -184,8 +183,7 @@ export function patchEvents() {
 	patchCondition(NUINUI_HOLO_HQ_EVENTS['2_1'][0], _ => !archipelagoState.slotData.br);
 	prefix(NUINUI_HOLO_HQ_EVENTS['6_0'][0], -1, (game, event) => {
 		if (!event.timelineFrame) {
-			self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
-			self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
+			self.archipelagoState.check(self.archipelagoState.end);
 			if (game.scene.achievement23) self.archipelagoState.check(40);
 			if (game.scene.achievement24) self.archipelagoState.check(41);
 		} else if (event.timelineFrame === 179) {
@@ -217,8 +215,7 @@ export function patchEvents() {
 
 	prefix(NUINUI_HEAVEN_EVENTS['0_0'][0], -1, (_, event) => {
 		if (!event.timelineFrame) {
-			self.archipelagoState.check(self.archipelagoState.levelEndCheckA);
-			self.archipelagoState.check(self.archipelagoState.levelEndCheckB);
+			self.archipelagoState.check(self.archipelagoState.end);
 		}
 	});
 	prefix(NUINUI_HEAVEN_EVENTS['0_1'][1], 4, (game, event) => event.timelineFrame === 359 && creditsMenu(game, event));
@@ -247,8 +244,7 @@ export function patchEvents() {
 	prefix(RANDOM_HOLO_HQ_EVENTS['0_0'][2], -2, creditsMenu);
 	prefix(RANDOM_HOLO_HQ_EVENTS['0_0'][2], -4, (_, event) => {
 		if (!event.timelineFrame) {
-			archipelagoState.check(archipelagoState.levelEndCheckA);
-			archipelagoState.check(archipelagoState.levelEndCheckB);
+			archipelagoState.check(archipelagoState.end);
 		}
 	});
 

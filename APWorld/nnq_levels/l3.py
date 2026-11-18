@@ -2,7 +2,7 @@ from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
 	r_0_1920=w.create_region('nnq_yamato_0_1920')
-	w.base_region.connect(r_0_1920,rule=HasAny(I.get_item((I.ItemCategory.LEVEL,67)).name,I.get_item((I.ItemCategory.LEVEL,195)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,4))
+	w.base_region.connect(r_0_1920,rule=Has(I.get_item((I.ItemCategory.LEVEL,67)).name)|Has(I.get_item((I.ItemCategory.LEVEL_PROGRESSIVE,0)).name,4))
 	r_320_1152=w.create_region('nnq_yamato_320_1152')
 	r_640_1728=w.create_region('nnq_yamato_640_1728')
 	w.add_location(2,r_640_1728)
@@ -49,7 +49,7 @@ def create_locations(w,I,L,D):
 	r_4800_0.connect(r_5120_0,rule=lambda s:(s.has(D.SHOTS[5],p)))
 	r_0_384.connect(r_320_576)
 	r_3200_0.connect(r_3520_192)
-	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI if w.options.prq else L.LocationCategory.LEVEL_CLEAR_NAMELESS,3),r_4800_0)
+	w.add_location((L.LocationCategory.LEVEL_CLEAR_NUINUI,3),r_4800_0)
 	if w.options.nnq_enemysanity:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,11),r_320_1152)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,523),r_320_1152)

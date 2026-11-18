@@ -5,7 +5,7 @@ enemies = []
 def create_locations(world, item, location, data):
 	p = world.player
 	level_region = world.create_region('nnq_hq')
-	world.base_region.connect(level_region,rule = Has(item.get_item((item.ItemCategory.LEVEL,5|64)).name) | Has(item.get_item((item.ItemCategory.LEVEL,5|64|128)).name) | Has(item.get_item((item.ItemCategory.LEVEL_PROGRESSIVE,0)).name, 6))
+	world.base_region.connect(level_region,rule = Has(item.get_item((item.ItemCategory.LEVEL,5|64)).name) | Has(item.get_item((item.ItemCategory.LEVEL_PROGRESSIVE,0)).name, 6))
 
 	regions = []
 	for arena in data.MYTH:
@@ -26,4 +26,4 @@ def create_locations(world, item, location, data):
 	entrance = level_region.connect(end_region, rule = lambda state: number_of_floors(state) == 5)
 	for region in regions:
 		world.multiworld.register_indirect_condition(region, entrance)
-	world.add_location((location.LocationCategory.LEVEL_CLEAR_NUINUI if world.options.prq else location.LocationCategory.LEVEL_CLEAR_NAMELESS, 5), end_region)
+	world.add_location((location.LocationCategory.LEVEL_CLEAR_NUINUI, 5), end_region)
