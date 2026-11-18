@@ -58,6 +58,7 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMen
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
+NNM.code.insertAtStartOfScope('Overworld.draw', 'if(self.archipelagoState&&NNM.game.currentQuest==="random"){let i=131072;for(let s in NNM.game.quests.random.stages)if(this.elements[s])this.elements[s].crystalFilter=self.archipelagoState.checked(i++)}');
 NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super',
 	'if(self.archipelagoState?.slotData.ps)this.options=this.options.filter(o=>o.id!=="color_palette");this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
 	{f: g => g.config.setItem('archipelagoTracker', !g.config.getItem('archipelagoTracker'))});
