@@ -485,9 +485,10 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.1_3', 'new EvilMiko'
 NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.1_3', 'mikoBossCleared = true', 'if (game.mode === "noel") self.archipelagoState?.item(event.miko.pos.value(), "boss");');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.1_3', "game.timer && game.mode !== 'noel'", 'self.archipelagoState?.check(3);');
 NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.1_3', "'hint'", _ => {
-	if (self.archipelagoState?.pendingPopUp) {
-		game.menu = self.archipelagoState.pendingPopUp;
+	if (self.archipelagoState) {
+		game.menu = self.archipelagoState.pendingPopUp || new Item(game);
 		self.archipelagoState.pendingPopUp = null;
+		event.archipelagoAllowPopup = true;
 	}
 });
 NNM.code.insertAfterFirstMatchingLine('EvilMiko.takeHit', 'dragonBreath = ', 'if (self.archipelagoState?.arenaId === 4) this.dragonBreath = 0;');
@@ -544,6 +545,7 @@ NNM.code.insertAfterFirstMatchingLine('NUINUI_CASTLE_EVENTS.1_1', "'stage'", _ =
 		if (self.archipelagoState.pendingPopUp) {
 			game.menu = self.archipelagoState.pendingPopUp;
 			self.archipelagoState.pendingPopUp = null;
+			event.archipelagoAllowPopup = true;
 		} else {
 			game.menu = new Item(game);
 		}

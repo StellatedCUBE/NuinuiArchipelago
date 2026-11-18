@@ -336,7 +336,7 @@ export class ArchipelagoState {
 
 		const player = NNM.getPlayer();
 		
-		if (!NNM.game.menu && ((player?.playerControl && !NNM.game.scene.bossKillEffect) || (this.#forcePopup && !--this.#forcePopup && this.pendingPopUp))) {
+		if (!NNM.game.menu && ((player?.playerControl && !NNM.game.scene.bossKillEffect) || (((this.#forcePopup && !--this.#forcePopup) || NNM.game.scene.events.some(event => event.archipelagoAllowPopup)) && this.pendingPopUp))) {
 			if (this.pendingPopUp) {
 				NNM.game.menu = this.pendingPopUp;
 				this.pendingPopUp = null;
