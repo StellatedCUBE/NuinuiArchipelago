@@ -543,7 +543,7 @@ export class ArchipelagoState {
 					for (const key in NNM.game.quests.maiden.stages)
 						if (!['boat-0', 'holo_hq-1'].includes(key))
 							this.setSaveField('maiden', 'stage-' + key);
-				msg = [loc(Object.keys(this.slotData.boss).length < 2 ? 'archipelago_stage_mmq' : 'archipelago_stage_noq_mmq', `${sub_id}`.padStart(2, 0))];
+				msg = [loc(Object.keys(this.slotData.boss).length < 2 ? 'archipelago_stage_noq_mmq' : 'archipelago_stage_mmq', `${sub_id}`.padStart(2, 0))];
 				if (!local && !item.essence)
 					msg.push(loc('archipelago_source', item.sender.name));
 				this.popup(new PopUpMenu(NNM.game, null, msg, 'archipelago', item.essence ? getIcon(9 << 8) : [NNM.game.assets.images.sp_marine_anchor, [0, 0, 20, 20]]));
