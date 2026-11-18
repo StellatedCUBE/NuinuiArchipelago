@@ -270,7 +270,7 @@ class FNNQWorld(World):
 			br = (self.options.randomise_backgrounds.value - 1) | (self.random.randrange(1 << 30) << 1) if self.options.randomise_backgrounds else 0,
 			oob = self.options.prq_allow_oob.value,
 			help = +any(item is help_item for item in self.items),
-			ps = +any(item is ps_item for item in self.items),
+			ps = self.options.randomise_backgrounds.value or +any(item is ps_item for item in self.items),
 			c = self.characters,
 			t = self.options.trap_intensity.value,
 			v = 'sC(b'

@@ -58,7 +58,8 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.update', 'if (this.previousMen
 NNM.code.insertBeforeFirstMatchingLine('StageSelect.constructor', 'this.cursorPos', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(game.currentStage));');
 NNM.code.insertAfterFirstMatchingLine('StageSelect.update', 'this.stageIndex = ', 'if (self.archipelagoState) this.stageIndex = Math.max(0, this.stages.map(s => s.stageId).indexOf(this.nextStage));');
 NNM.code.insertAtEndOfScope('StageSelect.drawOptions', 'this.nextStage || self.archipelagoState?.drawItemAvailability(game, cx, game.currentQuest, false, this.stages[this.stageIndex].index === 6);');
-NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super', 'self.archipelagoState&&(this.options=this.options.filter(o=>o.id!=="color_palette"));this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
+NNM.code.insertAfterFirstMatchingLine('VideoMenu.constructor', 'super',
+	'if(self.archipelagoState?.slotData.ps)this.options=this.options.filter(o=>o.id!=="color_palette");this.options.push({id:"archipelago_tracker",configId:"archipelagoTracker",func:f,func2:f})',
 	{f: g => g.config.setItem('archipelagoTracker', !g.config.getItem('archipelagoTracker'))});
 NNM.code.insertAtStartOfScope('Game.start', "d(this,'archipelagoTracker',!0);d(this,'archipelagoId')",
 	{d: (g, f, d) => g.config.getItem(f) ?? g.config.setItem(f, d ?? q())});
@@ -318,7 +319,7 @@ NNM.code.insertAtStartOfScope('Game.setStage', function() {
 	}
 });
 NNM.code.insertAtEndOfScope('StageSelect.confirm', 'if (self.archipelagoState && this.nextStage === "falls") game.scene.setFromMenu = true;');
-NNM.code.insertAfterFirstMatchingLine('Scene.update', 'this.isAltColor = ', 'if (self.archipelagoState && !this.altColorLocked) this.isAltColor = self.archipelagoState.palette ^ (game.currentQuest === "random");');
+NNM.code.insertAfterFirstMatchingLine('Scene.update', 'this.isAltColor = ', 'if (self.archipelagoState?.slotData.ps && !this.altColorLocked) this.isAltColor = self.archipelagoState.palette ^ (game.currentQuest === "random");');
 NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.scene.actors.push(arrow)', 'if (self.archipelagoState && !self.archipelagoState.hasGun && this.weapon === "gun" && !keyChargeAttack) this.__archipelagoGunBlock = this.frameCount; else');
 NNM.code.insertBeforeFirstMatchingLine('Flare.update', 'game.playSound(this.jetski || this.moto ? "pew"', 'if (this.__archipelagoGunBlock !== this.frameCount) {');
 NNM.code.insertAfterFirstMatchingLine('Flare.update', 'this.animationFrameGun = 0', '} else this.attackBuffer = true;');

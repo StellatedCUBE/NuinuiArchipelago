@@ -664,6 +664,7 @@ export class ArchipelagoState {
 				if (inGame && !NNM.game.scene.altColorLocked && !NNM.game.menu) {
 					NNM.game.playSound('no_damage');
 					NNM.game.scene.shakeBuffer = 12;
+					if (!this.slotData.ps) NNM.game.config.setItem('altColor', !NNM.game.config.getItem('altColor'))
 				}
 			break;
 

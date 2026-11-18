@@ -207,7 +207,7 @@ export function randomiseBGs(seed, mode) {
 				do rPool = (
 					area === 'kiara' && needsRoof(archipelagoState.slotData.boss.nnq?.[13]) ? cPool.filter(bg => ['kiara', 'hub'].includes(bg.baseName)) :
 					area === 'port' && quest === 'nuinui' ? cPool.filter(bg => !['kiara', 'water'].includes(bg.baseName)) :
-					['water', 'ina', 'kiara', 'mori'].includes(area) && quest === 'nuinui' ? cPool :
+					{nuinui: ['water', 'ina', 'kiara', 'mori'], maiden: ['port-2', 'port-4', 'casino-2', 'falls-2', 'heaven-2', 'heaven-4', 'holo_hq-1'], random: ['holo_hq']}[quest]?.includes(area) ? cPool :
 					cPool.filter(bg => bg.baseName !== 'kiara')
 				);
 				while (!rPool.length && (cPool = pool));
