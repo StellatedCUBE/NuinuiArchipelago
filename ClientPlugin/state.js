@@ -410,12 +410,13 @@ export class ArchipelagoState {
 
 		if (!NNM.game.menu && player.playerControl && this.#pendingEnemies.length) {
 			const enemy = this.#pendingEnemies.at(-1), d = player.dir ^ (random() < .8), col = NNM.game.scene.collisions;
+			const land = enemy instanceof Nousakumo || enemy instanceof Mikobell || enemy instanceof Bibi;
 			enemy.pos = player.pos.plus({ x: (random() * 72 + 16) * (d ? -1 : 1) + (d ? -enemy.size.x : 16), y: -enemy.size.y });
-			if (CollisionBox.includedIn(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length) {
+			if (CollisionBox.includedIn(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length && !(land && player.jetski)) {
 				NNM.game.scene.actors.push(enemy);
 				this.#pendingEnemies.pop();
 				do enemy.pos.y -= 8;
-				while (CollisionBox.intersects(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length && (enemy.pos.y > player.pos.y - 64 || enemy instanceof Nousakumo || enemy instanceof Mikobell || enemy instanceof Bibi));
+				while (CollisionBox.intersects(enemy, NNM.game.scene.view) && !CollisionBox.intersectCollisions(enemy, col).length && (enemy.pos.y > player.pos.y - 64 || land));
 				enemy.pos.y += 8;
 				this.#particleBurst(enemy);
 			}
