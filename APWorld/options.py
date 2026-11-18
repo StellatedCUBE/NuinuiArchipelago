@@ -44,7 +44,8 @@ class MusicRando(Toggle):
 	display_name = "Randomise Music"
 
 class BGRando(Choice):
-	"""Randomises the backgrounds. “Shuffle” mode just swaps them around, while “Randomise” mixes and matches various layers and palettes to make new backgrounds."""
+	"""Shuffles stage backgrounds."""
+	#"""Randomises the backgrounds. “Shuffle” mode just swaps them around, while “Randomise” mixes and matches various layers and palettes to make new backgrounds."""
 	display_name = "Randomise Backgrounds"
 	option_false = 0
 	option_shuffle = 1
@@ -52,7 +53,7 @@ class BGRando(Choice):
 	
 	@classmethod
 	def get_option_name(cls, id_):
-		return "No" if id_ == 4 else super(BGRando, cls).get_option_name(id_)
+		return super(BGRando, cls).get_option_name(id_) if id_ else 'No'
 
 class SFXRando(Toggle):
 	"""Shuffles all sound effects in the game. Very much a gimmick option."""
@@ -65,7 +66,7 @@ class TrapIntensity(Range):
 	range_start = 0
 	range_end = 10
 
-class NNQ(DefaultOnToggle):
+class NNQ(Toggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
 
