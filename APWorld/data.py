@@ -1,6 +1,6 @@
 GAME = 'FLARE NUINUI QUEST'
 LEVELS = ('Crystal Falls', 'Underworld Casino', 'Pirate Harbor', 'Yamato', 'Demon Lord Castle', 'Holo Office', 'Sky Palace')
-SHOTS = ('fire shot', 'Peko rockets', 'sakura shot', "Marine's cutlass", 'ice shield', "dual swords")
+SHOTS = ('Fire Shot', 'Peko Rockets', 'Sakura Shot', "Marine's Cutlass", 'Ice Shield', "Dual Swords")
 MYTH = ('Kiara', 'Mori', 'Gura', 'Ina', 'Ame')
 ESSENCE = 13
 ENEMY_TRAPS = ('Nousabot', 'Dokuro-kun', 'Spirit', 'Nousakumo', 'Mikobell', 'Oni', 'Smol Towa', 'Smol Kanata', 'Gawr', 'Bibi')
