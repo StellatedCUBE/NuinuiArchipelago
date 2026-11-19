@@ -5,8 +5,8 @@ from rule_builder.rules import CanReachRegion, True_
 
 from .data import GAME, ENEMY_TRAPS, FEAT_NNQ_BOSS_DEFEAT, FEAT_PRQ_LEVEL_CLEAR, FEAT_NNQ_GOOD_END, FEAT_MMQ_COIN, FEAT_NNQ_LEVEL_CLEAR, OOL_ITEM
 from .options import FNNQOptions, fnnq_option_groups
-from .item import item_name_to_id, get_item, ItemCategory, FNNQItem
-from .location import location_name_to_id, get_location, LocationCategory
+from .item import item_name_to_id, item_name_groups, get_item, ItemCategory, FNNQItem
+from .location import location_name_to_id, location_name_groups, get_location, LocationCategory
 from .nnq import nnq
 from .prq import prq
 from .mmq import mmq
@@ -34,7 +34,9 @@ class FNNQWorld(World):
 	web = FNNQWebWorld()
 	options_dataclass = FNNQOptions
 	location_name_to_id = location_name_to_id
+	location_name_groups = location_name_groups
 	item_name_to_id = item_name_to_id
+	item_name_groups = item_name_groups
 	glitches_item_name = OOL_ITEM
 	ut_can_gen_without_yaml = True
 

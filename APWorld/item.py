@@ -148,5 +148,42 @@ def get_item(x, require_valid=True):
 item_name_to_id = {
 	i.name: i.id
 	for i in item_types
-	if i.id != 390
 }
+
+item_name_groups = {}
+
+def add_item_to_group(item, group_name):
+	group = item_name_groups.get(group_name)
+	if group is None: group = item_name_groups[group_name] = set()
+	group.add(item.name)
+
+for item in item_types:
+	match item.type:
+		case ItemCategory.CRYSTALS:
+			add_item_to_group(item, 'Crystals')
+		case ItemCategory.LEVEL:
+			add_item_to_group(item, 'Stage')
+			add_item_to_group(item, 'Nuinui Quest Stage' if item.id & 64 else 'Random Quest Stage')
+			add_item_to_group(item, LEVELS[item.id & 31])
+		case ItemCategory.LEVEL_MARINE:
+			add_item_to_group(item, 'Stage')
+			add_item_to_group(item, 'Maiden Quest Stage')
+		case ItemCategory.CHARACTER if item.id & 1:
+			add_item_to_group(item, 'Noel')
+		case ItemCategory.FLARE_SHOT:
+			add_item_to_group(item, 'Flare Charge Attack')
+			add_item_to_group(item, 'Flare Weapon')
+		case ItemCategory.KEY:
+			add_item_to_group(item, 'Key')
+		case ItemCategory.HOLOX:
+			add_item_to_group(item, 'HoloX Emblem')
+			if item.id < 4: add_item_to_group(item, 'Progression HoloX Emblem')
+		case ItemCategory.BIG_CRYSTAL:
+			add_item_to_group(item, 'Big Crystal')
+		case ItemCategory.LEVEL_PROGRESSIVE:
+			add_item_to_group(item, 'Stage')
+			add_item_to_group(item, 'Maiden Quest Stage' if item.sub_id else 'Nuinui Quest Stage')
+		case ItemCategory.DUAL_PISTOLS:
+			add_item_to_group(item, 'Flare Weapon')
+		case ItemCategory.ENEMY:
+			add_item_to_group(item, 'Enemy')

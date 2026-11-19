@@ -4,13 +4,14 @@ from enum import Enum, IntFlag
 from BaseClasses import ItemClassification, Location, LocationProgressType
 
 from .data import *
-from .boss import Drop
-from . import nnq_levels
+from .boss import Drop, NQ
+from .nnq_levels import level_modules
 from .prq_enemy_data import prq_enemy_data
 from .arenas import *
 from .item import get_item, ItemCategory
 from .nnq_levels.l2 import pre_marine_enemies
 from .nnq_levels.l4 import pre_miko_enemies
+from .options import NNQAchievements
 
 class FNNQLocation(Location):
 	game = GAME
@@ -89,7 +90,7 @@ location_types = [
 	LocationType(LocationCategory.MANUAL, 4, 'Good End', LocationFlags.CN_NOEL | LocationFlags.NO_LOCAL_IMMEDIATE),
 	LocationType(LocationCategory.MANUAL, 5, 'Defeat Aqua', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_ONI),
 	LocationType(LocationCategory.MANUAL, 6, 'Defeat Noel', LocationFlags.CN_FLARE | LocationFlags.NO_LOCAL_IMMEDIATE),
-	LocationType(LocationCategory.MANUAL, 7, 'Sky Palace midboss 1 drop', LocationFlags.NO_LOCAL_ONI),
+	LocationType(LocationCategory.MANUAL, 7, NQ + 'Sky Palace midboss 1 drop', LocationFlags.NO_LOCAL_ONI),
 	LocationType(LocationCategory.MANUAL, 8, 'Win 3 times at Tsunomaki Janken'),
 	LocationType(LocationCategory.MANUAL, 9, 'Survive 1 minute in the Noel fight'),
 	*(
@@ -167,7 +168,7 @@ location_types = [
 		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'(Nuinui Quest) {name} in {level} at x: {x}, y: {y}',
 			(LocationFlags.CN_FLARE if name == 'Ghost' or i in (126,638,1150) else (LocationFlags.CN_NOEL if i == 132 else LocationFlags.NONE)) | (LocationFlags.NO_LOCAL_ONI if name == 'Heart' else LocationFlags.NONE)
 		)
-		for level, mod in zip(LEVELS, nnq_levels.level_modules)
+		for level, mod in zip(LEVELS, level_modules)
 		for i, name, x, y in mod.enemies
 	),
 	*(
@@ -203,4 +204,151 @@ location_name_to_id = {
 	for l in location_types
 }
 
-#print({l: [v for k,v in location_name_to_id.items() if 'Heart' in k and l in k]for l in LEVELS})
+location_name_groups = {}
+
+def add_location_to_group(location, group_name):
+	group = location_name_groups.get(group_name)
+	if group is None: group = location_name_groups[group_name] = set()
+	group.add(str(location))
+
+for loc in location_types:
+	match loc.type:
+		case LocationCategory.MANUAL:
+			add_location_to_group(loc, 'Nuinui Quest')
+			if 2 < loc.id < 5:
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[4])
+				add_location_to_group(loc, '(Nuinui Quest) Clear ' + LEVELS[4])
+				add_location_to_group(loc, '(Nuinui Quest) Clear stage')
+			if 5 < loc.id < 8:
+				add_location_to_group(loc, '(Nuinui Quest) Boss drop')
+			if 7 < loc.id < 10 or loc.id == 47:
+				add_location_to_group(loc, 'Achievement')
+				add_location_to_group(loc, NNQAchievements.old + ' Achievement')
+			if 9 < loc.id < 20:
+				add_location_to_group(loc, 'Key')
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[loc.id % 10])
+			if 19 < loc.id < 30:
+				add_location_to_group(loc, 'HoloX challenge')
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[loc.id % 10])
+			if 29 < loc.id < 34:
+				add_location_to_group(loc, 'Hidden Area')
+				add_location_to_group(loc, 'Achievement')
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[loc.id % 10])
+			if loc.id in (34, 39, 45):
+				add_location_to_group(loc, 'Achievement')
+				add_location_to_group(loc, NNQAchievements.misc + ' Achievement')
+			if 34 < loc.id < 39 or 42 < loc.id < 45 or loc.id == 46:
+				add_location_to_group(loc, 'Boss Fight Condition')
+				add_location_to_group(loc, 'Achievement')
+			if 39 < loc.id < 42:
+				add_location_to_group(loc, 'Only <Character>!')
+				add_location_to_group(loc, 'Achievement')
+			if 49 < loc.id < 60:
+				add_location_to_group(loc, 'Quick clear')
+				add_location_to_group(loc, 'Achievement')
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[loc.id % 10])
+			if loc.id in (8, 34, 36, 42):
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[0])
+			if loc.id in (1, 45):
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[1])
+			if loc.id in (5, 37):
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[2])
+			if loc.id in (2, 6, 9):
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[3])
+			if 38 < loc.id < 42:
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[5])
+			if loc.id in (7, 38, 46, 47):
+				add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[6])
+		case LocationCategory.LEVEL_CLEAR_NUINUI:
+			add_location_to_group(loc, '(Nuinui Quest) Clear stage')
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[loc.sub_id])
+		case LocationCategory.LEVEL_CLEAR_RANDOM:
+			add_location_to_group(loc, '(Random Quest) Clear stage')
+			add_location_to_group(loc, '(Random Quest) ' + LEVELS[loc.sub_id])
+		case LocationCategory.BOSS_DROP:
+			add_location_to_group(loc, loc.name.split(')')[0] + ') Boss drop')
+		case LocationCategory.HQ_LEVEL:
+			add_location_to_group(loc, '(Nuinui Quest) Boss drop')
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[5])
+			add_location_to_group(loc, LEVELS[5] + ' floor clear')
+		case LocationCategory.NOUSAGI:
+			add_location_to_group(loc, 'Nousagi')
+			add_location_to_group(loc, '(Random Quest) ' + LEVELS[loc.sub_id >> 2])
+			add_location_to_group(loc, LEVELS[loc.sub_id >> 2] + ' Nousagi')
+		case LocationCategory.SHOP:
+			add_location_to_group(loc, 'Random Quest')
+			add_location_to_group(loc, 'Pekoshop')
+		case LocationCategory.PACHINKO:
+			add_location_to_group(loc, '(Random Quest) ' + LEVELS[1])
+			add_location_to_group(loc, 'Pachinko')
+		case LocationCategory.COIN:
+			add_location_to_group(loc, 'Coin')
+			add_location_to_group(loc, f'(Maiden Quest) Stage {loc.sub_id >> 3:0>2}')
+			match loc.sub_id & 7:
+				case 0: add_location_to_group(loc, '(Maiden Quest) Clear stage')
+				case 1: add_location_to_group(loc, 'Time coin')
+				case 2: add_location_to_group(loc, 'Health coin')
+				case 3: add_location_to_group(loc, 'Coin 2')
+				case 4: add_location_to_group(loc, 'Coin 3')
+			level = loc.sub_id >> 3
+			if level < 4: add_location_to_group(loc, '(Maiden Quest) Ghost Ship')
+			elif level < 8: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[2])
+			elif level < 12: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[3])
+			elif level < 16: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[1])
+			elif level < 20: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[4])
+			elif level < 24: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[0])
+			elif level < 28: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[6])
+			else: add_location_to_group(loc, '(Maiden Quest) ' + LEVELS[5])
+		case LocationCategory.ENEMYSANITY_NUINUI:
+			level = loc.sub_id & 7
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level])
+			for i, name, x, y in level_modules[level].enemies:
+				if i == loc.sub_id:
+					if name == 'Heart':
+						add_location_to_group(loc, 'Heart')
+						if level: add_location_to_group(loc, LEVELS[level] + ' heart')
+					elif name == 'Checkpoint':
+						add_location_to_group(loc, '(Nuinui Quest) Checkpointsanity')
+						add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level] + ' checkpointsanity')
+					else:
+						add_location_to_group(loc, '(Nuinui Quest) Enemysanity')
+						add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + name)
+						add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level] + ' enemysanity')
+					break
+		case LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE:
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[2])
+			add_location_to_group(loc, '(Nuinui Quest) Enemysanity')
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[2] + ' enemysanity')
+			add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + pre_marine_enemies[loc.sub_id][0])
+		case LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE:
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[4])
+			add_location_to_group(loc, '(Nuinui Quest) Enemysanity')
+			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[4] + ' enemysanity')
+			add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + pre_miko_enemies[loc.sub_id][0])
+		case LocationCategory.SANITY_RANDOM:
+			level = loc.sub_id & 7
+			add_location_to_group(loc, '(Random Quest) ' + LEVELS[level])
+			for i, name, x, y in prq_enemy_data[level]:
+				if i == loc.sub_id:
+					if name == 'Checkpoint':
+						add_location_to_group(loc, '(Random Quest) Checkpointsanity')
+						add_location_to_group(loc, '(Random Quest) ' + LEVELS[level] + ' checkpointsanity')
+					elif name == 'Crate':
+						add_location_to_group(loc, 'Cratesanity')
+						add_location_to_group(loc, LEVELS[level] + ' cratesanity')
+					elif name == 'Crystal':
+						add_location_to_group(loc, 'Crystalsanity')
+						add_location_to_group(loc, LEVELS[level] + ' crystalsanity')
+					else:
+						add_location_to_group(loc, '(Random Quest) Enemysanity')
+						add_location_to_group(loc, '(Random Quest) Enemysanity ' + name)
+						add_location_to_group(loc, '(Random Quest) ' + LEVELS[level] + ' enemysanity')
+					break
+
+for name, group in [*location_name_groups.items(), *((n, {n}) for n, i in location_name_to_id.items() if i < 9 << 16)]:
+	if 'Quest) ' in name:
+		quest = name.split(')')[0][1:]
+		sub = name.split('Quest) ')[1]
+		for loc in group:
+			add_location_to_group(loc, quest)
+			add_location_to_group(loc, sub)
