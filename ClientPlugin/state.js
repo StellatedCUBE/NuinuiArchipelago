@@ -470,11 +470,7 @@ export class ArchipelagoState {
 				this.#dueCrystalPopup = 0;
 				this.#overheadTextPopupDelay = 60;
 			} else if (this.#dueCoinPopup && !NNM.game.menu) {
-				const particle = new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['  +' + this.#dueCoinPopup], 'center', -0.12);
-				const label = particle.labels[0];
-				const old = label.draw_en.bind(label);
-				label.draw_en = (game, cx) => old(game, cx, cx.drawImage(NNM.game.assets.images.sp_star, 24, 0, 8, 8, 0, -1, 8, 8));
-				NNM.game.scene.particles.pool.push(particle);
+				NNM.game.scene.particles.pool.push(new TextParticle(NNM.getPlayer().pos.plus({ x: 8, y: -10 }), ['$+' + this.#dueCoinPopup], 'center', -0.12));
 				NNM.game.playSound('cling2');
 				this.#dueCoinPopup = 0;
 				this.#overheadTextPopupDelay = 60;

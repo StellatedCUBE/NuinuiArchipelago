@@ -49,7 +49,23 @@ NNM.code.insertAfterFirstMatchingLine('TextElem.constructor', 'this.lang =', fun
 			.replace(/[*×]/g, 'x')
 			.replace(/[ƴɏ]/g, 'y')
 			.replace(/[ƶʐʑ]/g, 'z')
-		].map(c => FONT_EN[c] ? c : "?");
+			.replace(/₨/g, 'rs')
+			.replace(/[$¤؋฿₵₡⃃₫֏€₪₲₴₭₾₺₼₦₱£﷼⃁⃄៛₽₹⃀৳₸₮₩￦¥円￥]/gu, '$ ')
+		].map(c => c === '$' ? '$' : FONT_EN[c] ? c : "?");
+		if (chars.includes('$')) {
+			const coins = [], old = this.draw_en.bind(this);
+			for (let x = 0, i = 0; i < chars.length; i++) {
+				if (chars[i] === '$') {
+					coins.push(x);
+					chars[i] = ' ';
+					x += 4;
+				} else x += FONT_EN[chars[i]].width;
+			}
+			this.draw_en = (game, cx) => {
+				for (const c of coins) cx.drawImage(game.assets.images.sp_star, 24, 0, 8, 8, c, -1, 8, 8);
+				old(game, cx);
+			}
+		}
 	}
 });
 NNM.code.insertAtStartOfScope('TextBubble.parse_en', 'char = char.toLowerCase(); if (!FONT_EN[char] && char !== "\\n") char = "?";');
