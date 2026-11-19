@@ -9,8 +9,10 @@ from rule_builder.rules import Has
 def mmq(world):
 	p = world.player
 
-	#excluded = {*world.options.excluded_locations.value}
-	#for group in 
+	excluded = {*world.options.exclude_locations.value}
+	for group, contents in location.location_name_groups.items():
+		if group in excluded:
+			excluded |= contents
 
 	PROG_STAGE_NAME = item.get_item((item.ItemCategory.LEVEL_PROGRESSIVE, 1)).name
 
@@ -30,8 +32,7 @@ def mmq(world):
 		if world.options.mmq_stage_items and (i < 28 or world.options.mmq_goal.value):
 			if world.options.mmq_stage_shuffle:
 				world.add_item((item.ItemCategory.LEVEL_MARINE, i))
-				# HANDLE GROUPS
-				if not all(location.name in world.options.exclude_locations for location, _ in world.locations[-3:]):
+				if not all(location.name in excluded for location, _ in world.locations[-3:]):
 					world.potential_starting_levels.append(world.items[-1])
 			else:
 				world.add_item((item.ItemCategory.LEVEL_PROGRESSIVE, 1))
