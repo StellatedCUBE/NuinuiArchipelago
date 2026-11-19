@@ -853,7 +853,7 @@ export class ArchipelagoState {
 		else if (scout.receiver.game.includes('Factorio'))
 			name = name.replace(/-/g, ' ');
 		else if (local && (scout.id >> 8) === 1)
-			name = this.slotData.boss.nnq && this.slotData.boss.prq ? name.replace(' (', ' in ').replace(')', '') : name.split(' (')[0];
+			name = this.slotData.boss.nnq && this.slotData.boss.prq ? (loc < (8 << 16) ? name.replace(' (', ' in ').replace(')', '') : name) : name.split(' (')[0];
 		return {
 			name,
 			nnq: scout.receiver.game === 'FLARE NUINUI QUEST',
