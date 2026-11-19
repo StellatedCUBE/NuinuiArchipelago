@@ -402,10 +402,14 @@ export class ArchipelagoState {
 
 		if (!NNM.game.menu && this.bufferedHearts > 0) {
 			this.bufferedHearts--;
-			const heart = new Heart(player.pos.plus({ x: NNM.game.scene.boss?.isWatame ? 28 : 4 + 8 * Math.sign(NNM.game.currentStage === 'port' && this.arenaId === 4 ? -1 : Math.round(player.vel.x)), y: -16 }));
+			const heart = new Heart(player.pos.plus({ x: 4, y: -16 }));
 			NNM.game.scene.actors.push(heart);
-			if (CollisionBox.intersectCollisions(heart, NNM.game.scene.collisions).length)
+			if (CollisionBox.intersectCollisions(heart, NNM.game.scene.collisions).length) {
 				heart.pos = CollisionBox.center(player);
+			} else {
+				const old = heart.update;
+				heart.update = game => old(game, heart.pos.x = NNM.getPlayer().pos.x + 4);
+			}	
 		}
 
 		if (!NNM.game.menu && player.playerControl && this.#pendingEnemies.length) {
