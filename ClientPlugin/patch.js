@@ -190,30 +190,56 @@ NNM.code.insertBeforeFirstMatchingLine('PopUpMenu.drawOptions', "'stage'", funct
 	}
 });
 
-export function itemTextParticle(a, loc, side) {
+export function itemTextParticle(a, loc, side, silent) {
 	const scout = archipelagoState.getScout(loc);
 	if (scout) {
-		const text = scout.local ? [scout.name] : [scout.name, 'for ' + scout.target];
-		if (!side) side = a.pos.y < NNM.game.scene.currentSection.pos.y + 32 ? 'bottom' : 'top';
-		if (side === 'left' || side === 'right') {
-			archipelagoState.textParticle(
-				side === 'left' ? a.pos.x - 8 : a.pos.x + a.size.x + 8,
-				a.pos.y + a.size.y / 2,
-				text,
-				side === 'left' ? 'right' : 'left',
-				-.12
-			);
+		if (scout.local && scout.id === 2560) {
+			const b = side === 'bottom';
+			NNM.game.scene.particles.pool.push({
+				life: 0,
+				lifespan: b ? 20 : 30,
+				zIndex: 2,
+				pos: CollisionBox.center(a),
+				yVel: b || -4,
+				acc: b ? .1 : .2,
+				update: function() {
+					this.pos.y += this.yVel;
+					this.yVel += this.acc;
+					if (++this.life === this.lifespan) {
+						NNM.game.scene.particles.shine_white(a.pos, 1);
+						NNM.game.scene.particles.pool.at(-1).pos = this.pos;
+					}
+				},
+				draw: function(c, a) {
+					const p = this.pos.sub(NNM.game.scene.view.pos);
+					c.drawImage(a.images.sp_star, (this.life & 12) * 2, 0, 8, 8, p.x - 4, p.y - 4, 8, 8);
+				}
+			});
+			silent || NNM.game.playSound('cling2');
 		} else {
-			archipelagoState.textParticle(
-				a.pos.x + a.size.x / 2,
-				side === 'top' ? a.pos.y - 8 : a.pos.y + a.size.y + 8,
-				text,
-				'center',
-				side === 'top' ? -.12 : .12
-			);
+			const text = scout.local ? [scout.name] : [scout.name, 'for ' + scout.target];
+			if (!side) side = a.pos.y < NNM.game.scene.currentSection.pos.y + 32 ? 'bottom' : 'top';
+			if (side === 'left' || side === 'right') {
+				archipelagoState.textParticle(
+					side === 'left' ? a.pos.x - 8 : a.pos.x + a.size.x + 8,
+					a.pos.y + a.size.y / 2,
+					text,
+					side === 'left' ? 'right' : 'left',
+					-.12
+				);
+			} else {
+				archipelagoState.textParticle(
+					a.pos.x + a.size.x / 2,
+					side === 'top' ? a.pos.y - 8 : a.pos.y + a.size.y + 8,
+					text,
+					'center',
+					side === 'top' ? -.12 : .12
+				);
+			}
 		}
 	}
 }
+self.__AP_itemTextParticle = itemTextParticle;
 
 export function enemySanity(a, loc, nv) {
 	if (archipelagoState.checkAvailable(loc)) {
@@ -834,7 +860,7 @@ NNM.code.findReplaceAllLines('RANDOM_CASINO_EVENTS.3_2', '`bonus${this.reward}`'
 NNM.code.insertAfterFirstMatchingLine('RANDOM_CASINO_EVENTS.3_2', 'slot.collisionFrame = 16;', 'let __archipelago; {%%SCOPE_PASS%% __archipelago = self.archipelagoState && f(slot)} if (__archipelago) {} else', {f: slot => {
 	if (slot.__archipelago) {
 		archipelagoState.check(slot.__archipelago, true);
-		itemTextParticle(slot, slot.__archipelago);
+		itemTextParticle(slot, slot.__archipelago, null, true);
 		slot.__archipelago = null;
 	} else if (slot.type === 'enemy') {
 		return;
