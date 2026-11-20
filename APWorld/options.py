@@ -66,7 +66,7 @@ class TrapIntensity(Range):
 	range_start = 0
 	range_end = 10
 
-class NNQ(DefaultOnToggle):
+class NNQ(Toggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
 
