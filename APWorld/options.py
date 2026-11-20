@@ -66,7 +66,7 @@ class TrapIntensity(Range):
 	range_start = 0
 	range_end = 10
 
-class NNQ(Toggle):
+class NNQ(DefaultOnToggle):
 	"""Include Flare Nuinui Quest"""
 	display_name = "Enabled"
 
@@ -173,9 +173,8 @@ class NNQEnemySanity(Toggle):
 	"""Makes killing each enemy a location. Enemies with an unclaimed item inside will emit Archipelago-coloured particles."""
 	display_name = "Enemysanity"
 
-class PRQ(Toggle):
+class PRQ(NNQ):
 	"""Include Pekora Random Quest"""
-	display_name = "Enabled"
 
 class PRQGoal(Choice):
 	__doc__ = NNQGoal.__doc__
@@ -219,9 +218,8 @@ class PRQOoB(DefaultOnToggle):
 	"""Allow out-of-bounds skips to be performed."""
 	display_name = "Allow OoB Skips"
 
-class MMQ(Toggle):
+class MMQ(NNQ):
 	"""Include Marine Maiden Quest"""
-	display_name = "Enabled"
 
 class MMQGoal(Choice):
 	__doc__ = NNQGoal.__doc__

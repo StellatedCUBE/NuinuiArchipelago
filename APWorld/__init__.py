@@ -68,7 +68,7 @@ class FNNQWorld(World):
 			pool = []
 			if self.options.mmq: pool.append(ItemCategory.COIN)
 			if self.options.prq: pool.append((ItemCategory.CRYSTALS, 1))
-			if pool: return self.random.choice(pool).name
+			if pool: return get_item(self.random.choice(pool)).name
 			else: return 'Heart'
 		if self.random.random() * 20 < self.options.trap_intensity.value and not self.restricted_items:
 			trap = self.random.choice(ENEMY_TRAPS)
