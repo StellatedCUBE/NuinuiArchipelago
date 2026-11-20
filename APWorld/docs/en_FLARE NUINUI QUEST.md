@@ -44,3 +44,8 @@ Optionally, level access and idol essence can be made into items.
 ## What about Noel Nuinui Quest?
 
 It simply doesn't have enough unique content to be worth it. If you really want the Noel Nuinui Quest experience, set “Starting Character” to Noel and disable “Include Other Character”.
+
+## Why are there silver coins on the Maiden Quest stage select screen?
+
+A silver coin means the check has been collected (via `!collect` or `/send\_location`) but that you have not achieved it yourself.
+You will get no item for doing it, but it may still be necessary for your goal.
