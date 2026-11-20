@@ -1,3 +1,4 @@
+regions=["first climb","path after first climb","windy climb","midboss 1","climb up bridges","windy path","midboss 2","stairs","rooftops","climb under fire","rough ground before boss","shelter before boss"]
 from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
@@ -80,4 +81,4 @@ def create_locations(w,I,L,D):
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,75),r_1280_192)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,587),r_1280_192)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,115),r_4160_0)
-enemies=[(11,"Spirit",33,108),(523,"Miteiru",36,101),(1051,"Spirit",57,98),(2075,"Spirit",78,97),(35,"Cannon",91,98),(547,"Cannon",83,78),(43,"Checkpoint",62,66),(555,"Checkpoint",28,66),(51,"Miteiru",6,62),(563,"Miteiru",2,50),(1075,"Miteiru",15,42),(1587,"Miteiru",11,26),(67,"Flying oni",45,25),(75,"Checkpoint",90,32),(587,"Checkpoint",109,32),(83,"Miteiru",135,24),(603,"Spirit",155,24),(1627,"Spirit",171,24),(99,"Cannon",197,29),(611,"Cannon",198,21),(1123,"Cannon",196,17),(1635,"Cannon",181,10),(2147,"Cannon",194,8),(107,"Flying oni",225,0),(619,"Spirit",220,0),(1131,"Spirit",230,0),(1643,"Spirit",240,0),(115,"Checkpoint",270,8)]
+enemies=[(11,"spirit",0),(523,"Miteiru",0),(1051,"spirit",1),(2075,"spirit",1),(35,"cannon",2),(547,"cannon",2),(43,"checkpoint",3),(555,"checkpoint",3),(51,"Miteiru",4),(563,"Miteiru",4),(1075,"Miteiru",4),(1587,"Miteiru",4),(67,"oni",5),(75,"checkpoint",6),(587,"checkpoint",6),(83,"Miteiru",7),(603,"spirit",8),(1627,"spirit",8),(99,"cannon",9),(611,"cannon",9),(1123,"cannon",9),(1635,"cannon",9),(2147,"cannon",9),(107,"oni",10),(619,"spirit",10),(1131,"spirit",10),(1643,"spirit",10),(115,"checkpoint",11)]

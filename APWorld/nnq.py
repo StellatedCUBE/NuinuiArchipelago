@@ -61,7 +61,7 @@ def nnq(world):
 			level_items.append(world.items[-1])
 		level_modules[i].create_locations(world, item, location, data)
 		if world.options.nnq_enemysanity:
-			heart_entries += sum(name != 'Heart' for _, name, x, y in level_modules[i].enemies)
+			heart_entries += sum(name != 'heart' for _, name, __ in level_modules[i].enemies)
 	
 	world.filler.append((item.ItemCategory.HEART, heart_entries))
 	world.filler.append((item.ItemCategory.HELP, 4))

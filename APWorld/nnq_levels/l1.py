@@ -1,3 +1,4 @@
+regions=["lobby","first climb","climb before midboss","room before midboss","descent after midboss","switch puzzle room","outdoor enemy area","hut before boss","Shion's dead end"]
 from rule_builder.rules import Has,HasAny
 def create_locations(w,I,L,D):
 	p=w.player
@@ -71,4 +72,4 @@ def create_locations(w,I,L,D):
 	if w.options.nnq_heart_checks:
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,3113),r_1920_0)
 		w.add_location((L.LocationCategory.ENEMYSANITY_NUINUI,129),r_4160_0)
-enemies=[(17,"Mikobell",68,55),(529,"Mikobell",70.5,55),(1049,"Robot",84,50),(1561,"Casino chip",92,50),(2073,"Casino chip",86,45),(2585,"Casino chip",82,41),(3097,"Casino chip",85,28),(2089,"Casino chip",132,24),(2601,"Casino chip",121,20),(3113,"Heart",137,21),(49,"Checkpoint",146.5,4),(65,"Checkpoint",209,8),(577,"Robot",217,16),(1089,"Robot",213,32),(1601,"Nousabot",216.5,19),(73,"Casino chip",176,16),(585,"Mikobell",189,15),(1097,"Casino chip",163,16),(1609,"Robot",183,31),(81,"Mikobell",231,31),(593,"Mikobell",239,27),(1105,"Nousabot",245,24),(1617,"Nousabot",241.5,30),(89,"Checkpoint",269.5,31),(129,"Heart",270,8)]
+enemies=[(17,"Mikobell",0),(529,"Mikobell",0),(1049,"robot",1),(1561,"casino chip",1),(2073,"casino chip",1),(2585,"casino chip",1),(3097,"casino chip",1),(2089,"casino chip",2),(2601,"casino chip",2),(3113,"heart",2),(49,"checkpoint",3),(65,"checkpoint",4),(577,"robot",4),(1089,"robot",4),(1601,"Nousabot",4),(73,"casino chip",5),(585,"Mikobell",5),(1097,"casino chip",5),(1609,"robot",5),(81,"Mikobell",6),(593,"Mikobell",6),(1105,"Nousabot",6),(1617,"Nousabot",6),(89,"checkpoint",7),(129,"heart",8)]

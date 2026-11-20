@@ -6,7 +6,7 @@ from BaseClasses import ItemClassification, Location, LocationProgressType
 from .data import *
 from .boss import Drop, NQ
 from .nnq_levels import level_modules
-from .prq_enemy_data import prq_enemy_data
+from .prq_enemy_data import prq_enemy_data, prq_regions
 from .arenas import *
 from .item import get_item, ItemCategory
 from .nnq_levels.l2 import pre_marine_enemies
@@ -165,24 +165,39 @@ location_types = [
 		for i, challenge in enumerate(('clear', 'time coin', 'health coin', '2 coins', '3 coins'))
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, f'(Nuinui Quest) {name} in {level} at x: {x}, y: {y}',
-			(LocationFlags.CN_FLARE if name == 'Ghost' or i in (126,638,1150) else (LocationFlags.CN_NOEL if i == 132 else LocationFlags.NONE)) | (LocationFlags.NO_LOCAL_ONI if name == 'Heart' else LocationFlags.NONE)
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI, i, #f'(Nuinui Quest) {name} in {level} at x: {x}, y: {y}',
+			(
+				(
+					(
+						f'(Nuinui Quest) {level} checkpoint before {mod.regions[region]}'
+						if any(name == n and region == r and i < j for j, n, r in mod.enemies) else
+						f'(Nuinui Quest) {level} checkpoint after {mod.regions[region]}'
+					) if name == 'checkpoint' else
+					f'(Nuinui Quest) {level} {mod.regions[region]} {name} {sum(name == n and region == r and i >= j for j, n, r in mod.enemies)}'
+				) if any(name == n and region == r and i != j for j, n, r in mod.enemies) else
+				f'(Nuinui Quest) {level} {mod.regions[region]} {name}'
+			),
+			(LocationFlags.CN_FLARE if name == 'ghost' or i in (126,638,1150) else (LocationFlags.CN_NOEL if i == 132 else LocationFlags.NONE)) | (LocationFlags.NO_LOCAL_ONI if name == 'heart' else LocationFlags.NONE)
 		)
 		for level, mod in zip(LEVELS, level_modules)
-		for i, name, x, y in mod.enemies
+		for i, name, region in mod.enemies
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, '(Nuinui Quest) ' + ('Right', 'Left')[j] + ' cannon of Pirate Harbor boat' if name == 'Cannon' else f'(Nuinui Quest) {name} {j} of Pirate Harbor pre-final-boss enemies')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE, i, '(Nuinui Quest) ' + LEVELS[2] + ' boat ' + ('right', 'left')[j] + ' cannon' if name == 'cannon' else f'(Nuinui Quest) {LEVELS[2]} pre-final-boss {name} {j}')
 		for i, (name, j) in enumerate(pre_marine_enemies)
 	),
 	*(
-		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'(Nuinui Quest) {name} {j} of enemy wave {wave} on Demon Lord Castle final bridge' if j else f'(Nuinui Quest) {name} of enemy wave {wave} on Demon Lord Castle final bridge')
+		LocationType(LocationCategory.ENEMYSANITY_NUINUI_CASTLE_BOSS_PRELUDE, i, f'(Nuinui Quest) {LEVELS[4]} final bridge wave {wave} {name} {j}' if j else f'(Nuinui Quest) {LEVELS[4]} final bridge wave {wave} {name}')
 		for i, (name, wave, j) in enumerate(pre_miko_enemies)
 	),
 	*(
-		LocationType(LocationCategory.SANITY_RANDOM, i, f'(Random Quest) {name} in {level} at x: {x}, y: {y}')
+		LocationType(LocationCategory.SANITY_RANDOM, i, (
+			f'(Random Quest) {level} {prq_regions[region]} {name} {sum(name == n and region == r and i >= j for j, n, r, _ in objects)}'
+			if any(name == n and region == r and i != j for j, n, r, _ in objects) else
+			f'(Random Quest) {level} {prq_regions[region]} {name}'
+		))
 		for level, objects in zip(LEVELS, prq_enemy_data)
-		for i, name, x, y in objects
+		for i, name, region, y in objects
 	)
 ]
 
@@ -302,17 +317,17 @@ for loc in location_types:
 		case LocationCategory.ENEMYSANITY_NUINUI:
 			level = loc.sub_id & 7
 			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level])
-			for i, name, x, y in level_modules[level].enemies:
+			for i, name, _ in level_modules[level].enemies:
 				if i == loc.sub_id:
-					if name == 'Heart':
+					if name == 'heart':
 						add_location_to_group(loc, 'Heart')
 						if level: add_location_to_group(loc, LEVELS[level] + ' heart')
-					elif name == 'Checkpoint':
+					elif name == 'checkpoint':
 						add_location_to_group(loc, '(Nuinui Quest) Checkpointsanity')
 						add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level] + ' checkpointsanity')
 					else:
 						add_location_to_group(loc, '(Nuinui Quest) Enemysanity')
-						add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + name)
+						add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + name.replace('axe ', 'sword '))
 						add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[level] + ' enemysanity')
 					break
 		case LocationCategory.ENEMYSANITY_NUINUI_PORT_BOSS_PRELUDE:
@@ -324,24 +339,24 @@ for loc in location_types:
 			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[4])
 			add_location_to_group(loc, '(Nuinui Quest) Enemysanity')
 			add_location_to_group(loc, '(Nuinui Quest) ' + LEVELS[4] + ' enemysanity')
-			add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + pre_miko_enemies[loc.sub_id][0])
+			add_location_to_group(loc, '(Nuinui Quest) Enemysanity ' + pre_miko_enemies[loc.sub_id][0].replace('axe ', 'sword '))
 		case LocationCategory.SANITY_RANDOM:
 			level = loc.sub_id & 7
 			add_location_to_group(loc, '(Random Quest) ' + LEVELS[level])
 			for i, name, x, y in prq_enemy_data[level]:
 				if i == loc.sub_id:
-					if name == 'Checkpoint':
+					if name == 'checkpoint':
 						add_location_to_group(loc, '(Random Quest) Checkpointsanity')
 						add_location_to_group(loc, '(Random Quest) ' + LEVELS[level] + ' checkpointsanity')
-					elif name == 'Crate':
+					elif name == 'crate':
 						add_location_to_group(loc, 'Cratesanity')
 						add_location_to_group(loc, LEVELS[level] + ' cratesanity')
-					elif name == 'Crystal':
+					elif name == 'crystal':
 						add_location_to_group(loc, 'Crystalsanity')
 						add_location_to_group(loc, LEVELS[level] + ' crystalsanity')
 					else:
 						add_location_to_group(loc, '(Random Quest) Enemysanity')
-						add_location_to_group(loc, '(Random Quest) Enemysanity ' + name)
+						add_location_to_group(loc, '(Random Quest) Enemysanity ' + name.replace('axe ', 'sword '))
 						add_location_to_group(loc, '(Random Quest) ' + LEVELS[level] + ' enemysanity')
 					break
 

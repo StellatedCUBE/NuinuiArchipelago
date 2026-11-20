@@ -74,8 +74,8 @@ def prq(world):
 				world.add_location((location.LocationCategory.NOUSAGI, i * 4 + j), region2 if i == 1 and j == 3 else region, (lambda state: state.has(bomb, p)) if (i, j) in ((1, 3), (3, 3)) else None)
 
 			for l, type_, _, y in prq_enemy_data[i]:
-				if world.options.prq_crystalsanity if type_ == 'Crystal' else (world.options.prq_cratesanity if type_ == 'Crate' else (world.options.prq_checkpointsanity if type_ == 'Checkpoint' else world.options.prq_enemysanity)):
-					world.add_location((location.LocationCategory.SANITY_RANDOM, l), region2 if i == 1 and y > 36 else region)
+				if world.options.prq_crystalsanity if type_ == 'crystal' else (world.options.prq_cratesanity if type_ == 'crate' else (world.options.prq_checkpointsanity if type_ == 'checkpoint' else world.options.prq_enemysanity)):
+					world.add_location((location.LocationCategory.SANITY_RANDOM, l), region2 if i == 1 and y > 2 else region)
 			
 			world.add_location((location.LocationCategory.LEVEL_CLEAR_RANDOM, i), region2 if i == 1 else region)
 
@@ -89,13 +89,13 @@ def prq(world):
 	world.filler.append((item.ItemCategory.NOUSAGI, 15))
 
 	if world.options.prq_crystalsanity:
-		world.filler.append((8, sum(sum(type_ == 'Crystal' for _, type_, _, _ in level) for level in prq_enemy_data)))
+		world.filler.append((8, sum(sum(type_ == 'crystal' for _, type_, _, _ in level) for level in prq_enemy_data)))
 	
 	if world.options.prq_cratesanity:
-		world.filler.append((1, sum(sum(type_ == 'Crate' for _, type_, _, _ in level) for level in prq_enemy_data)))
+		world.filler.append((1, sum(sum(type_ == 'crate' for _, type_, _, _ in level) for level in prq_enemy_data)))
 	
 	if world.options.prq_enemysanity:
-		c = sum(sum(type_ not in ('Crate', 'Crystal') for _, type_, _, _ in level) for level in prq_enemy_data) // 3
+		c = sum(sum(type_ not in ('crate', 'crystal') for _, type_, _, _ in level) for level in prq_enemy_data) // 3
 		world.filler.append((item.ItemCategory.HEART, c))
 		world.filler.append((1, c))
 		world.filler.append((2, c))
