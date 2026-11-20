@@ -186,9 +186,9 @@ class FNNQWorld(World):
 		while len(self.items) > location_count:
 			filler = [item for item in self.items if ItemClassification.progression not in item.get_class(self)]
 			if not filler:
-				for location, _ in self.locations:
+				for i, (location, _) in enumerate(self.locations):
 					if location.name == "La+'s challenge":
-						self.place_item(location, ItemCategory.HEART)
+						del self.locations[i]
 						location_count -= 1
 						self.laplus = False
 						break
