@@ -138,7 +138,7 @@ class NNQCrossBoss(DefaultOnToggle):
 	"""If “Boss Shuffle” is enabled, can bosses from other quests be included in Nuinui Quest?"""
 	display_name = "Cross-quest Boss Shuffling"
 
-class NNQBossDrops(Toggle):
+class NNQBossDrops(DefaultOnToggle):
 	"""Makes all bosses drop items, even if they don't normally."""
 	display_name = "All Bosses Drop Items"
 
@@ -155,7 +155,7 @@ class NNQAchievements(OptionSet):
 	hq = 'Only Flare! / Only Noel!'
 	misc = 'Miscellaneous'
 	old = 'Old Version Exclusive'
-	default = set()
+	default = {rooms}
 	valid_keys = [
 		rooms,
 		quick,
@@ -196,7 +196,7 @@ class PRQBossPlando(NNQBossPlando):
 class PRQCrossBoss(NNQCrossBoss):
 	__doc__ = NNQCrossBoss.__doc__.replace('Nuinui', 'Random')
 
-class PRQBossDrops(Toggle):
+class PRQBossDrops(DefaultOnToggle):
 	"""Makes midbosses drop items upon defeat."""
 	display_name = "Midboss Drops"
 
