@@ -217,7 +217,6 @@ export function randomiseBGs(seed, mode) {
 			}
 		}
 	}
-	self.__AP_MAP=map;
 
 	for (const quest in stageAreas) {
 		for (const stage in stageAreas[quest]) {
@@ -232,9 +231,6 @@ export function randomiseBGs(seed, mode) {
 		}
 	}
 }
-
-self.__APRBG = randomiseBGs;
-addEventListener('keypress', e=>e.key==='1'&&randomiseBGs());
 
 let bossKill;
 

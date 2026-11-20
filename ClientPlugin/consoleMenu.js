@@ -52,7 +52,7 @@ export class ConsoleMenu extends Menu {
 					if (cmd === '/help') {
 						archipelagoState.chat.push(a1 ? '<span style="color:red">/help takes 0 arguments</span>' : '/help:\n    Display this text' +
 							(archipelagoState.notRace ? Object.values(archipelagoState.link).map(l => `\n${l.cmd} [on|off|group [group]|ungroup]:\n    Enable, disable, or change the group of ` + l.name).join('') : ''));
-					} else if (cmd === '/boss') {
+					} /*else if (cmd === '/boss') {
 						if (!a1) archipelagoState.chat.push('<span style="color:red">/boss takes 1 argument</span>')
 						let boss = a2 ? a1 + ' ' + a2 : a1;
 						boss = Object.keys(__AP_BOSS__).find(n => n.toLowerCase() === boss) || boss;
@@ -61,7 +61,7 @@ export class ConsoleMenu extends Menu {
 							for (const list of Object.values(archipelagoState.slotData.boss)) list.fill(boss);
 							archipelagoState.chat.push('Set all bosses to ' + xmlEsc(boss));
 						}
-					} else {
+					}*/ else {
 						if (archipelagoState.notRace)
 						for (const link of Object.values(archipelagoState.link)) {
 							if (link.cmd === cmd) {

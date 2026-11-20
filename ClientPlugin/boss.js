@@ -2325,8 +2325,6 @@ export function needsRoof(boss) {
 	return bosses[boss]?.timeline.includes(roof);
 }
 
-self.__AP_BOSS__ = bosses;
-
 function bossTL(boss, intro, introPre, introPost) {
 	return [...(introPre || []), (game, event) => {
 		intro(event);

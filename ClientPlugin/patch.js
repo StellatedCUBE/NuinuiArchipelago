@@ -239,7 +239,6 @@ export function itemTextParticle(a, loc, side, silent) {
 		}
 	}
 }
-self.__AP_itemTextParticle = itemTextParticle;
 
 export function enemySanity(a, loc, nv) {
 	if (archipelagoState.checkAvailable(loc)) {
