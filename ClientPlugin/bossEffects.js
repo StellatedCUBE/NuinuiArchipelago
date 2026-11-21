@@ -871,6 +871,8 @@ export class Chloe extends Actor {
 				if (game.currentQuest === 'maiden') {
 					game.updateMarineStageStars();
 					event.essencePos = this.pos.value();
+				} else {
+					NNM.getPlayer().playerControl = true;
 				}
 			} else if (!game.bgm && this.health >= this.maxHealth) {
 				game.playBGM('play_dice');
