@@ -2,7 +2,7 @@
 
 ## Required Software
 
-- Hololive Treasure Mountain from: [Steam](https://store.steampowered.com/app/3081830)
+- FLARE NUINUI QUEST from: [Steam](https://store.steampowered.com/app/3081830)
 - NuinuiMods from: [NuinuiMods releases page](https://github.com/StellatedCUBE/NuinuiMods/releases)
 - Archipelago mod for FLARE NUINUI QUEST from: [NuinuiArchipelago releases page](https://github.com/StellatedCUBE/NuinuiArchipelago/releases)
 
