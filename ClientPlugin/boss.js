@@ -1003,7 +1003,7 @@ const arenas = [
 	{
 		quest: 'mmq',
 		event: MAIDEN_HEAVEN_4_EVENTS['0_0'][1],
-		bounds: { x: 0, y: 16, w: 320, h: 128 },
+		bounds: { x: 0, y: 16, w: 320, h: 144 },
 		collision: true,
 		bossSpawnX: 14.5 * 16,
 		skip: 'Towa'
@@ -2358,7 +2358,7 @@ export function patchBosses() {
 				if (Math.sign(NNM.getPlayer().pos.x - wtx) === Math.sign(self.archipelagoState.arenaWalkTo)) {
 					NNM.game.resetCpuKeys();
 				} else {
-					NNM.game.cpuKeys[walkTo < 0 ? 'left' : 'right'] = true;
+					NNM.game.cpuKeys[self.archipelagoState.arenaWalkTo < 0 ? 'left' : 'right'] = true;
 					return;
 				}
 			}
