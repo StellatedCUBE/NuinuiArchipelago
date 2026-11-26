@@ -1600,10 +1600,15 @@ const bosses = {
 	},
 	Polka: {
 		setup: event => {
-			event.bossActor = new Polka(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 48);
-			event.bossActor.lookAt = a => event.bossActor.dir = CollisionBox.center(event.bossActor).x < a.x;
-			event.bossActor.setAnimation('idle');
-			event.bossActor.lookAt(CollisionBox.center(NNM.getPlayer()));
+			const boss = event.bossActor = new Polka(new Vector2(archipelagoState.bossSpawnX, archipelagoState.arenaB - 32), 48), fly = boss.flyPhase;
+			boss.lookAt = a => boss.dir = CollisionBox.center(boss).x < a.x;
+			boss.setAnimation('idle');
+			boss.lookAt(CollisionBox.center(NNM.getPlayer()));
+			boss.flyPhase = game => {
+				const cardPos = CollisionBox.center(boss.cardHide);
+				if (CollisionBox.center(boss).sub(cardPos).dot(boss.vel) >= 0) boss.pos = cardPos.sub(boss.size.times(.5));
+				fly(game);
+			};
 			if (archipelagoState.arenaId) archipelagoState.arenaT = Math.max(archipelagoState.arenaT, 16 + NNM.game.scene.currentSection.pos.y);
 		},
 		timeline: [
