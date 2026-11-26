@@ -461,7 +461,8 @@ export class ArchipelagoState {
 			if (
 				!this.slotData.oob &&
 				NNM.game.scene.frameCount > 5 &&
-				(player.pos.x < NNM.game.scene.currentSection.pos.x - 96 || player.pos.x > NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x + 64) && (NNM.game.currentStage !== 'yamato' || player.pos.y < -16)
+				(player.pos.x < NNM.game.scene.currentSection.pos.x - 96 || player.pos.x > NNM.game.scene.currentSection.pos.x + NNM.game.scene.currentSection.size.x + 64) &&
+				(NNM.game.currentStage !== 'yamato' || player.pos.y < -16)
 			)
 				this.incomingDeath = true;
 		}
