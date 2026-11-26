@@ -316,7 +316,7 @@ export class ArchipelagoState {
 
 		if (this.#pendingCausedEnemies.length) {
 			for (const enemy of this.#pendingCausedEnemies) {
-				enemy.pos = CollisionBox.center(enemy.archipelagoCause).plus(enemy.size.times(-.5));
+				enemy.pos = CollisionBox.center(enemy.archipelagoCause).sub(enemy.size.times(.5));
 				let xc = enemy.pos.x, xl = enemy.archipelagoCause.pos.x + enemy.archipelagoCause.size.x - enemy.size.x, col = NNM.game.scene.collisions, flag;
 				while (1) {
 					for (const x of [xc, enemy.archipelagoCause.pos.x, xl]) {

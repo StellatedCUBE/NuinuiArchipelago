@@ -65,7 +65,7 @@ export class APPickup extends Actor {
 
 	popTrap(game, scout) {
 		let enemy = archipelagoState.createTrapEnemy(scout.id & 15), col = game.scene.collisions, flag;
-		enemy.pos = CollisionBox.center(this).plus(enemy.size.times(-.5));
+		enemy.pos = CollisionBox.center(this).sub(enemy.size.times(.5));
 		while (CollisionBox.intersectCollisions(enemy, col).length)
 			enemy.pos.y -= (flag = 8);
 		game.scene.actors.push(enemy);
@@ -267,5 +267,5 @@ export class WorldText extends Actor {
 		this.text = new TextElem(NNM.game, [...text], { lang: 'en', textAlign: 'center' });
 	}
 
-	update = game => game.scene.customDraw.push(game => this.text.draw(game, game.ctx1, this.pos.plus(game.scene.view.pos.times(-1))));
+	update = game => game.scene.customDraw.push(game => this.text.draw(game, game.ctx1, this.pos.sub(game.scene.view.pos)));
 }
