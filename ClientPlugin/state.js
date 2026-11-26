@@ -45,6 +45,7 @@ export class ArchipelagoState {
 	palette = 0;
 	#gameCrystals = 0;
 	#crystalsToSend = 0;
+	#crystalSendTime = 0;
 	#dueCrystalPopup = 0;
 	#overheadTextPopupDelay;
 	#bombs = 0;
@@ -448,7 +449,7 @@ export class ArchipelagoState {
 			}
 		}
 
-		if (this.#crystalsToSend && !this.reconnecting) {
+		if (this.#crystalsToSend && !this.reconnecting && (this.#crystalSendTime < performance.now() || NNM.game.menu)) {
 			try { this.client.storage.prepare(this.keyPrefix + 'c', 0).add(this.#crystalsToSend).commit(); }
 			catch {}
 			this.#crystalsToSend = 0;
@@ -1129,6 +1130,7 @@ export class ArchipelagoState {
 	getCrystals(qty) {
 		this.#gameCrystals += qty;
 		this.#crystalsToSend += qty;
+		this.#crystalSendTime = performance.now() + 2e3;
 	}
 
 	getBgm(id) {
