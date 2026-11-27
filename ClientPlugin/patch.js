@@ -761,44 +761,41 @@ for (const scope of NNM.code.filesMatching('bowPickup.js')[0].scopes)
 NNM.code.insertAfterFirstMatchingLine('Crystal.update', 'player.crystalCount = ', 'self.archipelagoState?.getCrystals(1);');
 NNM.code.insertAtEndOfScope('ShopMenu.checkEnabled', 'if (self.archipelagoState) this.options = this.options.filter(o => o.id !== "menu_shop_bomb");');
 NNM.code.insertAtStartOfScope('ShopMenu.checkEnabled', 'if(self.archipelagoState){for(const o of this.options)if(o.archipelago_location)o.enabled=!archipelagoState.checked(o.archipelago_location);this.options.push({id:"menu_shop_bomb"})}');
-NNM.code.insertAtEndOfScope('ShopMenu.constructor', function() {
-	if (self.archipelagoState)
-	for (const option of this.options) {
-		let scout = self.archipelagoState.getScout(option.archipelago_location);
-		if (scout) {
-			option.local = scout.local;
-			if (option.local && scout.id === (17 << 8)) {
-				option.text = new LocaleElem(game, 'menu_shop_bomb', { textAlign: 'center' });
-			} else if (option.local && scout.id === 769) {
-				option.text = new LocaleElem(game, !(self.archipelagoState.nnqChars & 2) ? 'archipelago_shop_769' : 'archipelago_shop_771', { textAlign: 'center' });
-			} else if (option.local && game.assets.locales.en['archipelago_shop_' + scout.id]) {
-				option.text = new TextElem(game, [...game.assets.locales.en['archipelago_shop_' + scout.id]], { lang: 'en', textAlign: 'center' });
-			} else {
-				let name_width = 0;
-				for (const chr of scout.name)
-					name_width += FONT_EN[chr]?.width ?? 6;
-				if (name_width < 57)
-					option.text = new TextElem(game, [...scout.name], { lang: 'en', textAlign: 'center' });
-				else if (option.local)
-					option.text = new LocaleElem(game, 'archipelago_shop_local', { textAlign: 'center' });
-			}
-			option.desc = new LocaleElem(
-				game,
-				!option.local ? loc(scout.name, scout.target) :
-				scout.id === (17 << 8) ? 'archipelago_shop_bomb' :
-				scout.id === (12 << 8) ? 'archipelago_shop_gsh' :
-				scout.id === (10 << 8) ? 'archipelago_shop_coin' :
-				scout.id === (15 << 8) ? 'archipelago_shop_prog_level_nnq' :
-				scout.id === (15 << 8) + 1 ? 'archipelago_shop_prog_level_mmq' :
-				game.lang !== 'en' ? 'raw:' + scout.name :
-				([1,2,3,4].includes(scout.id >> 8) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 8) ? 'raw: get the ' : 'raw:get ') + scout.name,
-				{ textAlign: 'center' }
-			);
-			if (scout.nnq)
-				option.icon = self.archipelagoState.getIcon(scout.id);
+NNM.code.insertAtEndOfScope('ShopMenu.constructor', 'self.archipelagoState&&this.options.forEach(f)', {f: option => {
+	let scout = self.archipelagoState.getScout(option.archipelago_location);
+	if (scout) {
+		option.local = scout.local;
+		if (option.local && scout.id === (17 << 8)) {
+			option.text = new LocaleElem(NNM.game, 'menu_shop_bomb', { textAlign: 'center' });
+		} else if (option.local && scout.id === 769) {
+			option.text = new LocaleElem(NNM.game, !(self.archipelagoState.nnqChars & 2) ? 'archipelago_shop_769' : 'archipelago_shop_771', { textAlign: 'center' });
+		} else if (option.local && NNM.game.assets.locales.en['archipelago_shop_' + scout.id]) {
+			option.text = new TextElem(NNM.game, [...NNM.game.assets.locales.en['archipelago_shop_' + scout.id]], { lang: 'en', textAlign: 'center' });
+		} else {
+			let name_width = 0;
+			for (const chr of scout.name)
+				name_width += FONT_EN[chr]?.width ?? 6;
+			if (name_width < 57)
+				option.text = new TextElem(NNM.game, [...scout.name], { lang: 'en', textAlign: 'center' });
+			else if (option.local)
+				option.text = new LocaleElem(NNM.game, 'archipelago_shop_local', { textAlign: 'center' });
 		}
+		option.desc = new LocaleElem(
+			NNM.game,
+			!option.local ? loc('archipelago_shop_nonlocal', scout.name, scout.target) :
+			scout.id === (17 << 8) ? 'archipelago_shop_bomb' :
+			scout.id === (12 << 8) ? 'archipelago_shop_gsh' :
+			scout.id === (10 << 8) ? 'archipelago_shop_coin' :
+			scout.id === (15 << 8) ? 'archipelago_shop_prog_level_nnq' :
+			scout.id === (15 << 8) + 1 ? 'archipelago_shop_prog_level_mmq' :
+			NNM.game.lang !== 'en' ? 'raw:' + scout.name :
+			([1,2,3,4].includes(scout.id >> 8) ? 'raw:unlocks ' : [5,8,16].includes(scout.id >> 8) ? 'raw: get the ' : 'raw:get ') + scout.name,
+			{ textAlign: 'center' }
+		);
+		if (scout.nnq)
+			option.icon = self.archipelagoState.getIcon(scout.id);
 	}
-});
+}});
 NNM.code.insertAfterFirstMatchingLine('ShopMenu.constructor', 'super', function() {
 	if (self.archipelagoState) {
 		for (const o of this.options) {
